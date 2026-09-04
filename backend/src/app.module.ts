@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TenantModule } from './tenant/tenant.module';
+import { UserModule } from './user/user.module';
+import { AuthModule } from './auth/auth.module';
 import { Tenant } from './tenant/entities/tenant.entity';
 import { TenantConfig } from './tenant/entities/tenant-config.entity';
 import { User } from './user/entities/user.entity';
@@ -41,6 +43,8 @@ import { AuditLog } from './audit-log/entities/audit-log.entity';
       inject: [ConfigService],
     }),
     TenantModule,
+    UserModule,
+    AuthModule,
   ],
 })
 export class AppModule { }

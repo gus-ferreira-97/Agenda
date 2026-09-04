@@ -17,7 +17,7 @@ export class User {
   id: number;
 
   @Column({ type: 'int', nullable: true })
-  tenant_id: number;
+  tenant_id: number | null;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.users, { nullable: true })
   @JoinColumn({ name: 'tenant_id' })
