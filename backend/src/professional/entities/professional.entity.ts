@@ -18,10 +18,10 @@ export class Professional {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
-  tenant_id: number;
+  @Column({ type: 'int', nullable: true })
+  tenant_id: number | null;
 
-  @ManyToOne(() => Tenant, (tenant) => tenant.professionals)
+  @ManyToOne(() => Tenant, (tenant) => tenant.professionals, { nullable: true })
   @JoinColumn({ name: 'tenant_id' })
   tenant: Tenant;
 
