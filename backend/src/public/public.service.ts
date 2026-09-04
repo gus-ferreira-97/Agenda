@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, Between } from 'typeorm';
+import { Repository, Not, Between, LessThan, MoreThan } from 'typeorm';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
 import { WorkSchedule } from '../professional/entities/work-schedule.entity';
@@ -98,12 +98,15 @@ export class PublicService {
     });
 
     const freeSlots = slots.filter((slot) => {
-      const slotStart = this.timeToMinutes(slot);
-      const slotEnd = slotStart + duration;
+      // Cria a data/hora local do slot usando a string da data e o horário (assume fuso local do servidor, que deve ser o mesmo do tenant no MVP)
+      const slotStart = new Date(`${date}T${slot}:00`);
+      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+
+      // Compara com os agendamentos existentes usando timestamps (em milissegundos)
       return !appointments.some((appt) => {
-        const apptStart = appt.start_time.getUTCHours() * 60 + appt.start_time.getUTCMinutes();
-        const apptEnd = appt.end_time.getUTCHours() * 60 + appt.end_time.getUTCMinutes();
-        return slotStart < apptEnd && slotEnd > apptStart;
+        const apptStart = new Date(appt.start_time).getTime();
+        const apptEnd = new Date(appt.end_time).getTime();
+        return slotStart.getTime() < apptEnd && slotEnd.getTime() > apptStart;
       });
     });
 
@@ -113,23 +116,30 @@ export class PublicService {
   async createAppointment(dto: CreateAppointmentPublicDto): Promise<Appointment> {
     const { tenantId, professionalId, serviceId, customerName, customerContact, startTime, notes } = dto;
 
-    const dateStr = startTime.split('T')[0]; // assume formato YYYY-MM-DDTHH:mm...
-    const availableSlots = await this.getAvailableSlots(tenantId, professionalId, serviceId, dateStr);
-
     const start = new Date(startTime);
     if (isNaN(start.getTime())) {
       throw new BadRequestException('Data/hora inválida');
     }
 
-    const timeOnly = `${start.getUTCHours().toString().padStart(2, '0')}:${start.getUTCMinutes().toString().padStart(2, '0')}`;
-    if (!availableSlots.includes(timeOnly)) {
-      throw new ConflictException('Horário não disponível');
-    }
-
     const service = await this.serviceRepo.findOne({ where: { id: serviceId } });
     if (!service) throw new NotFoundException('Serviço não encontrado');
 
-    const endTime = new Date(start.getTime() + service.duration_minutes * 60000);
+    const end = new Date(start.getTime() + service.duration_minutes * 60000);
+
+    // Verifica conflito diretamente
+    const conflict = await this.appointmentRepo.findOne({
+      where: {
+        professional_id: professionalId,
+        tenant_id: tenantId,
+        status: Not('cancelled'),
+        start_time: LessThan(end),
+        end_time: MoreThan(start),
+      },
+    });
+
+    if (conflict) {
+      throw new ConflictException('Horário não disponível');
+    }
 
     const appointment = this.appointmentRepo.create({
       tenant_id: tenantId,
@@ -138,7 +148,7 @@ export class PublicService {
       customer_name: customerName,
       customer_contact: customerContact,
       start_time: start,
-      end_time: endTime,
+      end_time: end,
       status: 'pending',
       notes,
     });

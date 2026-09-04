@@ -6,7 +6,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Not, IsNull } from 'typeorm';
+import { Repository, Between, Not, IsNull, LessThan, MoreThan } from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
@@ -28,7 +28,7 @@ export class AppointmentService {
     private readonly workScheduleRepository: Repository<WorkSchedule>,
     @InjectRepository(TenantConfig)
     private readonly tenantConfigRepository: Repository<TenantConfig>,
-  ) {}
+  ) { }
 
   // ============ MÉTODOS AUXILIARES ============
 
@@ -188,26 +188,24 @@ export class AppointmentService {
     });
     if (!service) throw new NotFoundException('Serviço não encontrado no tenant');
 
-    // Converte startTime string para Date
-    const startTime = new Date(createAppointmentDto.startTime);
-    if (isNaN(startTime.getTime())) {
+    const start = new Date(createAppointmentDto.startTime);
+    if (isNaN(start.getTime())) {
       throw new BadRequestException('Data/hora de início inválida');
     }
+    const end = new Date(start.getTime() + service.duration_minutes * 60000);
 
-    const endTime = new Date(startTime.getTime() + service.duration_minutes * 60000);
-
-    // Verifica se o horário está dentro de um slot disponível
-    const dateStr = startTime.toISOString().split('T')[0];
-    const availableSlots = await this.findAvailableSlots(
-      createAppointmentDto.professionalId,
-      createAppointmentDto.serviceId,
-      dateStr,
-      user,
-    );
-
-    const timeOnly = `${startTime.getUTCHours().toString().padStart(2, '0')}:${startTime.getUTCMinutes().toString().padStart(2, '0')}`;
-    if (!availableSlots.includes(timeOnly)) {
-      throw new ConflictException('Horário não disponível para agendamento');
+    // Verifica conflito direto
+    const conflict = await this.appointmentRepository.findOne({
+      where: {
+        professional_id: createAppointmentDto.professionalId,
+        tenant_id: tenantId,
+        status: Not('cancelled'),
+        start_time: LessThan(end),
+        end_time: MoreThan(start),
+      },
+    });
+    if (conflict) {
+      throw new ConflictException('Horário não disponível');
     }
 
     const appointment = this.appointmentRepository.create({
@@ -216,8 +214,8 @@ export class AppointmentService {
       service_id: createAppointmentDto.serviceId,
       customer_name: createAppointmentDto.customerName,
       customer_contact: createAppointmentDto.customerContact,
-      start_time: startTime,
-      end_time: endTime,
+      start_time: start,
+      end_time: end,
       status: createAppointmentDto.status || 'pending',
       notes: createAppointmentDto.notes,
     });
