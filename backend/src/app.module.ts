@@ -15,12 +15,13 @@ import { Appointment } from './appointment/entities/appointment.entity';
 import { AuditLog } from './audit-log/entities/audit-log.entity';
 import { ProfessionalModule } from './professional/professional.module';
 import { ServiceModule } from './service/service.module';
+import { ProfessionalServiceModule } from './professional-service/professional-service.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, ProfessionalModule, ServiceModule],
+      imports: [ConfigModule, ProfessionalModule, ServiceModule, ProfessionalServiceModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
