@@ -27,11 +27,11 @@ export class WorkSchedule {
   @JoinColumn({ name: 'tenant_id' })
   tenant: Tenant;
 
-  @Column({ type: 'int' }) // 0 = domingo, 1 = segunda, ..., 6 = sábado
+  @Column({ type: 'int' })
   day_of_week: number;
 
   @Column({ type: 'time' })
-  start_time: string; // usar string 'HH:mm' ou tipo Time do TypeORM
+  start_time: string;
 
   @Column({ type: 'time' })
   end_time: string;

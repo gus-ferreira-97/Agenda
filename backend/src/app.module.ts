@@ -17,12 +17,13 @@ import { ProfessionalModule } from './professional/professional.module';
 import { ServiceModule } from './service/service.module';
 import { ProfessionalServiceModule } from './professional-service/professional-service.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { WorkScheduleModule } from './work-schedule/work-schedule.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule, ProfessionalModule, ServiceModule, ProfessionalServiceModule, AppointmentModule],
+      imports: [ConfigModule, ProfessionalModule, ServiceModule, ProfessionalServiceModule, AppointmentModule, WorkScheduleModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
