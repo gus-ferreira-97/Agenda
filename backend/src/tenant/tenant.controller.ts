@@ -8,6 +8,7 @@ import {
   Delete,
   ParseIntPipe,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
@@ -15,9 +16,13 @@ import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { UpdateTenantBrandingDto } from './dto/update-tenant-branding.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+
 
 @Controller('tenants')
 @UseGuards(JwtAuthGuard, RolesGuard)
+@Roles('super_admin', 'tenant_admin')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) {}
 
@@ -33,6 +38,37 @@ export class TenantController {
     return this.tenantService.findAll();
   }
 
+  @Get('me/branding')
+  @Roles('tenant_admin')
+  async getMyBranding(@CurrentUser() user: any) {
+    if (!user?.tenantId) {
+      throw new ForbiddenException('Usuário não associado a um tenant');
+    }
+    const tenant = await this.tenantService.findOne(user.tenantId);
+    return {
+      id: tenant.id,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      primaryColor: tenant.primary_color,
+      logoUrl: tenant.logo_url,
+      welcomeMessage: tenant.welcome_message,
+      phone: tenant.phone,
+      address: tenant.address,
+    };
+  }
+
+  @Patch('me/branding')
+  @Roles('tenant_admin')
+  async updateMyBranding(
+    @CurrentUser() user: any,
+    @Body() dto: UpdateTenantBrandingDto,
+  ) {
+    if (!user?.tenantId) {
+      throw new ForbiddenException('Usuário não associado a um tenant');
+    }
+    return this.tenantService.updateBranding(user.tenantId, dto);
+  }
+
   @Get(':id')
   @Roles('super_admin')
   findOne(@Param('id', ParseIntPipe) id: number) {
@@ -41,7 +77,10 @@ export class TenantController {
 
   @Patch(':id')
   @Roles('super_admin')
-  update(@Param('id', ParseIntPipe) id: number, @Body() updateTenantDto: UpdateTenantDto) {
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTenantDto: UpdateTenantDto,
+  ) {
     return this.tenantService.update(id, updateTenantDto);
   }
 

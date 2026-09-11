@@ -7,6 +7,9 @@ import { Service } from '../service/entities/service.entity';
 import { WorkSchedule } from '../professional/entities/work-schedule.entity';
 import { TenantConfig } from '../tenant/entities/tenant-config.entity';
 import { Appointment } from '../appointment/entities/appointment.entity';
+import { Tenant } from '../tenant/entities/tenant.entity';
+import { User } from '../user/entities/user.entity';
+import { ProfessionalService } from '../service/entities/professional-service.entity';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { Appointment } from '../appointment/entities/appointment.entity';
       WorkSchedule,
       TenantConfig,
       Appointment,
+      Tenant,
+      User,
+      ProfessionalService
     ]),
   ],
   controllers: [PublicController],

@@ -21,7 +21,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class ProfessionalController {
-  constructor(private readonly professionalService: ProfessionalService) {}
+  constructor(private readonly professionalService: ProfessionalService) { }
 
   @Post()
   create(@Body() createProfessionalDto: CreateProfessionalDto, @CurrentUser() user: any) {

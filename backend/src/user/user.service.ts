@@ -33,9 +33,9 @@ export class UserService {
     return result as User;
   }
 
-  async findAll(): Promise<User[]> {
-    const users = await this.userRepository.find();
-    return users.map(({ password_hash, ...user }) => user as User);
+  async findAll(): Promise<any[]> {
+    const users = await this.userRepository.find({ relations: ['tenant'] });
+    return users.map(({ password_hash, ...user }) => user);
   }
 
   async findOne(id: number): Promise<User> {
@@ -52,14 +52,24 @@ export class UserService {
     return user || undefined;
   }
 
-
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    const user = await this.findOne(id);
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
+    }
+
+    if (updateUserDto.name) user.name = updateUserDto.name;
+    if (updateUserDto.email) user.email = updateUserDto.email;
+    if (updateUserDto.role) user.role = updateUserDto.role;
+
+    if (updateUserDto.tenantId !== undefined) {
+      user.tenant_id = updateUserDto.tenantId ?? null;
+    }
+
     if (updateUserDto.password) {
       user.password_hash = await bcrypt.hash(updateUserDto.password, 10);
-      delete updateUserDto.password;
     }
-    Object.assign(user, updateUserDto);
+
     const updatedUser = await this.userRepository.save(user);
     const { password_hash, ...result } = updatedUser;
     return result as User;
@@ -70,5 +80,31 @@ export class UserService {
     if (result.affected === 0) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
+  }
+
+  async setResetToken(email: string, token: string, expires: Date): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) return; // não revela se o e-mail existe
+
+    user.reset_password_token = token;
+    user.reset_password_expires = expires;
+    await this.userRepository.save(user);
+  }
+
+  async findByResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { reset_password_token: token },
+    });
+  }
+
+  async updatePassword(userId: number, newPasswordHash: string): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) return;
+
+    user.password_hash = newPasswordHash;
+    user.reset_password_token = null;
+    user.reset_password_expires = null;
+
+    await this.userRepository.save(user);
   }
 }

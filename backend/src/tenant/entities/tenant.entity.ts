@@ -51,4 +51,19 @@ export class Tenant {
 
   @OneToOne(() => TenantConfig, (config) => config.tenant)
   config: TenantConfig;
+
+  @Column({ type: 'varchar', length: 7, default: '#2563eb' })
+  primary_color: string;
+
+  @Column({ type: 'varchar', length: 500, nullable: true })
+  logo_url: string | null;
+
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  welcome_message: string | null;
+
+  @Column({ type: 'varchar', length: 20, nullable: true })
+  phone: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  address: string | null;
 }

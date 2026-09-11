@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TenantModule } from './tenant/tenant.module';
@@ -19,20 +19,28 @@ import { ProfessionalServiceModule } from './professional-service/professional-s
 import { AppointmentModule } from './appointment/appointment.module';
 import { WorkScheduleModule } from './work-schedule/work-schedule.module';
 import { PublicModule } from './public/public.module';
+import { TenantMiddleware } from './common/middlewares/tenant.middleware';
+import { MailModule } from './mail/mail.module';
+import { SuperAdminModule } from './super-admin/super-admin.module';
+import { TenantMetricsModule } from './tenant-metrics/tenant-metrics.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       imports: [
-        ConfigModule, 
-        ProfessionalModule, 
-        ServiceModule, 
-        ProfessionalServiceModule, 
-        AppointmentModule, 
-        WorkScheduleModule, 
-        PublicModule
+        ConfigModule,
+        ProfessionalModule,
+        ServiceModule,
+        ProfessionalServiceModule,
+        AppointmentModule,
+        WorkScheduleModule,
+        PublicModule,
+        MailModule,
+        SuperAdminModule,
+        TenantMetricsModule
       ],
+
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
@@ -56,9 +64,17 @@ import { PublicModule } from './public/public.module';
       }),
       inject: [ConfigService],
     }),
+    TypeOrmModule.forFeature([Tenant]),
     TenantModule,
     UserModule,
     AuthModule,
   ],
 })
-export class AppModule { }
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(TenantMiddleware)
+      .exclude('public/register')
+      .forRoutes({ path: 'public/*', method: RequestMethod.ALL });
+  }
+}

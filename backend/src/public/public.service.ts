@@ -1,12 +1,22 @@
-import { Injectable, NotFoundException, BadRequestException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Not, Between, LessThan, MoreThan } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
 import { WorkSchedule } from '../professional/entities/work-schedule.entity';
 import { TenantConfig } from '../tenant/entities/tenant-config.entity';
 import { Appointment } from '../appointment/entities/appointment.entity';
+import { Tenant } from '../tenant/entities/tenant.entity';
+import { User } from '../user/entities/user.entity';
 import { CreateAppointmentPublicDto } from './dto/create-appointment-public.dto';
+import { RegisterTenantDto } from './dto/register-tenant.dto';
+import { ProfessionalService } from '../service/entities/professional-service.entity';
 
 @Injectable()
 export class PublicService {
@@ -21,7 +31,58 @@ export class PublicService {
     private readonly tenantConfigRepo: Repository<TenantConfig>,
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
+    @InjectRepository(Tenant)
+    private readonly tenantRepo: Repository<Tenant>,
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+    @InjectRepository(ProfessionalService)
+    private readonly professionalServiceRepo: Repository<ProfessionalService>,
   ) { }
+
+  async registerTenant(dto: RegisterTenantDto): Promise<{ message: string }> {
+    // Normaliza o subdomínio
+    const subdomain = dto.subdomain.toLowerCase().trim();
+
+    // Verifica se subdomínio já existe
+    const existingTenant = await this.tenantRepo.findOne({
+      where: { subdomain },
+    });
+    if (existingTenant) {
+      throw new ConflictException('Este subdomínio já está em uso');
+    }
+
+    // Verifica se email já existe
+    const existingUser = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
+    if (existingUser) {
+      throw new ConflictException('Este e-mail já está cadastrado');
+    }
+
+    // Cria o tenant com status pendente
+    const tenant = this.tenantRepo.create({
+      name: dto.tenantName,
+      subdomain,
+      status: 'pendente',
+    });
+    const savedTenant = await this.tenantRepo.save(tenant);
+
+    // Cria o usuário admin do tenant
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+    const user = this.userRepo.create({
+      name: dto.ownerName,
+      email: dto.email,
+      password_hash: hashedPassword,
+      role: 'tenant_admin',
+      tenant_id: savedTenant.id,
+    });
+    await this.userRepo.save(user);
+
+    return {
+      message:
+        'Conta criada com sucesso! Seu cadastro está em análise e você receberá um e-mail quando for ativado.',
+    };
+  }
 
   async getProfessionals(tenantId: number): Promise<Professional[]> {
     return this.professionalRepo.find({
@@ -113,8 +174,8 @@ export class PublicService {
     return freeSlots;
   }
 
-  async createAppointment(dto: CreateAppointmentPublicDto): Promise<Appointment> {
-    const { tenantId, professionalId, serviceId, customerName, customerContact, startTime, notes } = dto;
+  async createAppointment(tenantId: number, dto: CreateAppointmentPublicDto): Promise<Appointment> {
+    const { professionalId, serviceId, customerName, customerContact, startTime, notes } = dto;
 
     const start = new Date(startTime);
     if (isNaN(start.getTime())) {
@@ -130,7 +191,6 @@ export class PublicService {
     const conflict = await this.appointmentRepo.findOne({
       where: {
         professional_id: professionalId,
-        tenant_id: tenantId,
         status: Not('cancelled'),
         start_time: LessThan(end),
         end_time: MoreThan(start),
@@ -165,5 +225,34 @@ export class PublicService {
     const h = Math.floor(minutes / 60).toString().padStart(2, '0');
     const m = (minutes % 60).toString().padStart(2, '0');
     return `${h}:${m}`;
+  }
+
+  async getTenantInfo(subdomain: string) {
+    const tenant = await this.tenantRepo.findOne({
+      where: { subdomain: subdomain.toLowerCase(), status: 'ativo' },
+    });
+
+    if (!tenant) {
+      throw new NotFoundException('Estabelecimento não encontrado');
+    }
+
+    return {
+      id: tenant.id,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      primaryColor: tenant.primary_color,
+      logoUrl: tenant.logo_url,
+      welcomeMessage: tenant.welcome_message,
+      phone: tenant.phone,
+      address: tenant.address,
+    };
+  }
+
+  async getProfessionalServices(tenantId: number) {
+    const rows = await this.professionalServiceRepo.find({
+      where: { tenant_id: tenantId },
+      select: ['professional_id', 'service_id'],
+    });
+    return rows;
   }
 }

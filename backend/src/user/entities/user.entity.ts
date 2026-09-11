@@ -33,7 +33,7 @@ export class User {
   password_hash: string;
 
   @Column({ length: 20 })
-  role: string; // 'super_admin' ou 'tenant_admin'
+  role: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -43,4 +43,10 @@ export class User {
 
   @OneToMany(() => AuditLog, (auditLog) => auditLog.user)
   auditLogs: AuditLog[];
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  reset_password_token: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  reset_password_expires: Date | null;
 }

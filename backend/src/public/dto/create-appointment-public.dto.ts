@@ -2,9 +2,6 @@ import { IsString, IsNotEmpty, IsInt, IsOptional, IsDateString } from 'class-val
 
 export class CreateAppointmentPublicDto {
   @IsInt()
-  tenantId: number;
-
-  @IsInt()
   professionalId: number;
 
   @IsInt()
@@ -19,7 +16,7 @@ export class CreateAppointmentPublicDto {
   customerContact: string;
 
   @IsDateString()
-  startTime: string; // ISO 8601
+  startTime: string;
 
   @IsOptional()
   @IsString()

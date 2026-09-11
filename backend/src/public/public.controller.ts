@@ -1,43 +1,64 @@
-import { Controller, Get, Post, Body, Query, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Req, BadRequestException, Query } from '@nestjs/common';
 import { PublicService } from './public.service';
 import { CreateAppointmentPublicDto } from './dto/create-appointment-public.dto';
+import { RegisterTenantDto } from './dto/register-tenant.dto';
 
 @Controller('public')
 export class PublicController {
-  constructor(private readonly publicService: PublicService) {}
+  constructor(private readonly publicService: PublicService) { }
 
   @Get('professionals')
-  getProfessionals(@Query('tenantId') tenantId: string) {
-    const id = parseInt(tenantId, 10);
-    if (isNaN(id)) throw new BadRequestException('tenantId inválido');
-    return this.publicService.getProfessionals(id);
+  getProfessionals(@Req() req: any) {
+    if (!req.tenantId) throw new BadRequestException('Tenant não identificado');
+    return this.publicService.getProfessionals(req.tenantId);
   }
 
   @Get('services')
-  getServices(@Query('tenantId') tenantId: string) {
-    const id = parseInt(tenantId, 10);
-    if (isNaN(id)) throw new BadRequestException('tenantId inválido');
-    return this.publicService.getServices(id);
+  getServices(@Req() req: any) {
+    if (!req.tenantId) throw new BadRequestException('Tenant não identificado');
+    return this.publicService.getServices(req.tenantId);
   }
 
   @Get('available-slots')
   getAvailableSlots(
-    @Query('tenantId') tenantId: string,
+    @Req() req: any,
     @Query('professionalId') professionalId: string,
     @Query('serviceId') serviceId: string,
     @Query('date') date: string,
   ) {
-    const tid = parseInt(tenantId, 10);
+    if (!req.tenantId) throw new BadRequestException('Tenant não identificado');
     const pid = parseInt(professionalId, 10);
     const sid = parseInt(serviceId, 10);
-    if (isNaN(tid) || isNaN(pid) || isNaN(sid) || !date) {
+    if (isNaN(pid) || isNaN(sid) || !date) {
       throw new BadRequestException('Parâmetros inválidos');
     }
-    return this.publicService.getAvailableSlots(tid, pid, sid, date);
+    return this.publicService.getAvailableSlots(req.tenantId, pid, sid, date);
   }
 
   @Post('appointments')
-  createAppointment(@Body() dto: CreateAppointmentPublicDto) {
-    return this.publicService.createAppointment(dto);
+  createAppointment(@Req() req: any, @Body() dto: CreateAppointmentPublicDto) {
+    if (!req.tenantId) {
+      throw new BadRequestException('Tenant não identificado');
+    }
+    return this.publicService.createAppointment(req.tenantId, dto);
+  }
+
+  @Post('register')
+  register(@Body() dto: RegisterTenantDto) {
+    return this.publicService.registerTenant(dto);
+  }
+
+  @Get('tenant-info')
+  getTenantInfo(@Req() req: any) {
+    if (!req.tenantSubdomain) {
+      throw new BadRequestException('Subdomínio não identificado');
+    }
+    return this.publicService.getTenantInfo(req.tenantSubdomain);
+  }
+
+  @Get('professional-services')
+  getProfessionalServices(@Req() req: any) {
+    if (!req.tenantId) throw new BadRequestException('Tenant não identificado');
+    return this.publicService.getProfessionalServices(req.tenantId);
   }
 }

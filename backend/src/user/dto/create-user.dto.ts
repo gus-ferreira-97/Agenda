@@ -15,9 +15,9 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
-  role: string; // 'super_admin' ou 'tenant_admin'
+  role: string;
 
   @IsOptional()
   @IsInt()
-  tenantId?: number; // opcional para super_admin
+  tenantId?: number;
 }

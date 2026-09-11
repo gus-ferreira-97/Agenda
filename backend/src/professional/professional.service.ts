@@ -6,6 +6,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Professional } from './entities/professional.entity';
+import { Appointment } from '../appointment/entities/appointment.entity';
 import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
 
@@ -14,13 +15,14 @@ export class ProfessionalService {
   constructor(
     @InjectRepository(Professional)
     private readonly professionalRepository: Repository<Professional>,
-  ) {}
+    @InjectRepository(Appointment)
+    private readonly appointmentRepository: Repository<Appointment>,
+  ) { }
 
   async create(createProfessionalDto: CreateProfessionalDto, user: any): Promise<Professional> {
     let tenantId: number | null = null;
 
     if (user.role === 'super_admin') {
-      // Super admin pode definir tenant, senão pode criar sem tenant (mas não recomendado)
       tenantId = createProfessionalDto.tenantId || null;
     } else if (user.role === 'tenant_admin') {
       tenantId = user.tenantId;
@@ -36,9 +38,9 @@ export class ProfessionalService {
       specialty: createProfessionalDto.specialty,
       is_active: createProfessionalDto.isActive ?? true,
       tenant_id: tenantId,
-    });
+    } as any);
 
-    return this.professionalRepository.save(professional);
+    return this.professionalRepository.save(professional as any);
   }
 
   async findAll(user: any): Promise<Professional[]> {
@@ -62,7 +64,6 @@ export class ProfessionalService {
       throw new NotFoundException(`Profissional com ID ${id} não encontrado`);
     }
 
-    // Verifica se o usuário tem permissão para ver (tenant_admin só vê do próprio tenant)
     if (user.role === 'tenant_admin' && professional.tenant_id !== user.tenantId) {
       throw new ForbiddenException('Acesso negado');
     }
@@ -76,15 +77,36 @@ export class ProfessionalService {
     user: any,
   ): Promise<Professional> {
     const professional = await this.findOne(id, user);
-    Object.assign(professional, updateProfessionalDto);
+
+    if (updateProfessionalDto.name !== undefined) {
+      professional.name = updateProfessionalDto.name;
+    }
+    if (updateProfessionalDto.specialty !== undefined) {
+      professional.specialty = updateProfessionalDto.specialty;
+    }
+    if (updateProfessionalDto.isActive !== undefined) {
+      professional.is_active = updateProfessionalDto.isActive;
+    }
+
     return this.professionalRepository.save(professional);
   }
 
-  async remove(id: number, user: any): Promise<void> {
+  async remove(id: number, user: any): Promise<{ message: string }> {
     const professional = await this.findOne(id, user);
-    const result = await this.professionalRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Profissional com ID ${id} não encontrado`);
+
+    const appointmentCount = await this.appointmentRepository.count({
+      where: { professional_id: id },
+    });
+
+    if (appointmentCount > 0) {
+      professional.is_active = false;
+      await this.professionalRepository.save(professional);
+      return {
+        message: `Este profissional possui ${appointmentCount} agendamento(s) e foi desativado em vez de excluído.`,
+      };
     }
+
+    await this.professionalRepository.delete(id);
+    return { message: 'Profissional excluído com sucesso.' };
   }
 }
