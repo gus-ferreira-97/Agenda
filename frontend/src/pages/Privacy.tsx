@@ -1,28 +1,35 @@
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Privacy() {
   return (
     <div className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-blue-600">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-3">
+          <Link to="/" className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
             AgendaApp
           </Link>
-          <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">
-            Voltar para o início
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-xs md:text-sm text-gray-600 hover:text-blue-600 transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Voltar
           </Link>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-12 text-gray-800">
-        <h1 className="text-3xl font-bold mb-2">Política de Privacidade</h1>
-        <p className="text-sm text-gray-500 mb-8">
+      {/* Conteúdo */}
+      <main className="max-w-3xl mx-auto px-4 py-8 md:py-12 text-gray-800">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">Política de Privacidade</h1>
+        <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8">
           Última atualização: {new Date().toLocaleDateString('pt-BR')}
         </p>
 
-        <div className="space-y-8 text-sm leading-relaxed">
+        <div className="space-y-6 md:space-y-8 text-sm md:text-[15px] leading-relaxed">
           <section>
-            <h2 className="text-lg font-semibold mb-2">1. Quem somos</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">1. Quem somos</h2>
             <p>
               Esta Política de Privacidade descreve como <strong>[NOME DA EMPRESA]</strong>,
               inscrita no CNPJ sob o nº <strong>[CNPJ]</strong>, com sede em
@@ -33,7 +40,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">2. Definições</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">2. Definições</h2>
             <ul className="list-disc pl-5 space-y-1">
               <li><strong>Titular:</strong> pessoa natural a quem se referem os dados pessoais.</li>
               <li><strong>Controlador:</strong> quem decide sobre o tratamento dos dados pessoais.</li>
@@ -44,7 +51,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">3. Quais dados coletamos</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">3. Quais dados coletamos</h2>
             <p><strong>3.1. Dados do Usuário (responsável pelo estabelecimento):</strong></p>
             <ul className="list-disc pl-5 mt-1 space-y-1">
               <li>Nome completo, e-mail, senha (armazenada em formato criptografado) e telefone.</li>
@@ -67,7 +74,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">4. Finalidades e bases legais</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">4. Finalidades e bases legais</h2>
             <p>
               O tratamento de dados pessoais é realizado com base nas hipóteses legais previstas no
               art. 7º da LGPD:
@@ -81,7 +88,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">5. Papéis: Controlador e Operador</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">5. Papéis: Controlador e Operador</h2>
             <p>
               5.1. Em relação aos dados do Usuário (responsável pelo estabelecimento), o AgendaApp
               atua como <strong>Controlador</strong>.
@@ -98,7 +105,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">6. Compartilhamento de dados</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">6. Compartilhamento de dados</h2>
             <p>
               Podemos compartilhar dados pessoais com terceiros estritamente necessários à prestação
               do serviço, na qualidade de operadores/subprocessadores:
@@ -116,7 +123,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">7. Transferência internacional de dados</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">7. Transferência internacional de dados</h2>
             <p>
               Caso ocorra transferência internacional de dados, ela será realizada apenas para
               países que ofereçam grau de proteção adequado ou mediante garantias contratuais
@@ -125,7 +132,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">8. Retenção de dados</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">8. Retenção de dados</h2>
             <p>
               Os dados são armazenados apenas pelo tempo necessário ao cumprimento das finalidades
               para as quais foram coletados, observados os prazos legais de retenção:
@@ -142,7 +149,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">9. Direitos do Titular</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">9. Direitos do Titular</h2>
             <p>
               Nos termos do art. 18 da LGPD, o Titular pode, a qualquer momento, solicitar:
             </p>
@@ -169,7 +176,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">10. Segurança dos dados</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">10. Segurança dos dados</h2>
             <p>
               Adotamos medidas técnicas e administrativas para proteger os dados pessoais, incluindo:
             </p>
@@ -188,7 +195,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">11. Cookies</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">11. Cookies</h2>
             <p>
               Utilizamos cookies essenciais para o funcionamento da plataforma (como autenticação) e,
               mediante consentimento, cookies analíticos para entender como os usuários utilizam o
@@ -197,7 +204,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">12. Encarregado de Dados (DPO)</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">12. Encarregado de Dados (DPO)</h2>
             <p>
               Nosso Encarregado de Proteção de Dados (DPO) pode ser contatado pelo e-mail
               <strong> [E-MAIL DO ENCARREGADO]</strong> para assuntos relacionados à LGPD.
@@ -205,7 +212,7 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">13. Alterações desta Política</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">13. Alterações desta Política</h2>
             <p>
               Esta Política pode ser atualizada periodicamente. Recomendamos revisão regular. Alterações
               relevantes serão comunicadas na plataforma ou por e-mail.
@@ -213,20 +220,44 @@ export default function Privacy() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">14. Autoridade Nacional de Proteção de Dados</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">14. Autoridade Nacional de Proteção de Dados</h2>
             <p>
               Caso o Titular entenda que suas solicitações não foram atendidas adequadamente, poderá
               apresentar reclamação à ANPD, por meio do site oficial
-              <a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline"> www.gov.br/anpd</a>.
+              <a
+                href="https://www.gov.br/anpd"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline break-all"
+              >
+                {' '}www.gov.br/anpd
+              </a>.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">15. Contato</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">15. Contato</h2>
             <p>
               Dúvidas sobre esta Política podem ser enviadas para <strong>[E-MAIL DE CONTATO]</strong>.
             </p>
           </section>
+        </div>
+
+        {/* Footer da página */}
+        <div className="mt-10 md:mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <Link
+            to="/termos"
+            className="text-xs md:text-sm text-blue-600 hover:underline"
+          >
+            Ver Termos de Uso →
+          </Link>
+          <Link
+            to="/"
+            className="text-xs md:text-sm text-gray-500 hover:text-gray-700 inline-flex items-center gap-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Voltar para o início
+          </Link>
         </div>
       </main>
     </div>

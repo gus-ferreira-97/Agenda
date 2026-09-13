@@ -62,7 +62,7 @@ export default function ServiceForm() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -75,9 +75,9 @@ export default function ServiceForm() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/admin/services"
           className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
@@ -85,10 +85,10 @@ export default function ServiceForm() {
           <ArrowLeft className="w-4 h-4" />
           Voltar para serviços
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900">
           {isEditing ? 'Editar Serviço' : 'Novo Serviço'}
         </h1>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm md:text-base text-gray-600 mt-1">
           {isEditing
             ? 'Atualize as informações do serviço.'
             : 'Adicione um novo serviço ao seu catálogo.'}
@@ -97,7 +97,7 @@ export default function ServiceForm() {
 
       {/* Formulário */}
       <div className="max-w-2xl animate-fade-in-up delay-100">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-5">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -181,10 +181,10 @@ export default function ServiceForm() {
           </div>
 
           {/* Toggle de status */}
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div className="flex items-center gap-3">
-              <CheckCircle2 className={`w-5 h-5 ${isActive ? 'text-green-600' : 'text-gray-400'}`} />
-              <div>
+          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <CheckCircle2 className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-green-600' : 'text-gray-400'}`} />
+              <div className="min-w-0">
                 <p className="text-sm font-medium text-gray-900">Serviço ativo</p>
                 <p className="text-xs text-gray-500">
                   {isActive
@@ -193,7 +193,7 @@ export default function ServiceForm() {
                 </p>
               </div>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
+            <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
               <input
                 type="checkbox"
                 checked={isActive}

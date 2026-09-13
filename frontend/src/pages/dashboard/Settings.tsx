@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Palette,
   Image as ImageIcon,
@@ -8,8 +9,10 @@ import {
   Save,
   Eye,
   CheckCircle2,
+  Lock,
 } from 'lucide-react';
 import api from '../../services/api';
+import { usePlan } from '../../hooks/usePlan';
 
 interface BrandingData {
   id: number;
@@ -34,6 +37,7 @@ const PRESET_COLORS = [
 ];
 
 export default function Settings() {
+  const { plan } = usePlan();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -46,6 +50,8 @@ export default function Settings() {
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+
+  const canEdit = plan?.allowBranding ?? false;
 
   useEffect(() => {
     api.get('/tenants/me/branding')
@@ -89,7 +95,7 @@ export default function Settings() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -102,21 +108,36 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Configurações</h1>
-        <p className="text-sm text-gray-600">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">Configurações</h1>
+        <p className="text-sm md:text-base text-gray-600">
           Personalize a aparência da sua página de agendamento.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Aviso de upgrade */}
+      {!canEdit && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 mb-4 md:mb-6 flex items-start gap-3 animate-fade-in-up delay-100">
+          <Lock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-yellow-900">
+              Personalização disponível apenas nos planos Profissional e Premium
+            </p>
+            <p className="text-sm text-yellow-800 mt-0.5">
+              Faça upgrade para desbloquear cores personalizadas, logo, mensagem de boas-vindas, telefone e endereço.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Formulário */}
         <div className="lg:col-span-2">
           <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6 animate-fade-in-up delay-100"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-6 animate-fade-in-up delay-100"
           >
             {error && (
               <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
@@ -135,7 +156,7 @@ export default function Settings() {
             )}
 
             {/* Cor principal */}
-            <div>
+            <div className={!canEdit ? 'opacity-60 pointer-events-none' : ''}>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <Palette className="inline w-4 h-4 mr-1 -mt-0.5" />
                 Cor principal
@@ -155,12 +176,12 @@ export default function Settings() {
                     title={color}
                   />
                 ))}
-                <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-2">
                   <input
                     type="color"
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-9 h-9 rounded-lg border-2 border-gray-200 cursor-pointer"
+                    className="w-9 h-9 rounded-lg border-2 border-gray-200 cursor-pointer flex-shrink-0"
                   />
                   <input
                     type="text"
@@ -174,7 +195,7 @@ export default function Settings() {
             </div>
 
             {/* Logo URL */}
-            <div>
+            <div className={!canEdit ? 'opacity-60 pointer-events-none' : ''}>
               <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 mb-2">
                 <ImageIcon className="inline w-4 h-4 mr-1 -mt-0.5" />
                 URL do logo <span className="text-gray-400 font-normal">(opcional)</span>
@@ -186,6 +207,7 @@ export default function Settings() {
                 onChange={(e) => setLogoUrl(e.target.value)}
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="https://exemplo.com/logo.png"
+                disabled={!canEdit}
               />
               <p className="text-xs text-gray-500 mt-1">
                 Cole o link de uma imagem hospedada online. Em breve teremos upload direto.
@@ -193,7 +215,7 @@ export default function Settings() {
             </div>
 
             {/* Mensagem de boas-vindas */}
-            <div>
+            <div className={!canEdit ? 'opacity-60 pointer-events-none' : ''}>
               <label htmlFor="welcomeMessage" className="block text-sm font-medium text-gray-700 mb-2">
                 <MessageSquare className="inline w-4 h-4 mr-1 -mt-0.5" />
                 Mensagem de boas-vindas <span className="text-gray-400 font-normal">(opcional)</span>
@@ -206,11 +228,12 @@ export default function Settings() {
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="Ex.: Bem-vindo! Agende seu horário em segundos."
                 maxLength={200}
+                disabled={!canEdit}
               />
             </div>
 
             {/* Telefone */}
-            <div>
+            <div className={!canEdit ? 'opacity-60 pointer-events-none' : ''}>
               <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-2">
                 <Phone className="inline w-4 h-4 mr-1 -mt-0.5" />
                 Telefone / WhatsApp <span className="text-gray-400 font-normal">(opcional)</span>
@@ -223,11 +246,12 @@ export default function Settings() {
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="(11) 99999-9999"
                 maxLength={20}
+                disabled={!canEdit}
               />
             </div>
 
             {/* Endereço */}
-            <div>
+            <div className={!canEdit ? 'opacity-60 pointer-events-none' : ''}>
               <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-2">
                 <MapPin className="inline w-4 h-4 mr-1 -mt-0.5" />
                 Endereço <span className="text-gray-400 font-normal">(opcional)</span>
@@ -240,37 +264,49 @@ export default function Settings() {
                 className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="Rua, número, bairro, cidade"
                 maxLength={255}
+                disabled={!canEdit}
               />
             </div>
 
             <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={saving}
-                className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
-              >
-                {saving ? (
-                  <>
-                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                    </svg>
-                    Salvando...
-                  </>
-                ) : (
-                  <>
-                    <Save className="w-4 h-4" />
-                    Salvar alterações
-                  </>
-                )}
-              </button>
+              {canEdit ? (
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                >
+                  {saving ? (
+                    <>
+                      <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                      </svg>
+                      Salvando...
+                    </>
+                  ) : (
+                    <>
+                      <Save className="w-4 h-4" />
+                      Salvar alterações
+                    </>
+                  )}
+                </button>
+              ) : (
+                <Link
+                  to="#"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gray-200 text-gray-500 px-6 py-2.5 rounded-lg font-medium cursor-not-allowed"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <Lock className="w-4 h-4" />
+                  Faça upgrade para editar
+                </Link>
+              )}
             </div>
           </form>
         </div>
 
         {/* Preview */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-200 sticky top-6">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-200 lg:sticky lg:top-6">
             <div className="flex items-center gap-2 mb-4">
               <Eye className="w-4 h-4 text-gray-500" />
               <h2 className="text-sm font-semibold text-gray-700">Pré-visualização</h2>
@@ -286,13 +322,13 @@ export default function Settings() {
                   <img
                     src={logoUrl}
                     alt="Logo"
-                    className="w-10 h-10 rounded-lg object-cover bg-white"
+                    className="w-10 h-10 rounded-lg object-cover bg-white flex-shrink-0"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
                   />
                 ) : (
-                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold">
+                  <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold flex-shrink-0">
                     {name?.[0]?.toUpperCase() || 'A'}
                   </div>
                 )}

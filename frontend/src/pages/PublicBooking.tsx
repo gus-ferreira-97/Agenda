@@ -60,7 +60,6 @@ export default function PublicBooking() {
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Carrega dados iniciais
   useEffect(() => {
     async function loadData() {
       try {
@@ -73,13 +72,10 @@ export default function PublicBooking() {
         setProfessionals(profResp.data);
         setServices(servResp.data);
 
-        // Associações públicas: buscamos via endpoint público caso exista,
-        // senão carregamos a lista filtrada pelo profissional.
         try {
           const assocResp = await api.get('/public/professional-services');
           setAssociations(assocResp.data);
         } catch {
-          // se não houver endpoint público, mantemos vazio e permitimos todos os serviços
           setAssociations([]);
         }
       } catch (err) {
@@ -91,17 +87,15 @@ export default function PublicBooking() {
     loadData();
   }, []);
 
-  // Serviços disponíveis para o profissional escolhido
   const availableServices = useMemo(() => {
     if (!selectedProfessional) return [];
-    if (associations.length === 0) return services; // se não há associação, mostra todos
+    if (associations.length === 0) return services;
     const serviceIds = associations
       .filter((a) => a.professional_id === selectedProfessional)
       .map((a) => a.service_id);
     return services.filter((s) => serviceIds.includes(s.id));
   }, [selectedProfessional, services, associations]);
 
-  // Busca slots quando muda profissional/serviço/data
   useEffect(() => {
     if (selectedProfessional && selectedService && selectedDate) {
       setLoadingSlots(true);
@@ -178,7 +172,6 @@ export default function PublicBooking() {
     setError('');
   };
 
-  // Cores
   const primary = tenant?.primaryColor || '#2563eb';
 
   const formatCurrency = (value?: number) => {
@@ -197,7 +190,6 @@ export default function PublicBooking() {
     });
   };
 
-  // Agrupa slots por período
   const groupedSlots = useMemo(() => {
     const morning: string[] = [];
     const afternoon: string[] = [];
@@ -229,7 +221,7 @@ export default function PublicBooking() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-6">
         <div className="max-w-md text-center">
-          <h1 className="text-xl font-bold text-gray-900 mb-2">Estabelecimento não encontrado</h1>
+          <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Estabelecimento não encontrado</h1>
           <p className="text-gray-600 text-sm">
             Verifique o endereço ou entre em contato com o estabelecimento.
           </p>
@@ -242,25 +234,25 @@ export default function PublicBooking() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="shadow-sm" style={{ backgroundColor: primary }}>
-        <div className="max-w-2xl mx-auto px-4 py-6">
-          <div className="flex items-center gap-4">
+        <div className="max-w-2xl mx-auto px-4 py-5 md:py-6">
+          <div className="flex items-center gap-3 md:gap-4">
             {tenant.logoUrl ? (
               <img
                 src={tenant.logoUrl}
                 alt={tenant.name}
-                className="w-14 h-14 rounded-xl object-cover bg-white flex-shrink-0"
+                className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-cover bg-white flex-shrink-0"
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
             ) : (
-              <div className="w-14 h-14 rounded-xl bg-white/20 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-white/20 flex items-center justify-center text-white text-lg md:text-xl font-bold flex-shrink-0">
                 {tenant.name[0]?.toUpperCase() || 'A'}
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-white text-xl font-bold truncate">{tenant.name}</h1>
-              <p className="text-white/85 text-sm">
+              <h1 className="text-white text-lg md:text-xl font-bold truncate">{tenant.name}</h1>
+              <p className="text-white/85 text-xs md:text-sm line-clamp-2">
                 {tenant.welcomeMessage || 'Agende seu horário online'}
               </p>
             </div>
@@ -269,21 +261,21 @@ export default function PublicBooking() {
       </header>
 
       {/* Conteúdo */}
-      <main className="max-w-2xl mx-auto px-4 py-6 pb-20">
+      <main className="max-w-2xl mx-auto px-3 md:px-4 py-5 md:py-6 pb-20">
         {/* Sucesso */}
         {message && (
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-4 text-center animate-fade-in-up">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 mb-4 text-center animate-fade-in-up">
             <div
-              className="w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-4"
+              className="w-14 h-14 md:w-16 md:h-16 rounded-full flex items-center justify-center mx-auto mb-4"
               style={{ backgroundColor: `${primary}20` }}
             >
-              <CheckCircle2 className="w-7 h-7" style={{ color: primary }} />
+              <CheckCircle2 className="w-7 h-7 md:w-8 md:h-8" style={{ color: primary }} />
             </div>
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Tudo certo!</h2>
-            <p className="text-sm text-gray-600 mb-4">{message}</p>
+            <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-1">Tudo certo!</h2>
+            <p className="text-sm text-gray-600 mb-5">{message}</p>
             <button
               onClick={resetAll}
-              className="text-sm font-medium px-4 py-2 rounded-lg text-white"
+              className="text-sm font-medium px-5 py-2.5 rounded-lg text-white"
               style={{ backgroundColor: primary }}
             >
               Fazer outro agendamento
@@ -302,12 +294,12 @@ export default function PublicBooking() {
         )}
 
         {!message && (
-          <div className="space-y-4">
+          <div className="space-y-3 md:space-y-4">
             {/* Etapa 1: Profissional */}
-            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up">
-              <div className="flex items-center gap-2 mb-4">
+            <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+              <div className="flex items-center gap-2 mb-3 md:mb-4">
                 <div
-                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                   style={{ backgroundColor: primary }}
                 >
                   1
@@ -318,7 +310,7 @@ export default function PublicBooking() {
               {professionals.length === 0 ? (
                 <p className="text-sm text-gray-500">Nenhum profissional disponível.</p>
               ) : (
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
                   {professionals.map((p) => {
                     const isSelected = selectedProfessional === p.id;
                     return (
@@ -332,7 +324,7 @@ export default function PublicBooking() {
                         }}
                         className={`p-3 rounded-xl border-2 text-left transition ${
                           isSelected
-                            ? 'border-transparent shadow-md'
+                            ? 'shadow-md'
                             : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
                         style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
@@ -356,10 +348,10 @@ export default function PublicBooking() {
 
             {/* Etapa 2: Serviço */}
             {selectedProfessional && (
-              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-4">
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ backgroundColor: primary }}
                   >
                     2
@@ -385,7 +377,7 @@ export default function PublicBooking() {
                           }}
                           className={`w-full p-3 rounded-xl border-2 text-left transition flex items-center justify-between gap-3 ${
                             isSelected
-                              ? 'border-transparent shadow-md'
+                              ? 'shadow-md'
                               : 'border-gray-200 hover:border-gray-300 bg-white'
                           }`}
                           style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
@@ -417,10 +409,10 @@ export default function PublicBooking() {
 
             {/* Etapa 3: Data */}
             {selectedProfessional && selectedService && (
-              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-4">
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ backgroundColor: primary }}
                   >
                     3
@@ -437,8 +429,7 @@ export default function PublicBooking() {
                       setSelectedDate(e.target.value);
                       setSelectedSlot('');
                     }}
-                    className="w-full pl-9 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition"
-                    style={{ '--tw-ring-color': primary } as any}
+                    className="w-full pl-9 pr-3 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
                     min={new Date().toISOString().split('T')[0]}
                   />
                 </div>
@@ -447,10 +438,10 @@ export default function PublicBooking() {
 
             {/* Etapa 4: Horário */}
             {selectedProfessional && selectedService && selectedDate && (
-              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-4">
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ backgroundColor: primary }}
                   >
                     4
@@ -459,7 +450,7 @@ export default function PublicBooking() {
                 </div>
 
                 {loadingSlots ? (
-                  <div className="py-8 text-center text-sm text-gray-500">
+                  <div className="py-6 md:py-8 text-center text-sm text-gray-500">
                     <svg className="animate-spin w-5 h-5 mx-auto mb-2" style={{ color: primary }} fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
@@ -471,11 +462,11 @@ export default function PublicBooking() {
                     Nenhum horário disponível para esta data. Tente outra data.
                   </p>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {groupedSlots.morning.length > 0 && (
                       <div>
                         <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Manhã</p>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                           {groupedSlots.morning.map((slot) => (
                             <SlotButton
                               key={slot}
@@ -491,7 +482,7 @@ export default function PublicBooking() {
                     {groupedSlots.afternoon.length > 0 && (
                       <div>
                         <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Tarde</p>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                           {groupedSlots.afternoon.map((slot) => (
                             <SlotButton
                               key={slot}
@@ -507,7 +498,7 @@ export default function PublicBooking() {
                     {groupedSlots.evening.length > 0 && (
                       <div>
                         <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Noite</p>
-                        <div className="grid grid-cols-4 gap-2">
+                        <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                           {groupedSlots.evening.map((slot) => (
                             <SlotButton
                               key={slot}
@@ -527,10 +518,10 @@ export default function PublicBooking() {
 
             {/* Etapa 5: Dados do cliente + resumo */}
             {selectedProfessional && selectedService && selectedDate && selectedSlot && (
-              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-4">
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ backgroundColor: primary }}
                   >
                     5
@@ -540,26 +531,26 @@ export default function PublicBooking() {
 
                 {/* Resumo */}
                 <div
-                  className="rounded-xl p-4 mb-4 border"
+                  className="rounded-xl p-3 md:p-4 mb-4 border"
                   style={{ backgroundColor: `${primary}10`, borderColor: `${primary}30` }}
                 >
                   <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Resumo</p>
                   <div className="space-y-1.5 text-sm">
-                    <div className="flex items-center gap-2 text-gray-700">
+                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
                       <User className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      {selectedProfessionalData?.name}
+                      <span className="truncate">{selectedProfessionalData?.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
+                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
                       <Briefcase className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      {selectedServiceData?.name}
+                      <span className="truncate">{selectedServiceData?.name}</span>
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700">
+                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
                       <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      {formatDateLabel(selectedDate)}
+                      <span className="truncate capitalize">{formatDateLabel(selectedDate)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-700">
                       <Clock className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      {selectedSlot}
+                      <span>{selectedSlot}</span>
                     </div>
                   </div>
                 </div>
@@ -571,7 +562,7 @@ export default function PublicBooking() {
                       type="text"
                       value={customerName}
                       onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
                       placeholder="Como podemos te chamar?"
                       required
                     />
@@ -582,7 +573,7 @@ export default function PublicBooking() {
                       type="text"
                       value={customerContact}
                       onChange={(e) => setCustomerContact(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition"
+                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
                       placeholder="(11) 99999-9999 ou seu@email.com"
                       required
                     />
@@ -612,7 +603,7 @@ export default function PublicBooking() {
               </section>
             )}
 
-            {/* Voltar etapa */}
+            {/* Começar de novo */}
             {(selectedProfessional || selectedService || selectedDate) && (
               <button
                 onClick={resetAll}
@@ -628,9 +619,9 @@ export default function PublicBooking() {
 
       {/* Rodapé */}
       <footer className="border-t border-gray-200 bg-white">
-        <div className="max-w-2xl mx-auto px-4 py-6 text-center">
+        <div className="max-w-2xl mx-auto px-4 py-5 md:py-6 text-center">
           {(tenant.phone || tenant.address) && (
-            <div className="space-y-1.5 mb-3 text-sm text-gray-600">
+            <div className="space-y-1.5 mb-3 text-xs md:text-sm text-gray-600">
               {tenant.phone && (
                 <p className="inline-flex items-center gap-1.5 justify-center">
                   <Phone className="w-4 h-4" style={{ color: primary }} />
@@ -639,7 +630,7 @@ export default function PublicBooking() {
               )}
               {tenant.address && (
                 <p className="inline-flex items-center gap-1.5 justify-center">
-                  <MapPin className="w-4 h-4" style={{ color: primary }} />
+                  <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
                   {tenant.address}
                 </p>
               )}
@@ -657,7 +648,7 @@ export default function PublicBooking() {
   );
 }
 
-// Componente auxiliar para os botões de slot
+// Botão de slot (horário)
 function SlotButton({
   slot,
   isSelected,
@@ -673,7 +664,7 @@ function SlotButton({
     <button
       type="button"
       onClick={onClick}
-      className={`py-2 rounded-lg border text-sm font-medium transition ${
+      className={`py-2 rounded-lg border text-xs md:text-sm font-medium transition ${
         isSelected ? 'text-white' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
       }`}
       style={isSelected ? { backgroundColor: primary, borderColor: primary } : {}}

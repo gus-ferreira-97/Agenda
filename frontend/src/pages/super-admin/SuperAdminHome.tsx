@@ -168,61 +168,61 @@ export default function SuperAdminHome() {
 
   const kpiCards = kpis
     ? [
-      {
-        label: 'Tenants',
-        value: kpis.tenants.value,
-        trend: kpis.tenants.trend,
-        invertTrend: false,
-        Icon: Building2,
-        color: 'blue',
-        trendHint: `novos em ${period}d`,
-      },
-      {
-        label: 'Profissionais',
-        value: kpis.professionals.value,
-        trend: kpis.professionals.trend,
-        invertTrend: false,
-        Icon: Users,
-        color: 'purple',
-        trendHint: `novos em ${period}d`,
-      },
-      {
-        label: 'Serviços',
-        value: kpis.services.value,
-        trend: kpis.services.trend,
-        invertTrend: false,
-        Icon: Briefcase,
-        color: 'pink',
-        trendHint: `novos em ${period}d`,
-      },
-      {
-        label: 'Agendamentos',
-        value: kpis.appointments.value,
-        trend: kpis.appointments.trend,
-        invertTrend: false,
-        Icon: CalendarCheck,
-        color: 'green',
-        trendHint: `últimos ${period}d`,
-      },
-      {
-        label: 'Conversão',
-        value: `${kpis.conversion.value}%`,
-        trend: kpis.conversion.trend,
-        invertTrend: false,
-        Icon: TrendingUp,
-        color: 'yellow',
-        hint: `${kpis.conversion.activated} ativos de ${kpis.conversion.total}`,
-      },
-      {
-        label: 'Cancelamento',
-        value: `${kpis.cancellation.value}%`,
-        trend: kpis.cancellation.trend,
-        invertTrend: true,
-        Icon: XCircle,
-        color: 'red',
-        hint: `${kpis.cancellation.cancelled} cancelados em ${period}d`,
-      },
-    ]
+        {
+          label: 'Tenants',
+          value: kpis.tenants.value,
+          trend: kpis.tenants.trend,
+          invertTrend: false,
+          Icon: Building2,
+          color: 'blue',
+          trendHint: `novos em ${period}d`,
+        },
+        {
+          label: 'Profissionais',
+          value: kpis.professionals.value,
+          trend: kpis.professionals.trend,
+          invertTrend: false,
+          Icon: Users,
+          color: 'purple',
+          trendHint: `novos em ${period}d`,
+        },
+        {
+          label: 'Serviços',
+          value: kpis.services.value,
+          trend: kpis.services.trend,
+          invertTrend: false,
+          Icon: Briefcase,
+          color: 'pink',
+          trendHint: `novos em ${period}d`,
+        },
+        {
+          label: 'Agendamentos',
+          value: kpis.appointments.value,
+          trend: kpis.appointments.trend,
+          invertTrend: false,
+          Icon: CalendarCheck,
+          color: 'green',
+          trendHint: `últimos ${period}d`,
+        },
+        {
+          label: 'Conversão',
+          value: `${kpis.conversion.value}%`,
+          trend: kpis.conversion.trend,
+          invertTrend: false,
+          Icon: TrendingUp,
+          color: 'yellow',
+          hint: `${kpis.conversion.activated} ativos de ${kpis.conversion.total}`,
+        },
+        {
+          label: 'Cancelamento',
+          value: `${kpis.cancellation.value}%`,
+          trend: kpis.cancellation.trend,
+          invertTrend: true,
+          Icon: XCircle,
+          color: 'red',
+          hint: `${kpis.cancellation.cancelled} cancelados em ${period}d`,
+        },
+      ]
     : [];
 
   const colorClasses: Record<string, { bg: string; text: string }> = {
@@ -250,21 +250,20 @@ export default function SuperAdminHome() {
     );
   };
 
-  // Skeleton apenas no primeiro carregamento
   if (loading && !hasLoaded) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="h-8 bg-gray-200 rounded w-1/2 md:w-1/3" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-2xl" />
+              <div key={i} className="h-28 md:h-32 bg-gray-200 rounded-2xl" />
             ))}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="h-72 bg-gray-200 rounded-2xl" />
-            <div className="h-72 bg-gray-200 rounded-2xl" />
-            <div className="h-72 bg-gray-200 rounded-2xl" />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-56 md:h-72 bg-gray-200 rounded-2xl" />
+            ))}
           </div>
         </div>
       </div>
@@ -272,63 +271,61 @@ export default function SuperAdminHome() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8 animate-fade-in-up">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-            Olá, {firstName}
-            <Hand className="w-6 h-6 text-yellow-500" />
-          </h1>
-          <p className="text-gray-600 text-sm">
-            Aqui está a visão geral da sua plataforma.
-          </p>
-        </div>
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2 flex-wrap">
+          Olá, {firstName}
+          <Hand className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+        </h1>
+        <p className="text-sm md:text-base text-gray-600">
+          Aqui está a visão geral da sua plataforma.
+        </p>
 
-        <div className="flex items-center gap-3">
-          {/* Filtro de período */}
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
+        {/* Filtros e atualizar */}
+        <div className="flex items-center gap-2 mt-4 md:mt-6">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm flex-1 md:flex-initial">
             {PERIODS.map((p) => (
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${period === p.value
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                  }`}
+                className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${
+                  period === p.value
+                    ? 'bg-blue-600 text-white'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                }`}
               >
                 {p.label}
               </button>
             ))}
           </div>
 
-          {/* Botão atualizar */}
           <button
             onClick={loadAll}
             disabled={loading}
             title="Atualizar dados"
-            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition"
+            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
 
-      {/* KPIs em uma linha */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
         {kpiCards.map((card, index) => {
           const Icon = card.Icon;
           return (
             <div
               key={card.label}
-              className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${(index + 1) * 100}`}
+              className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4 animate-fade-in-up delay-${(index + 1) * 100}`}
             >
-              <div className={`w-10 h-10 rounded-lg ${colorClasses[card.color].bg} flex items-center justify-center mb-3`}>
-                <Icon className={`w-5 h-5 ${colorClasses[card.color].text}`} />
+              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-lg ${colorClasses[card.color].bg} flex items-center justify-center mb-2 md:mb-3`}>
+                <Icon className={`w-4 h-4 md:w-5 md:h-5 ${colorClasses[card.color].text}`} />
               </div>
-              <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-              <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-2xl font-bold text-gray-900">{card.value}</p>
+              <p className="text-xs text-gray-500 mb-1 truncate">{card.label}</p>
+              <div className="flex items-baseline gap-1.5 md:gap-2 mb-1 flex-wrap">
+                <p className="text-lg md:text-xl font-bold text-gray-900 truncate">{card.value}</p>
                 {renderTrend(card.trend, card.invertTrend)}
               </div>
               {card.trendHint && (
@@ -344,35 +341,35 @@ export default function SuperAdminHome() {
         })}
       </div>
 
-      {/* Gráficos lado a lado */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      {/* 3 gráficos em uma linha (lg) */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-6">
         {/* Agendamentos por dia */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-300">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Agendamentos por dia</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-300">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900">Agendamentos por dia</h2>
             <p className="text-xs text-gray-500">Últimos {period} dias</p>
           </div>
 
           {appointmentsData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
+            <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">
               Sem dados
             </div>
           ) : (
-            <div className="h-64">
+            <div className="h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={appointmentsData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                <LineChart data={appointmentsData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                   <XAxis
                     dataKey="date"
                     stroke="#9ca3af"
-                    style={{ fontSize: '11px' }}
+                    style={{ fontSize: '10px' }}
                     tickLine={false}
                     axisLine={false}
-                    interval={Math.max(1, Math.floor(appointmentsData.length / 6))}
+                    interval={Math.max(1, Math.floor(appointmentsData.length / 5))}
                   />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} />
-                  <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} name="Agendamentos" />
+                  <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                  <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} name="Agendamentos" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -380,25 +377,25 @@ export default function SuperAdminHome() {
         </div>
 
         {/* Tenants por status */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-400">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Tenants por status</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-400">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900">Tenants por status</h2>
             <p className="text-xs text-gray-500">Distribuição atual</p>
           </div>
 
           {tenantsStatusData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+            <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
           ) : (
-            <div className="h-64">
+            <div className="h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={tenantsStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  <Pie data={tenantsStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={2}>
                     {tenantsStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#6b7280'} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} iconType="circle" />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -406,23 +403,23 @@ export default function SuperAdminHome() {
         </div>
 
         {/* Novos tenants por mês */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Novos tenants por mês</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900">Novos tenants por mês</h2>
             <p className="text-xs text-gray-500">Últimos 6 meses</p>
           </div>
 
           {newTenantsData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+            <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
           ) : (
-            <div className="h-64">
+            <div className="h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={newTenantsData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                <BarChart data={newTenantsData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                  <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} cursor={{ fill: '#f3f4f6' }} />
-                  <Bar dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={40} name="Novos tenants" />
+                  <XAxis dataKey="month" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} cursor={{ fill: '#f3f4f6' }} />
+                  <Bar dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={32} name="Novos tenants" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -431,25 +428,25 @@ export default function SuperAdminHome() {
       </div>
 
       {/* Top tenants + Agendamentos por status */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Top 5 tenants */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Top 5 tenants</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900">Top 5 tenants</h2>
             <p className="text-xs text-gray-500">Por número de agendamentos nos últimos {period} dias</p>
           </div>
 
           {topTenants.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+            <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
           ) : (
-            <div className="h-64">
+            <div className="h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topTenants} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                <BarChart data={topTenants} layout="vertical" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                  <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} cursor={{ fill: '#f3f4f6' }} />
-                  <Bar dataKey="count" fill="#2563eb" radius={[0, 6, 6, 0]} maxBarSize={28} name="Agendamentos" />
+                  <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                  <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} width={80} />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} cursor={{ fill: '#f3f4f6' }} />
+                  <Bar dataKey="count" fill="#2563eb" radius={[0, 6, 6, 0]} maxBarSize={24} name="Agendamentos" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -457,25 +454,25 @@ export default function SuperAdminHome() {
         </div>
 
         {/* Agendamentos por status */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Agendamentos por status</h2>
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+          <div className="mb-4 md:mb-6">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900">Agendamentos por status</h2>
             <p className="text-xs text-gray-500">Últimos {period} dias</p>
           </div>
 
           {appointmentsStatusData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+            <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
           ) : (
-            <div className="h-64">
+            <div className="h-56 md:h-64">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={appointmentsStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
+                  <Pie data={appointmentsStatusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={2}>
                     {appointmentsStatusData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#6b7280'} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} iconType="circle" />
+                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                  <Legend wrapperStyle={{ fontSize: '11px' }} iconType="circle" />
                 </PieChart>
               </ResponsiveContainer>
             </div>
@@ -485,31 +482,39 @@ export default function SuperAdminHome() {
 
       {/* Ações rápidas */}
       <div className="animate-fade-in-up delay-500">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Ações rápidas</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <h2 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">Ações rápidas</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           <Link
             to="/super-admin/tenants/new"
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-200 transition group"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-200 transition group"
           >
-            <div className="w-11 h-11 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
-              <Building2 className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+              <Building2 className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
-            <div>
-              <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition">Criar novo tenant</p>
-              <p className="text-xs text-gray-500">Cadastre um novo estabelecimento manualmente</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition text-sm md:text-base truncate">
+                Criar novo tenant
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                Cadastre um novo estabelecimento manualmente
+              </p>
             </div>
           </Link>
 
           <Link
             to="/super-admin/users/new"
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4 hover:shadow-md hover:border-purple-200 transition group"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 flex items-center gap-4 hover:shadow-md hover:border-purple-200 transition group"
           >
-            <div className="w-11 h-11 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
-              <Users className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
-            <div>
-              <p className="font-semibold text-gray-900 group-hover:text-purple-600 transition">Criar novo usuário</p>
-              <p className="text-xs text-gray-500">Adicione um administrador a um tenant</p>
+            <div className="min-w-0">
+              <p className="font-semibold text-gray-900 group-hover:text-purple-600 transition text-sm md:text-base truncate">
+                Criar novo usuário
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                Adicione um administrador a um tenant
+              </p>
             </div>
           </Link>
         </div>

@@ -94,7 +94,7 @@ export default function ProfessionalServices() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -107,26 +107,26 @@ export default function ProfessionalServices() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">
           Associações Profissional-Serviço
         </h1>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm md:text-base text-gray-600">
           Defina quais serviços cada profissional está habilitado a realizar.
         </p>
       </div>
 
       {/* Formulário de criação */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6 animate-fade-in-up delay-100">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-4 md:mb-6 animate-fade-in-up delay-100">
         <div className="flex items-center gap-2 mb-4">
           <Plus className="w-4 h-4 text-blue-600" />
           <h2 className="text-sm font-semibold text-gray-700">Adicionar nova associação</h2>
         </div>
 
         <form onSubmit={handleCreate}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-4">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1.5">Profissional</label>
               <div className="relative">
@@ -185,7 +185,7 @@ export default function ProfessionalServices() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+            className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition w-full md:w-auto"
           >
             {saving ? (
               <>
@@ -207,7 +207,7 @@ export default function ProfessionalServices() {
 
       {/* Listagem */}
       {associations.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center animate-fade-in-up delay-200">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center animate-fade-in-up delay-200">
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Link2 className="w-7 h-7 text-gray-400" />
           </div>
@@ -217,48 +217,83 @@ export default function ProfessionalServices() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up delay-200">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Profissional</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serviço</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {associations.map((a, index) => (
-                  <tr key={index} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
-                          {a.professional?.name?.[0]?.toUpperCase() || 'P'}
-                        </div>
-                        <div className="font-medium text-gray-900">{a.professional?.name}</div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <Briefcase className="w-4 h-4 text-gray-400" />
-                        {a.service?.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <button
-                        onClick={() => handleRemove(a.professional_id, a.service_id)}
-                        title="Remover"
-                        className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
+        <>
+          {/* Tabela (desktop) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up delay-200">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Profissional</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serviço</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {associations.map((a, index) => (
+                    <tr key={index} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                            {a.professional?.name?.[0]?.toUpperCase() || 'P'}
+                          </div>
+                          <div className="font-medium text-gray-900">{a.professional?.name}</div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="flex items-center gap-2 text-sm text-gray-700">
+                          <Briefcase className="w-4 h-4 text-gray-400" />
+                          {a.service?.name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <button
+                          onClick={() => handleRemove(a.professional_id, a.service_id)}
+                          title="Remover"
+                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {associations.map((a, index) => (
+              <div
+                key={index}
+                className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${Math.min((index + 1) * 100, 500)}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                    {a.professional?.name?.[0]?.toUpperCase() || 'P'}
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 truncate">{a.professional?.name}</p>
+                    <div className="flex items-center gap-1.5 mt-1 text-sm text-gray-600">
+                      <Briefcase className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+                      <span className="truncate">{a.service?.name}</span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleRemove(a.professional_id, a.service_id)}
+                    className="inline-flex items-center justify-center p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition flex-shrink-0"
+                    title="Remover"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

@@ -68,18 +68,18 @@ export default function Services() {
   };
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 animate-fade-in-up">
+      <div className="flex flex-col gap-4 mb-6 animate-fade-in-up md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Serviços</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">Serviços</h1>
+          <p className="text-sm md:text-base text-gray-600">
             Gerencie os serviços oferecidos pelo seu estabelecimento.
           </p>
         </div>
         <Link
           to="/admin/services/new"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           Novo Serviço
@@ -96,7 +96,7 @@ export default function Services() {
           Carregando serviços...
         </div>
       ) : services.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center animate-fade-in-up">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center animate-fade-in-up">
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Briefcase className="w-7 h-7 text-gray-400" />
           </div>
@@ -113,80 +113,161 @@ export default function Services() {
           </Link>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nome</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Duração</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Preço</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {services.map((s) => (
-                  <tr key={s.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{s.name}</div>
-                      {s.description && (
-                        <div className="text-xs text-gray-500 truncate max-w-xs">{s.description}</div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        {s.duration_minutes} min
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
-                      {formatCurrency(s.price)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${
-                        s.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {s.is_active ? 'Ativo' : 'Inativo'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="inline-flex items-center gap-2">
-                        <button
-                          onClick={() => toggleStatus(s.id, s.is_active)}
-                          title={s.is_active ? 'Desativar' : 'Ativar'}
-                          className={`p-1.5 rounded-lg transition ${
-                            s.is_active
-                              ? 'text-yellow-600 hover:bg-yellow-50'
-                              : 'text-green-600 hover:bg-green-50'
-                          }`}
-                        >
-                          {s.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
-                        </button>
-                        <Link
-                          to={`/admin/services/${s.id}/edit`}
-                          title="Editar"
-                          className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                        <button
-                          onClick={() => deleteService(s.id)}
-                          title="Excluir"
-                          className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+        <>
+          {/* Tabela (desktop) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Duração</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Preço</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {services.map((s) => (
+                    <tr key={s.id} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4">
+                        <div className="font-medium text-gray-900">{s.name}</div>
+                        {s.description && (
+                          <div className="text-xs text-gray-500 truncate max-w-xs">{s.description}</div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          {s.duration_minutes} min
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
+                        {formatCurrency(s.price)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${
+                          s.is_active
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
+                          {s.is_active ? 'Ativo' : 'Inativo'}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="inline-flex items-center gap-2">
+                          <button
+                            onClick={() => toggleStatus(s.id, s.is_active)}
+                            title={s.is_active ? 'Desativar' : 'Ativar'}
+                            className={`p-1.5 rounded-lg transition ${
+                              s.is_active
+                                ? 'text-yellow-600 hover:bg-yellow-50'
+                                : 'text-green-600 hover:bg-green-50'
+                            }`}
+                          >
+                            {s.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                          </button>
+                          <Link
+                            to={`/admin/services/${s.id}/edit`}
+                            title="Editar"
+                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => deleteService(s.id)}
+                            title="Excluir"
+                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {services.map((s, index) => (
+              <div
+                key={s.id}
+                className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${Math.min((index + 1) * 100, 500)}`}
+              >
+                {/* Header do card: nome + status */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 truncate">{s.name}</p>
+                    {s.description && (
+                      <p className="text-xs text-gray-500 truncate mt-0.5">{s.description}</p>
+                    )}
+                  </div>
+                  <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
+                    s.is_active
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {s.is_active ? 'Ativo' : 'Inativo'}
+                  </span>
+                </div>
+
+                {/* Detalhes */}
+                <div className="flex items-center gap-4 mb-4 text-sm text-gray-700">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-4 h-4 text-gray-400" />
+                    {s.duration_minutes} min
+                  </div>
+                  {s.price !== undefined && s.price !== null && (
+                    <div className="font-semibold text-gray-900">
+                      {formatCurrency(s.price)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Ações */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  <button
+                    onClick={() => toggleStatus(s.id, s.is_active)}
+                    className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition ${
+                      s.is_active
+                        ? 'text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
+                        : 'text-green-700 bg-green-50 hover:bg-green-100'
+                    }`}
+                  >
+                    {s.is_active ? (
+                      <>
+                        <PowerOff className="w-4 h-4" />
+                        Desativar
+                      </>
+                    ) : (
+                      <>
+                        <Power className="w-4 h-4" />
+                        Ativar
+                      </>
+                    )}
+                  </button>
+                  <Link
+                    to={`/admin/services/${s.id}/edit`}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                  >
+                    <Pencil className="w-4 h-4" />
+                    Editar
+                  </Link>
+                  <button
+                    onClick={() => deleteService(s.id)}
+                    className="inline-flex items-center justify-center p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

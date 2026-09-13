@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import {
   LineChart,
   Line,
@@ -25,9 +26,12 @@ import {
   RefreshCw,
   ArrowUp,
   ArrowDown,
+  Lock,
+  Sparkles,
 } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+import { usePlan } from '../../hooks/usePlan';
 
 interface KpiValue {
   value: number;
@@ -87,6 +91,7 @@ const PERIODS = [
 
 export default function TenantDashboard() {
   const { user } = useAuth();
+  const { plan } = usePlan();
   const [period, setPeriod] = useState(30);
   const [kpis, setKpis] = useState<Kpis | null>(null);
   const [appointmentsPerDay, setAppointmentsPerDay] = useState<AppointmentsPerDay[]>([]);
@@ -97,28 +102,36 @@ export default function TenantDashboard() {
   const [loading, setLoading] = useState(true);
   const [hasLoaded, setHasLoaded] = useState(false);
 
+  const advancedReports = plan?.allowAdvancedReports ?? false;
+
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [kpisResp, overviewResp, profResp, servResp] = await Promise.all([
+      const [kpisResp, overviewResp] = await Promise.all([
         api.get('/tenant-metrics/kpis', { params: { period } }),
         api.get('/tenant-metrics/overview', { params: { period } }),
-        api.get('/tenant-metrics/top-professionals', { params: { period } }),
-        api.get('/tenant-metrics/top-services', { params: { period } }),
       ]);
       setKpis(kpisResp.data);
       setAppointmentsPerDay(overviewResp.data.appointmentsPerDay);
       setAppointmentsByStatus(overviewResp.data.appointmentsByStatus);
       setAppointmentsByWeekday(overviewResp.data.appointmentsByWeekday);
-      setTopProfessionals(profResp.data);
-      setTopServices(servResp.data);
+
+      if (advancedReports) {
+        const [profResp, servResp] = await Promise.all([
+          api.get('/tenant-metrics/top-professionals', { params: { period } }),
+          api.get('/tenant-metrics/top-services', { params: { period } }),
+        ]);
+        setTopProfessionals(profResp.data);
+        setTopServices(servResp.data);
+      }
+
       setHasLoaded(true);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, [period]);
+  }, [period, advancedReports]);
 
   useEffect(() => {
     loadAll();
@@ -231,45 +244,40 @@ export default function TenantDashboard() {
 
   if (loading && !hasLoaded) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-6">
-          <div className="h-8 bg-gray-200 rounded w-1/3" />
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          <div className="h-8 bg-gray-200 rounded w-1/2 md:w-1/3" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="h-32 bg-gray-200 rounded-2xl" />
+              <div key={i} className="h-28 md:h-32 bg-gray-200 rounded-2xl" />
             ))}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="h-72 bg-gray-200 rounded-2xl" />
-            <div className="h-72 bg-gray-200 rounded-2xl" />
-            <div className="h-72 bg-gray-200 rounded-2xl" />
-          </div>
+          <div className="h-64 md:h-72 bg-gray-200 rounded-2xl" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-8 animate-fade-in-up">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-            Olá, {firstName}
-            <Hand className="w-6 h-6 text-yellow-500" />
-          </h1>
-          <p className="text-gray-600 text-sm">
-            Aqui está o resumo do seu negócio.
-          </p>
-        </div>
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1 flex items-center gap-2 flex-wrap">
+          Olá, {firstName}
+          <Hand className="w-5 h-5 md:w-6 md:h-6 text-yellow-500" />
+        </h1>
+        <p className="text-sm md:text-base text-gray-600">
+          Aqui está o resumo do seu negócio.
+        </p>
 
-        <div className="flex items-center gap-3">
-          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
+        {/* Filtros e atualizar (linha própria no mobile) */}
+        <div className="flex items-center gap-2 mt-4 md:mt-6">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm flex-1 md:flex-initial">
             {PERIODS.map((p) => (
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition ${
+                className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${
                   period === p.value
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
@@ -284,7 +292,7 @@ export default function TenantDashboard() {
             onClick={loadAll}
             disabled={loading}
             title="Atualizar dados"
-            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition"
+            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -292,20 +300,20 @@ export default function TenantDashboard() {
       </div>
 
       {/* KPIs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-6">
         {kpiCards.map((card, index) => {
           const Icon = card.Icon;
           return (
             <div
               key={card.label}
-              className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${(index + 1) * 100}`}
+              className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-3 md:p-4 animate-fade-in-up delay-${(index + 1) * 100}`}
             >
-              <div className={`w-10 h-10 rounded-lg ${colorClasses[card.color].bg} flex items-center justify-center mb-3`}>
-                <Icon className={`w-5 h-5 ${colorClasses[card.color].text}`} />
+              <div className={`w-9 h-9 md:w-10 md:h-10 rounded-lg ${colorClasses[card.color].bg} flex items-center justify-center mb-2 md:mb-3`}>
+                <Icon className={`w-4 h-4 md:w-5 md:h-5 ${colorClasses[card.color].text}`} />
               </div>
-              <p className="text-xs text-gray-500 mb-1">{card.label}</p>
-              <div className="flex items-baseline gap-2 mb-1">
-                <p className="text-xl font-bold text-gray-900 truncate">{card.value}</p>
+              <p className="text-xs text-gray-500 mb-1 truncate">{card.label}</p>
+              <div className="flex items-baseline gap-1.5 md:gap-2 mb-1 flex-wrap">
+                <p className="text-lg md:text-xl font-bold text-gray-900 truncate">{card.value}</p>
                 {renderTrend(card.trend, card.invertTrend)}
               </div>
               {card.trendHint && (
@@ -318,142 +326,181 @@ export default function TenantDashboard() {
         })}
       </div>
 
-      {/* Linha 1: 3 gráficos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        {/* Agendamentos por dia */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-300">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Agendamentos por dia</h2>
-            <p className="text-xs text-gray-500">Últimos {period} dias</p>
-          </div>
-
-          {appointmentsData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">
-              Sem dados
-            </div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={appointmentsData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis
-                    dataKey="date"
-                    stroke="#9ca3af"
-                    style={{ fontSize: '11px' }}
-                    tickLine={false}
-                    axisLine={false}
-                    interval={Math.max(1, Math.floor(appointmentsData.length / 6))}
-                  />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} />
-                  <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 5 }} name="Agendamentos" />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+      {/* Gráfico principal */}
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6 animate-fade-in-up delay-300">
+        <div className="mb-4 md:mb-6">
+          <h2 className="text-sm md:text-base font-semibold text-gray-900">Agendamentos por dia</h2>
+          <p className="text-xs text-gray-500">Últimos {period} dias</p>
         </div>
 
-        {/* Agendamentos por status */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-400">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Agendamentos por status</h2>
-            <p className="text-xs text-gray-500">Últimos {period} dias</p>
+        {appointmentsData.length === 0 ? (
+          <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">
+            Sem dados
           </div>
-
-          {statusData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={2}>
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#6b7280'} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-
-        {/* Agendamentos por dia da semana */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Agendamentos por dia da semana</h2>
-            <p className="text-xs text-gray-500">Últimos {period} dias</p>
+        ) : (
+          <div className="h-56 md:h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={appointmentsData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#9ca3af"
+                  style={{ fontSize: '10px' }}
+                  tickLine={false}
+                  axisLine={false}
+                  interval={Math.max(1, Math.floor(appointmentsData.length / 5))}
+                />
+                <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                <Line type="monotone" dataKey="count" stroke="#2563eb" strokeWidth={2.5} dot={false} activeDot={{ r: 4 }} name="Agendamentos" />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
-
-          {weekdayData.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={weekdayData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
-                  <XAxis dataKey="weekday" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} />
-                  <YAxis stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} cursor={{ fill: '#f3f4f6' }} />
-                  <Bar dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={40} name="Agendamentos" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      {/* Linha 2: Top profissionais + Top serviços */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top 5 profissionais */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Top 5 profissionais</h2>
-            <p className="text-xs text-gray-500">Por número de agendamentos</p>
+      {/* Gráficos avançados */}
+      {advancedReports ? (
+        <>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-400">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">Agendamentos por status</h2>
+                <p className="text-xs text-gray-500">Últimos {period} dias</p>
+              </div>
+              {statusData.length === 0 ? (
+                <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+              ) : (
+                <div className="h-56 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={75} paddingAngle={2}>
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={STATUS_COLORS[entry.status] || '#6b7280'} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} />
+                      <Legend wrapperStyle={{ fontSize: '11px' }} iconType="circle" />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">Agendamentos por dia da semana</h2>
+                <p className="text-xs text-gray-500">Últimos {period} dias</p>
+              </div>
+              {weekdayData.length === 0 ? (
+                <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+              ) : (
+                <div className="h-56 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={weekdayData} margin={{ top: 5, right: 10, left: -25, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <XAxis dataKey="weekday" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} cursor={{ fill: '#f3f4f6' }} />
+                      <Bar dataKey="count" fill="#2563eb" radius={[6, 6, 0, 0]} maxBarSize={32} name="Agendamentos" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
           </div>
 
-          {topProfessionals.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProfessionals} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                  <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} cursor={{ fill: '#f3f4f6' }} />
-                  <Bar dataKey="count" fill="#2563eb" radius={[0, 6, 6, 0]} maxBarSize={28} name="Agendamentos" />
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">Top 5 profissionais</h2>
+                <p className="text-xs text-gray-500">Por número de agendamentos</p>
+              </div>
+              {topProfessionals.length === 0 ? (
+                <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+              ) : (
+                <div className="h-56 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topProfessionals} layout="vertical" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                      <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} width={80} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} cursor={{ fill: '#f3f4f6' }} />
+                      <Bar dataKey="count" fill="#2563eb" radius={[0, 6, 6, 0]} maxBarSize={24} name="Agendamentos" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Top 5 serviços */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in-up delay-500">
-          <div className="mb-6">
-            <h2 className="text-base font-semibold text-gray-900">Top 5 serviços</h2>
-            <p className="text-xs text-gray-500">Por número de agendamentos</p>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-500">
+              <div className="mb-4 md:mb-6">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900">Top 5 serviços</h2>
+                <p className="text-xs text-gray-500">Por número de agendamentos</p>
+              </div>
+              {topServices.length === 0 ? (
+                <div className="h-56 md:h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
+              ) : (
+                <div className="h-56 md:h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={topServices} layout="vertical" margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
+                      <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} allowDecimals={false} />
+                      <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '10px' }} tickLine={false} axisLine={false} width={80} />
+                      <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '12px' }} cursor={{ fill: '#f3f4f6' }} />
+                      <Bar dataKey="count" fill="#10b981" radius={[0, 6, 6, 0]} maxBarSize={24} name="Agendamentos" />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 md:p-10 text-center animate-fade-in-up delay-400">
+          <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
+            <Lock className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+          </div>
+          <h3 className="text-base md:text-xl font-bold text-gray-900 mb-2">
+            Desbloqueie relatórios avançados
+          </h3>
+          <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
+            Tenha acesso a gráficos detalhados de agendamentos por status, distribuição por dia da semana,
+            ranking de profissionais e serviços mais procurados.
+          </p>
+
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 max-w-2xl mx-auto mb-6">
+            <div className="bg-white/70 rounded-xl p-3 text-center">
+              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <p className="text-xs text-gray-700 font-medium">Status dos agendamentos</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-3 text-center">
+              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <p className="text-xs text-gray-700 font-medium">Dias mais movimentados</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-3 text-center">
+              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <p className="text-xs text-gray-700 font-medium">Top profissionais</p>
+            </div>
+            <div className="bg-white/70 rounded-xl p-3 text-center">
+              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <p className="text-xs text-gray-700 font-medium">Top serviços</p>
+            </div>
           </div>
 
-          {topServices.length === 0 ? (
-            <div className="h-64 flex items-center justify-center text-gray-400 text-sm">Sem dados</div>
-          ) : (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topServices} layout="vertical" margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" horizontal={false} />
-                  <XAxis type="number" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} allowDecimals={false} />
-                  <YAxis type="category" dataKey="name" stroke="#9ca3af" style={{ fontSize: '11px' }} tickLine={false} axisLine={false} width={100} />
-                  <Tooltip contentStyle={{ borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '13px' }} cursor={{ fill: '#f3f4f6' }} />
-                  <Bar dataKey="count" fill="#10b981" radius={[0, 6, 6, 0]} maxBarSize={28} name="Agendamentos" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
+          <Link
+            to="#"
+            onClick={(e) => e.preventDefault()}
+            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-sm md:text-base"
+          >
+            <Sparkles className="w-4 h-4" />
+            Fazer upgrade do plano
+          </Link>
+          <p className="text-xs text-gray-500 mt-3">
+            Em breve você poderá fazer upgrade direto pelo painel.
+          </p>
         </div>
-      </div>
+      )}
     </div>
   );
 }

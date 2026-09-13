@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Save, User, Mail, Lock, Shield, Building2 } from 'lucide-react';
 import api from '../../services/api';
 
 interface Tenant {
@@ -77,7 +78,7 @@ export default function UserForm() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -90,29 +91,29 @@ export default function UserForm() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/super-admin/users"
           className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
+          <ArrowLeft className="w-4 h-4" />
           Voltar para usuários
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900">
           {isEditing ? 'Editar Usuário' : 'Novo Usuário'}
         </h1>
-        <p className="text-sm text-gray-600 mt-1">
-          {isEditing ? 'Atualize as informações do usuário.' : 'Adicione um novo administrador à plataforma.'}
+        <p className="text-sm md:text-base text-gray-600 mt-1">
+          {isEditing
+            ? 'Atualize as informações do usuário.'
+            : 'Adicione um novo administrador à plataforma.'}
         </p>
       </div>
 
       {/* Formulário */}
       <div className="max-w-2xl animate-fade-in-up delay-100">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-5">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -126,61 +127,76 @@ export default function UserForm() {
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               Nome completo
             </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="Ex.: Maria Silva"
-              required
-            />
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="Ex.: Maria Silva"
+                required
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
               E-mail
             </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="voce@email.com"
-              required
-            />
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="voce@email.com"
+                required
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Senha {isEditing && <span className="text-gray-400 font-normal">(deixe em branco para manter)</span>}
+              Senha{' '}
+              {isEditing && (
+                <span className="text-gray-400 font-normal">(deixe em branco para manter)</span>
+              )}
             </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="Mínimo 6 caracteres"
-              minLength={6}
-              required={!isEditing}
-            />
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="Mínimo 6 caracteres"
+                minLength={6}
+                required={!isEditing}
+              />
+            </div>
           </div>
 
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
               Papel
             </label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-            >
-              <option value="tenant_admin">Admin Tenant</option>
-              <option value="super_admin">Super Admin</option>
-            </select>
+            <div className="relative">
+              <Shield className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+              >
+                <option value="tenant_admin">Admin Tenant</option>
+                <option value="super_admin">Super Admin</option>
+              </select>
+            </div>
           </div>
 
           {role === 'tenant_admin' && (
@@ -188,18 +204,21 @@ export default function UserForm() {
               <label htmlFor="tenant" className="block text-sm font-medium text-gray-700 mb-2">
                 Tenant associado
               </label>
-              <select
-                id="tenant"
-                value={tenantId}
-                onChange={(e) => setTenantId(e.target.value ? Number(e.target.value) : '')}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                required
-              >
-                <option value="">Selecione...</option>
-                {tenants.map((t) => (
-                  <option key={t.id} value={t.id}>{t.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <select
+                  id="tenant"
+                  value={tenantId}
+                  onChange={(e) => setTenantId(e.target.value ? Number(e.target.value) : '')}
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                  required
+                >
+                  <option value="">Selecione...</option>
+                  {tenants.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           )}
 
@@ -213,18 +232,21 @@ export default function UserForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
                   Salvando...
                 </>
               ) : (
-                'Salvar'
+                <>
+                  <Save className="w-4 h-4" />
+                  Salvar
+                </>
               )}
             </button>
           </div>

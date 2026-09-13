@@ -17,6 +17,7 @@ interface WorkSchedule {
 }
 
 const DAYS_OF_WEEK = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+const DAYS_OF_WEEK_SHORT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 export default function Schedules() {
   const [schedules, setSchedules] = useState<WorkSchedule[]>([]);
@@ -46,7 +47,6 @@ export default function Schedules() {
     }
   };
 
-  // Agrupa por profissional para melhor visualização
   const grouped = schedules.reduce<Record<string, WorkSchedule[]>>((acc, schedule) => {
     const key = schedule.professional?.name || `Profissional #${schedule.professional_id}`;
     if (!acc[key]) acc[key] = [];
@@ -57,18 +57,18 @@ export default function Schedules() {
   const formatTime = (time: string) => time?.slice(0, 5) || '';
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8 animate-fade-in-up">
+      <div className="flex flex-col gap-4 mb-6 animate-fade-in-up md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Horários de Trabalho</h1>
-          <p className="text-sm text-gray-600">
+          <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">Horários de Trabalho</h1>
+          <p className="text-sm md:text-base text-gray-600">
             Configure os horários de atendimento de cada profissional.
           </p>
         </div>
         <Link
           to="/admin/schedules/new"
-          className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           Novo Horário
@@ -85,7 +85,7 @@ export default function Schedules() {
           Carregando horários...
         </div>
       ) : schedules.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center animate-fade-in-up">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center animate-fade-in-up">
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Clock className="w-7 h-7 text-gray-400" />
           </div>
@@ -102,27 +102,27 @@ export default function Schedules() {
           </Link>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           {Object.entries(grouped).map(([professionalName, items], groupIndex) => (
             <div
               key={professionalName}
               className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up delay-${Math.min((groupIndex + 1) * 100, 500)}`}
             >
               {/* Header do grupo */}
-              <div className="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-3">
+              <div className="px-4 md:px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
                   {professionalName[0]?.toUpperCase() || 'P'}
                 </div>
-                <div>
-                  <h2 className="font-semibold text-gray-900">{professionalName}</h2>
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-gray-900 truncate">{professionalName}</h2>
                   <p className="text-xs text-gray-500">
                     {items.length} {items.length === 1 ? 'dia configurado' : 'dias configurados'}
                   </p>
                 </div>
               </div>
 
-              {/* Tabela do grupo */}
-              <div className="overflow-x-auto">
+              {/* Tabela (desktop) */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-white">
                     <tr>
@@ -134,6 +134,7 @@ export default function Schedules() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {items
+                      .slice()
                       .sort((a, b) => a.day_of_week - b.day_of_week)
                       .map((s) => (
                         <tr key={s.id} className="hover:bg-gray-50 transition">
@@ -180,6 +181,56 @@ export default function Schedules() {
                       ))}
                   </tbody>
                 </table>
+              </div>
+
+              {/* Linhas compactas (mobile) */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {items
+                  .slice()
+                  .sort((a, b) => a.day_of_week - b.day_of_week)
+                  .map((s) => (
+                    <div key={s.id} className="p-4">
+                      <div className="flex items-start justify-between gap-3 mb-2">
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {DAYS_OF_WEEK[s.day_of_week]}
+                          </p>
+                          <span className="text-xs text-gray-400">
+                            {DAYS_OF_WEEK_SHORT[s.day_of_week]}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Link
+                            to={`/admin/schedules/${s.id}/edit`}
+                            className="inline-flex items-center justify-center p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                            title="Editar"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Link>
+                          <button
+                            onClick={() => deleteSchedule(s.id)}
+                            className="inline-flex items-center justify-center p-2 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                            title="Excluir"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5 text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          {formatTime(s.start_time)} — {formatTime(s.end_time)}
+                        </div>
+                        {s.break_start && s.break_end && (
+                          <div className="flex items-center gap-1.5 text-gray-600">
+                            <Coffee className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            Pausa: {formatTime(s.break_start)} — {formatTime(s.break_end)}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
               </div>
             </div>
           ))}

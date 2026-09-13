@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Save, Building2, Globe } from 'lucide-react';
 import api from '../../services/api';
 
 export default function TenantForm() {
@@ -10,6 +11,7 @@ export default function TenantForm() {
   const [name, setName] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [status, setStatus] = useState('ativo');
+  const [plan, setPlan] = useState('basico');
   const [loading, setLoading] = useState(isEditing);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -21,6 +23,7 @@ export default function TenantForm() {
           setName(response.data.name);
           setSubdomain(response.data.subdomain);
           setStatus(response.data.status);
+          setPlan(response.data.plan || 'basico');
         })
         .catch(() => setError('Erro ao carregar tenant'))
         .finally(() => setLoading(false));
@@ -32,7 +35,7 @@ export default function TenantForm() {
     setError('');
     setSaving(true);
 
-    const payload = { name, subdomain, status };
+    const payload = { name, subdomain, status, plan };
 
     try {
       if (isEditing) {
@@ -51,7 +54,7 @@ export default function TenantForm() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -64,29 +67,29 @@ export default function TenantForm() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/super-admin/tenants"
           className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
+          <ArrowLeft className="w-4 h-4" />
           Voltar para tenants
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900">
           {isEditing ? 'Editar Tenant' : 'Novo Tenant'}
         </h1>
-        <p className="text-sm text-gray-600 mt-1">
-          {isEditing ? 'Atualize as informações do estabelecimento.' : 'Cadastre um novo estabelecimento na plataforma.'}
+        <p className="text-sm md:text-base text-gray-600 mt-1">
+          {isEditing
+            ? 'Atualize as informações do estabelecimento.'
+            : 'Cadastre um novo estabelecimento na plataforma.'}
         </p>
       </div>
 
       {/* Formulário */}
       <div className="max-w-2xl animate-fade-in-up delay-100">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-5">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -100,15 +103,18 @@ export default function TenantForm() {
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
               Nome do estabelecimento
             </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-              placeholder="Ex.: Barbearia do Zé"
-              required
-            />
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+              <input
+                id="name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder="Ex.: Barbearia do Zé"
+                required
+              />
+            </div>
           </div>
 
           <div>
@@ -116,23 +122,39 @@ export default function TenantForm() {
               Subdomínio
             </label>
             <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
-              <span className="bg-gray-100 text-gray-600 text-sm px-3 py-2.5 border-r border-gray-300">
+              <div className="hidden sm:flex items-center pl-3 pr-1 text-gray-400 pointer-events-none">
+                <Globe className="w-4 h-4" />
+              </div>
+              <span className="hidden sm:inline text-gray-600 text-sm py-2.5 pr-2">
                 https://
               </span>
               <input
                 id="subdomain"
                 type="text"
                 value={subdomain}
-                onChange={(e) => setSubdomain(e.target.value.toLowerCase())}
-                className="flex-1 px-3 py-2.5 focus:outline-none"
+                onChange={(e) =>
+                  setSubdomain(
+                    e.target.value
+                      .toLowerCase()
+                      .replace(/[^a-z0-9-]/g, '')
+                      .replace(/-+/g, '-')
+                      .replace(/^-/, '')
+                  )
+                }
+                className="flex-1 min-w-0 px-3 sm:px-0 py-2.5 focus:outline-none text-sm"
                 placeholder="barbeariadoze"
                 pattern="[a-z0-9-]+"
                 required
               />
-              <span className="bg-gray-100 text-gray-600 text-sm px-3 py-2.5 border-l border-gray-300">
+              <span className="hidden sm:inline text-gray-600 text-xs py-2.5 px-3 whitespace-nowrap">
                 .agendaapp.com.br
               </span>
             </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {subdomain
+                ? `Sua URL: ${subdomain}.agendaapp.com.br`
+                : 'Apenas letras minúsculas, números e hífens'}
+            </p>
           </div>
 
           <div>
@@ -143,13 +165,32 @@ export default function TenantForm() {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
             >
               <option value="ativo">Ativo</option>
               <option value="inativo">Inativo</option>
               <option value="pendente">Pendente</option>
               <option value="suspenso">Suspenso</option>
             </select>
+          </div>
+
+          <div>
+            <label htmlFor="plan" className="block text-sm font-medium text-gray-700 mb-2">
+              Plano
+            </label>
+            <select
+              id="plan"
+              value={plan}
+              onChange={(e) => setPlan(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+            >
+              <option value="basico">Básico — 1 profissional</option>
+              <option value="profissional">Profissional — até 5 profissionais</option>
+              <option value="premium">Premium — profissionais ilimitados</option>
+            </select>
+            <p className="text-xs text-gray-500 mt-1">
+              O plano define o limite de profissionais e os recursos disponíveis.
+            </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
@@ -162,18 +203,21 @@ export default function TenantForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                   </svg>
                   Salvando...
                 </>
               ) : (
-                'Salvar'
+                <>
+                  <Save className="w-4 h-4" />
+                  Salvar
+                </>
               )}
             </button>
           </div>

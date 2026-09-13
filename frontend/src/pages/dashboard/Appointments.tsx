@@ -137,18 +137,18 @@ export default function Appointments() {
   const hasFilters = dateFilter || professionalId !== '' || serviceId !== '';
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Agendamentos</h1>
-        <p className="text-sm text-gray-600">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900 mb-1">Agendamentos</h1>
+        <p className="text-sm md:text-base text-gray-600">
           Acompanhe e gerencie todos os agendamentos do seu estabelecimento.
         </p>
       </div>
 
       {/* Filtros */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6 animate-fade-in-up delay-100">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 mb-4 md:mb-6 animate-fade-in-up delay-100">
+        <div className="flex items-center gap-2 mb-3 md:mb-4">
           <Filter className="w-4 h-4 text-gray-500" />
           <h2 className="text-sm font-semibold text-gray-700">Filtros</h2>
           {hasFilters && (
@@ -161,7 +161,7 @@ export default function Appointments() {
           )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1.5">Data</label>
             <div className="relative">
@@ -221,7 +221,7 @@ export default function Appointments() {
           Carregando agendamentos...
         </div>
       ) : appointments.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center animate-fade-in-up">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 md:p-12 text-center animate-fade-in-up">
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7 text-gray-400" />
           </div>
@@ -233,74 +233,145 @@ export default function Appointments() {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Profissional</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serviço</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Data</th>
-                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
-                {appointments.map((a) => (
-                  <tr key={a.id} className="hover:bg-gray-50 transition">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">{a.customer_name}</div>
-                      <div className="text-xs text-gray-500">{a.customer_contact}</div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.professional?.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.service?.name}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <div className="flex items-center gap-1.5">
-                        <Clock className="w-4 h-4 text-gray-400" />
-                        {formatDate(a.start_time)}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${statusColor(a.status)}`}>
-                        {statusLabel(a.status)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right">
-                      <div className="inline-flex items-center gap-2">
-                        {a.status === 'pending' && (
-                          <button
-                            onClick={() => updateStatus(a.id, 'confirmed')}
-                            title="Confirmar"
-                            className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition"
-                          >
-                            <CheckCircle2 className="w-4 h-4" />
-                          </button>
-                        )}
-                        {a.status !== 'cancelled' && a.status !== 'completed' && (
-                          <button
-                            onClick={() => updateStatus(a.id, 'cancelled')}
-                            title="Cancelar"
-                            className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
-                          >
-                            <XCircle className="w-4 h-4" />
-                          </button>
-                        )}
-                        <button
-                          onClick={() => deleteAppointment(a.id)}
-                          title="Excluir"
-                          className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+        <>
+          {/* Tabela (desktop) */}
+          <div className="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-fade-in-up">
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Profissional</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Serviço</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Data</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100 bg-white">
+                  {appointments.map((a) => (
+                    <tr key={a.id} className="hover:bg-gray-50 transition">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">{a.customer_name}</div>
+                        <div className="text-xs text-gray-500">{a.customer_contact}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.professional?.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.service?.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div className="flex items-center gap-1.5">
+                          <Clock className="w-4 h-4 text-gray-400" />
+                          {formatDate(a.start_time)}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${statusColor(a.status)}`}>
+                          {statusLabel(a.status)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right">
+                        <div className="inline-flex items-center gap-2">
+                          {a.status === 'pending' && (
+                            <button
+                              onClick={() => updateStatus(a.id, 'confirmed')}
+                              title="Confirmar"
+                              className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition"
+                            >
+                              <CheckCircle2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          {a.status !== 'cancelled' && a.status !== 'completed' && (
+                            <button
+                              onClick={() => updateStatus(a.id, 'cancelled')}
+                              title="Cancelar"
+                              className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition"
+                            >
+                              <XCircle className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteAppointment(a.id)}
+                            title="Excluir"
+                            className="p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Cards (mobile) */}
+          <div className="md:hidden space-y-3">
+            {appointments.map((a, index) => (
+              <div
+                key={a.id}
+                className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${Math.min((index + 1) * 100, 500)}`}
+              >
+                {/* Header do card: cliente + status */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 truncate">{a.customer_name}</p>
+                    <p className="text-xs text-gray-500 truncate">{a.customer_contact}</p>
+                  </div>
+                  <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${statusColor(a.status)}`}>
+                    {statusLabel(a.status)}
+                  </span>
+                </div>
+
+                {/* Detalhes */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Clock className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    {formatDate(a.start_time)}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="truncate">{a.professional?.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="truncate">{a.service?.name}</span>
+                  </div>
+                </div>
+
+                {/* Ações */}
+                <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  {a.status === 'pending' && (
+                    <button
+                      onClick={() => updateStatus(a.id, 'confirmed')}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 transition"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Confirmar
+                    </button>
+                  )}
+                  {a.status !== 'cancelled' && a.status !== 'completed' && (
+                    <button
+                      onClick={() => updateStatus(a.id, 'cancelled')}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition"
+                    >
+                      <XCircle className="w-4 h-4" />
+                      Cancelar
+                    </button>
+                  )}
+                  <button
+                    onClick={() => deleteAppointment(a.id)}
+                    className={`${
+                      a.status === 'cancelled' || a.status === 'completed' ? 'flex-1' : ''
+                    } inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 transition`}
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );

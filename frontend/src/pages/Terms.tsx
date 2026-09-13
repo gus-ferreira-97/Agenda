@@ -1,28 +1,35 @@
 import { Link } from 'react-router-dom';
+import { ArrowLeft } from 'lucide-react';
 
 export default function Terms() {
   return (
     <div className="min-h-screen bg-white">
-      <header className="sticky top-0 z-50 bg-white shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-blue-600">
+      {/* Header */}
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
+        <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-3">
+          <Link to="/" className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
             AgendaApp
           </Link>
-          <Link to="/" className="text-sm text-gray-600 hover:text-blue-600">
-            Voltar para o início
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 text-xs md:text-sm text-gray-600 hover:text-blue-600 transition"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Voltar
           </Link>
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-4 py-12 text-gray-800">
-        <h1 className="text-3xl font-bold mb-2">Termos de Uso</h1>
-        <p className="text-sm text-gray-500 mb-8">
+      {/* Conteúdo */}
+      <main className="max-w-3xl mx-auto px-4 py-8 md:py-12 text-gray-800">
+        <h1 className="text-2xl md:text-3xl font-bold mb-2 text-gray-900">Termos de Uso</h1>
+        <p className="text-xs md:text-sm text-gray-500 mb-6 md:mb-8">
           Última atualização: {new Date().toLocaleDateString('pt-BR')}
         </p>
 
-        <div className="space-y-8 text-sm leading-relaxed">
+        <div className="space-y-6 md:space-y-8 text-sm md:text-[15px] leading-relaxed">
           <section>
-            <h2 className="text-lg font-semibold mb-2">1. Aceitação dos Termos</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">1. Aceitação dos Termos</h2>
             <p>
               Estes Termos de Uso regulam o acesso e a utilização da plataforma <strong>AgendaApp</strong>,
               disponibilizada por <strong>[NOME DA EMPRESA]</strong>, inscrita no CNPJ sob o nº
@@ -37,7 +44,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">2. Descrição do Serviço</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">2. Descrição do Serviço</h2>
             <p>
               O AgendaApp é uma plataforma de software como serviço (SaaS) que permite a
               profissionais e estabelecimentos de beleza e estética gerenciarem sua agenda,
@@ -48,7 +55,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">3. Cadastro e Conta</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">3. Cadastro e Conta</h2>
             <p>
               3.1. Para utilizar a Plataforma, o Usuário deverá criar uma conta fornecendo informações
               verdadeiras, completas e atualizadas.
@@ -67,7 +74,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">4. Planos, Pagamentos e Cancelamento</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">4. Planos, Pagamentos e Cancelamento</h2>
             <p>
               4.1. A Plataforma oferece planos de assinatura cujos valores, recursos e formas de pagamento
               estão descritos na página de planos.
@@ -91,7 +98,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">5. Obrigações do Usuário</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">5. Obrigações do Usuário</h2>
             <p>O Usuário se compromete a:</p>
             <ul className="list-disc pl-5 mt-2 space-y-1">
               <li>Utilizar a Plataforma em conformidade com a legislação vigente.</li>
@@ -103,7 +110,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">6. Proteção de Dados Pessoais</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">6. Proteção de Dados Pessoais</h2>
             <p>
               6.1. O tratamento de dados pessoais realizado na Plataforma é regido pela nossa
               <Link to="/privacidade" className="text-blue-600 hover:underline"> Política de Privacidade</Link>,
@@ -121,7 +128,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">7. Propriedade Intelectual</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">7. Propriedade Intelectual</h2>
             <p>
               7.1. Todo o conteúdo, código-fonte, marca, layout e funcionalidades da Plataforma são de
               propriedade exclusiva de <strong>[NOME DA EMPRESA]</strong>, sendo vedada a reprodução,
@@ -134,7 +141,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">8. Disponibilidade e Suporte</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">8. Disponibilidade e Suporte</h2>
             <p>
               8.1. Nos esforçamos para manter a Plataforma disponível continuamente, mas não garantimos
               operação ininterrupta e livre de erros. Podem ocorrer manutenções programadas ou
@@ -146,7 +153,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">9. Limitação de Responsabilidade</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">9. Limitação de Responsabilidade</h2>
             <p>
               9.1. A Plataforma é fornecida "como está". Não nos responsabilizamos por lucros cessantes,
               perda de dados decorrente de uso indevido, ou danos indiretos.
@@ -158,7 +165,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">10. Suspensão e Encerramento</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">10. Suspensão e Encerramento</h2>
             <p>
               10.1. Podemos suspender ou encerrar contas que violem estes Termos, a legislação vigente ou
               que apresentem risco à segurança da Plataforma.
@@ -170,7 +177,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">11. Alterações dos Termos</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">11. Alterações dos Termos</h2>
             <p>
               Podemos atualizar estes Termos periodicamente. Alterações relevantes serão comunicadas com
               antecedência razoável. O uso contínuo da Plataforma após a atualização implica concordância
@@ -179,7 +186,7 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">12. Legislação Aplicável e Foro</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">12. Legislação Aplicável e Foro</h2>
             <p>
               Estes Termos são regidos pelas leis brasileiras. Eventuais controvérsias serão resolvidas
               no foro da comarca de <strong>[COMARCA]</strong>, salvo disposição legal aplicável ao consumidor.
@@ -187,12 +194,29 @@ export default function Terms() {
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-2">13. Contato</h2>
+            <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">13. Contato</h2>
             <p>
               Em caso de dúvidas sobre estes Termos, entre em contato pelo e-mail
               <strong> [E-MAIL DE CONTATO]</strong>.
             </p>
           </section>
+        </div>
+
+        {/* Footer da página */}
+        <div className="mt-10 md:mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <Link
+            to="/privacidade"
+            className="text-xs md:text-sm text-blue-600 hover:underline"
+          >
+            Ver Política de Privacidade →
+          </Link>
+          <Link
+            to="/"
+            className="text-xs md:text-sm text-gray-500 hover:text-gray-700 inline-flex items-center gap-1"
+          >
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Voltar para o início
+          </Link>
         </div>
       </main>
     </div>

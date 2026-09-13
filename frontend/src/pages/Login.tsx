@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
-const REMEMBER_KEY = 'agendaapp_remember';
+const REMEMBER_EMAIL_KEY = 'agendaapp_remember_email';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -14,20 +15,11 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
-  // Preenche os campos com credenciais salvas ao carregar a página
   useEffect(() => {
-    const saved = localStorage.getItem(REMEMBER_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (parsed.email) {
-          setEmail(parsed.email);
-          setPassword(parsed.password || '');
-          setRememberMe(true);
-        }
-      } catch {
-        // ignora dados corrompidos
-      }
+    const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
     }
   }, []);
 
@@ -37,7 +29,11 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', {
+        email,
+        password,
+        rememberMe,
+      });
       const token = response.data.access_token;
 
       const payload = JSON.parse(atob(token.split('.')[1]));
@@ -50,11 +46,10 @@ export default function Login() {
         tenantId: payload.tenantId,
       };
 
-      // Salva ou limpa as credenciais conforme a escolha do usuário
       if (rememberMe) {
-        localStorage.setItem(REMEMBER_KEY, JSON.stringify({ email, password }));
+        localStorage.setItem(REMEMBER_EMAIL_KEY, email);
       } else {
-        localStorage.removeItem(REMEMBER_KEY);
+        localStorage.removeItem(REMEMBER_EMAIL_KEY);
       }
 
       login(token, user);
@@ -67,7 +62,7 @@ export default function Login() {
     } catch (err: any) {
       const message = err.response?.data?.message;
       if (Array.isArray(message)) {
-        setError(message.join(' '));
+        setError(message.join(' • '));
       } else {
         setError(message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
       }
@@ -79,20 +74,20 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Lado esquerdo - Formulário */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 lg:px-8 bg-gray-50">
         <div className="w-full max-w-md">
           {/* Logo */}
-          <Link to="/" className="inline-flex items-center gap-2 mb-8 animate-fade-in">
+          <Link to="/" className="inline-flex items-center gap-2 mb-6 md:mb-8 animate-fade-in">
             <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </div>
-            <span className="text-xl font-bold text-gray-900">AgendaApp</span>
+            <span className="text-lg md:text-xl font-bold text-gray-900">AgendaApp</span>
           </Link>
 
-          <div className="mb-8 animate-fade-in-up delay-100">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <div className="mb-6 md:mb-8 animate-fade-in-up delay-100">
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
               Bem-vindo de volta
             </h1>
             <p className="text-sm text-gray-600">
@@ -101,7 +96,7 @@ export default function Login() {
           </div>
 
           {error && (
-            <div className="mb-6 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2 animate-fade-in">
+            <div className="mb-5 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2 animate-fade-in">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -109,7 +104,7 @@ export default function Login() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-5 animate-fade-in-up delay-200">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 animate-fade-in-up delay-200">
             {/* Campo Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
@@ -117,16 +112,14 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                  <Mail className="w-5 h-5 text-gray-400" />
                 </div>
                 <input
                   id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   placeholder="voce@email.com"
                   required
                   autoComplete="email"
@@ -146,16 +139,14 @@ export default function Login() {
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
+                  <Lock className="w-5 h-5 text-gray-400" />
                 </div>
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                   placeholder="Sua senha"
                   required
                   autoComplete="current-password"
@@ -167,14 +158,9 @@ export default function Login() {
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {showPassword ? (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                    </svg>
+                    <EyeOff className="w-5 h-5" />
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
+                    <Eye className="w-5 h-5" />
                   )}
                 </button>
               </div>
@@ -190,7 +176,7 @@ export default function Login() {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
               />
               <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700 cursor-pointer select-none">
-                Lembrar meus dados de acesso
+                Lembrar meu e-mail por 30 dias
               </label>
             </div>
 
@@ -214,20 +200,20 @@ export default function Login() {
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-600 mt-8 animate-fade-in delay-300">
+          <p className="text-center text-sm text-gray-600 mt-6 md:mt-8 animate-fade-in delay-300">
             Ainda não tem conta?{' '}
             <Link to="/cadastro" className="text-blue-600 font-medium hover:underline">
               Criar conta grátis
             </Link>
           </p>
 
-          <p className="text-center text-xs text-gray-500 mt-6">
+          <p className="text-center text-xs text-gray-500 mt-4 md:mt-6">
             <Link to="/" className="hover:text-gray-700">← Voltar para o início</Link>
           </p>
         </div>
       </div>
 
-      {/* Lado direito - Painel visual */}
+      {/* Lado direito - Painel visual (oculto em mobile) */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
         <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full -mr-32 -mt-32 opacity-20" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-400 rounded-full -ml-24 -mb-24 opacity-20" />
@@ -241,38 +227,21 @@ export default function Login() {
           </p>
 
           <ul className="space-y-4">
-            <li className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-sm text-blue-50">Link público de agendamento sem cadastro</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-sm text-blue-50">Vários profissionais na mesma agenda</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-sm text-blue-50">Controle total de horários e serviços</span>
-            </li>
-            <li className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <span className="text-sm text-blue-50">7 dias grátis, sem cartão de crédito</span>
-            </li>
+            {[
+              'Link público de agendamento sem cadastro',
+              'Vários profissionais na mesma agenda',
+              'Controle total de horários e serviços',
+              '7 dias grátis, sem cartão de crédito',
+            ].map((feature) => (
+              <li key={feature} className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <span className="text-sm text-blue-50">{feature}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>

@@ -95,7 +95,7 @@ export default function ScheduleForm() {
 
   if (loading) {
     return (
-      <div className="p-6 md:p-8">
+      <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
           <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
@@ -108,9 +108,9 @@ export default function ScheduleForm() {
   }
 
   return (
-    <div className="p-6 md:p-8">
+    <div className="p-4 md:p-8">
       {/* Header */}
-      <div className="mb-8 animate-fade-in-up">
+      <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/admin/schedules"
           className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
@@ -118,10 +118,10 @@ export default function ScheduleForm() {
           <ArrowLeft className="w-4 h-4" />
           Voltar para horários
         </Link>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl md:text-3xl font-bold text-gray-900">
           {isEditing ? 'Editar Horário' : 'Novo Horário'}
         </h1>
-        <p className="text-sm text-gray-600 mt-1">
+        <p className="text-sm md:text-base text-gray-600 mt-1">
           {isEditing
             ? 'Atualize as informações do horário de trabalho.'
             : 'Configure o horário de atendimento de um profissional.'}
@@ -130,7 +130,7 @@ export default function ScheduleForm() {
 
       {/* Formulário */}
       <div className="max-w-2xl animate-fade-in-up delay-100">
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8 space-y-5">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
               <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
