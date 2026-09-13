@@ -24,7 +24,7 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class TenantController {
-  constructor(private readonly tenantService: TenantService) {}
+  constructor(private readonly tenantService: TenantService) { }
 
   @Post()
   @Roles('super_admin')
@@ -67,6 +67,24 @@ export class TenantController {
       throw new ForbiddenException('Usuário não associado a um tenant');
     }
     return this.tenantService.updateBranding(user.tenantId, dto);
+  }
+
+  @Get('me/plan')
+  @Roles('tenant_admin')
+  async getMyPlan(@CurrentUser() user: any) {
+    if (!user?.tenantId) {
+      throw new ForbiddenException('Usuário não associado a um tenant');
+    }
+    return this.tenantService.getPlanInfo(user.tenantId);
+  }
+
+  @Get('me/trial')
+  @Roles('tenant_admin')
+  async getMyTrial(@CurrentUser() user: any) {
+    if (!user?.tenantId) {
+      throw new ForbiddenException('Usuário não associado a um tenant');
+    }
+    return this.tenantService.getTrialInfo(user.tenantId);
   }
 
   @Get(':id')

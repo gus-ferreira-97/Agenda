@@ -28,6 +28,18 @@ export class Tenant {
   @Column({ length: 20, default: 'ativo' })
   status: string;
 
+  @Column({ type: 'varchar', length: 20, default: 'basico' })
+  plan: string;
+
+  @Column({ type: 'timestamp', nullable: true })
+  trial_started_at: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  trial_ends_at: Date | null;
+
+  @Column({ type: 'boolean', default: false })
+  trial_used: boolean;
+
   @CreateDateColumn()
   created_at: Date;
 

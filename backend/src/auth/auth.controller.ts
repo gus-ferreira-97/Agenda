@@ -5,12 +5,12 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('login')
-  async login(@Body() body: { email: string; password: string }) {
+  async login(@Body() body: { email: string; password: string; rememberMe?: boolean }) {
     const user = await this.authService.validateUser(body.email, body.password);
-    return this.authService.login(user);
+    return this.authService.login(user, body.rememberMe === true);
   }
 
   @Post('forgot-password')

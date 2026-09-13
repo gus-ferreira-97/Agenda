@@ -23,10 +23,13 @@ import { TenantMiddleware } from './common/middlewares/tenant.middleware';
 import { MailModule } from './mail/mail.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantMetricsModule } from './tenant-metrics/tenant-metrics.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [
         ConfigModule,
@@ -38,7 +41,8 @@ import { TenantMetricsModule } from './tenant-metrics/tenant-metrics.module';
         PublicModule,
         MailModule,
         SuperAdminModule,
-        TenantMetricsModule
+        TenantMetricsModule,
+        TasksModule
       ],
 
       useFactory: (configService: ConfigService) => ({

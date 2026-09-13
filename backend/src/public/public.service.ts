@@ -41,7 +41,12 @@ export class PublicService {
 
   async registerTenant(dto: RegisterTenantDto): Promise<{ message: string }> {
     // Normaliza o subdomínio
-    const subdomain = dto.subdomain.toLowerCase().trim();
+    const subdomain = dto.subdomain
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
 
     // Verifica se subdomínio já existe
     const existingTenant = await this.tenantRepo.findOne({
@@ -64,6 +69,7 @@ export class PublicService {
       name: dto.tenantName,
       subdomain,
       status: 'pendente',
+      plan: dto.plan || 'basico',
     });
     const savedTenant = await this.tenantRepo.save(tenant);
 

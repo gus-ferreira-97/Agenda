@@ -7,8 +7,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Professional } from './entities/professional.entity';
 import { Appointment } from '../appointment/entities/appointment.entity';
+import { Tenant } from '../tenant/entities/tenant.entity';
 import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
+import { getPlan } from '../common/plans';
 
 @Injectable()
 export class ProfessionalService {
@@ -17,7 +19,9 @@ export class ProfessionalService {
     private readonly professionalRepository: Repository<Professional>,
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
-  ) { }
+    @InjectRepository(Tenant)
+    private readonly tenantRepository: Repository<Tenant>,
+  ) {}
 
   async create(createProfessionalDto: CreateProfessionalDto, user: any): Promise<Professional> {
     let tenantId: number | null = null;
@@ -31,6 +35,30 @@ export class ProfessionalService {
       }
     } else {
       throw new ForbiddenException('Papel sem permissão');
+    }
+
+    if (!tenantId) {
+      throw new ForbiddenException('É necessário um tenant para criar um profissional');
+    }
+
+    // Verifica o limite do plano
+    const tenant = await this.tenantRepository.findOne({ where: { id: tenantId } });
+    if (!tenant) {
+      throw new NotFoundException('Tenant não encontrado');
+    }
+
+    const plan = getPlan(tenant.plan);
+
+    if (plan.maxProfessionals !== null) {
+      const currentCount = await this.professionalRepository.count({
+        where: { tenant_id: tenantId },
+      });
+
+      if (currentCount >= plan.maxProfessionals) {
+        throw new ForbiddenException(
+          `Seu plano ${plan.name} permite apenas ${plan.maxProfessionals} profissional(is). Faça upgrade para adicionar mais.`,
+        );
+      }
     }
 
     const professional = this.professionalRepository.create({

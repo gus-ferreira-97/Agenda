@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -75,11 +75,21 @@ export class UserService {
     return result as User;
   }
 
-  async remove(id: number): Promise<void> {
-    const result = await this.userRepository.delete(id);
-    if (result.affected === 0) {
+  async remove(id: number): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
+
+    if (user.role === 'super_admin') {
+      throw new ForbiddenException(
+        'Não é possível excluir um usuário Super Admin. Altere o papel dele antes de excluir.',
+      );
+    }
+
+    await this.userRepository.delete(id);
+    return { message: 'Usuário excluído com sucesso.' };
   }
 
   async setResetToken(email: string, token: string, expires: Date): Promise<void> {

@@ -53,6 +53,12 @@ export class AuthService {
         );
       }
 
+      if (tenant.status === 'trial_expirado') {
+        throw new ForbiddenException(
+          'Seu período de teste terminou. Entre em contato para ativar sua assinatura.',
+        );
+      }
+
       if (tenant.status !== 'ativo') {
         throw new ForbiddenException(
           'Sua conta não está ativa. Entre em contato com o suporte.',
@@ -64,7 +70,7 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any) {
+  async login(user: any, rememberMe: boolean = false) {
     const payload = {
       sub: user.id,
       name: user.name,
@@ -72,8 +78,11 @@ export class AuthService {
       role: user.role,
       tenantId: user.tenant_id,
     };
+
+    const expiresIn = rememberMe ? '30d' : '1h';
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.sign(payload, { expiresIn }),
     };
   }
 
