@@ -27,6 +27,9 @@ import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import TenantDashboard from './pages/dashboard/TenantDashboard';
 import Settings from './pages/dashboard/Settings';
+import Profile from './pages/Profile';
+import VerifyEmail from './pages/VerifyEmail';
+import IdleManager from './components/IdleManager';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { token } = useAuth();
@@ -39,11 +42,19 @@ function App() {
       <BrowserRouter>
         <ScrollToTop />
         <CookieConsent />
+        <IdleManager />
         <Routes>
+
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/cadastro" element={<Register />} />
           <Route path="/agendar" element={<PublicBooking />} />
-
+          <Route path="/esqueci-senha" element={<ForgotPassword />} />
+          <Route path="/redefinir-senha" element={<ResetPassword />} />
+          <Route path="/verificar-email" element={<VerifyEmail />} />
+          <Route path="/termos" element={<Terms />} />
+          <Route path="/privacidade" element={<Privacy />} />
+          
           <Route
             path="/admin"
             element={
@@ -65,6 +76,7 @@ function App() {
             <Route path="schedules/:id/edit" element={<ScheduleForm />} />
             <Route path="professional-services" element={<ProfessionalServices />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
           <Route
@@ -82,13 +94,9 @@ function App() {
             <Route path="users" element={<Users />} />
             <Route path="users/new" element={<UserForm />} />
             <Route path="users/:id/edit" element={<UserForm />} />
+            <Route path="profile" element={<Profile />} />
           </Route>
 
-          <Route path="/esqueci-senha" element={<ForgotPassword />} />
-          <Route path="/redefinir-senha" element={<ResetPassword />} />
-          <Route path="/termos" element={<Terms />} />
-          <Route path="/privacidade" element={<Privacy />} />
-          <Route path="/cadastro" element={<Register />} />
           <Route path="*" element={<PublicBooking />} />
         </Routes>
       </BrowserRouter>

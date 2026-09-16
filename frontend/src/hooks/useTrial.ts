@@ -11,11 +11,17 @@ export interface TrialInfo {
   plan: string;
 }
 
-export function useTrial() {
+export function useTrial(enabled: boolean = true) {
   const [trial, setTrial] = useState<TrialInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
+    if (!enabled) {
+      setTrial(null);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     try {
       const resp = await api.get('/tenants/me/trial');
@@ -25,7 +31,7 @@ export function useTrial() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [enabled]);
 
   useEffect(() => {
     load();

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, CheckCircle2, AlertCircle, AlertTriangle, ArrowLeft, Shield } from 'lucide-react';
 import api from '../services/api';
+import PasswordChecklist, { isPasswordStrong } from '../components/PasswordChecklist';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
@@ -11,6 +12,7 @@ export default function ResetPassword() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -24,8 +26,8 @@ export default function ResetPassword() {
       return;
     }
 
-    if (password.length < 6) {
-      setError('A senha deve ter pelo menos 6 caracteres.');
+    if (!isPasswordStrong(password)) {
+      setError('A senha não atende todos os requisitos de segurança.');
       return;
     }
 
@@ -41,7 +43,7 @@ export default function ResetPassword() {
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
       const msg = err.response?.data?.message;
-      setError(Array.isArray(msg) ? msg.join(' ') : msg || 'Erro ao redefinir a senha.');
+      setError(Array.isArray(msg) ? msg.join(' • ') : msg || 'Erro ao redefinir a senha.');
     } finally {
       setLoading(false);
     }
@@ -85,7 +87,7 @@ export default function ResetPassword() {
                   Criar nova senha
                 </h1>
                 <p className="text-sm text-gray-600">
-                  Escolha uma senha segura com pelo menos 6 caracteres.
+                  Escolha uma senha forte para manter sua conta segura.
                 </p>
               </div>
 
@@ -124,8 +126,7 @@ export default function ResetPassword() {
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      placeholder="Mínimo 6 caracteres"
-                      minLength={6}
+                      placeholder="Crie uma senha forte"
                       required
                     />
                     <button
@@ -137,11 +138,12 @@ export default function ResetPassword() {
                       {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                     </button>
                   </div>
+                  <PasswordChecklist password={password} show={password.length > 0} />
                 </div>
 
                 <div>
                   <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-                    Confirmar nova senha
+                    Repita a nova senha
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -149,15 +151,29 @@ export default function ResetPassword() {
                     </div>
                     <input
                       id="confirmPassword"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showConfirmPassword ? 'text' : 'password'}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      placeholder="Repita a senha"
-                      minLength={6}
+                      className={`w-full pl-10 pr-12 py-3 border rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                        confirmPassword.length > 0 && confirmPassword !== password
+                          ? 'border-red-300'
+                          : 'border-gray-300'
+                      }`}
+                      placeholder="Digite a senha novamente"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
+                  {confirmPassword.length > 0 && confirmPassword !== password && (
+                    <p className="text-xs text-red-600 mt-1">As senhas não coincidem</p>
+                  )}
                 </div>
 
                 <button

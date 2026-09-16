@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { ArrowLeft, Save, Briefcase, Clock, DollarSign, FileText, CheckCircle2 } from 'lucide-react';
 import api from '../../services/api';
+import ServiceOptionsManager from '../../components/ServiceOptionsManager';
 
 export default function ServiceForm() {
   const { id } = useParams();
@@ -235,6 +236,13 @@ export default function ServiceForm() {
           </div>
         </form>
       </div>
+
+      {/* Variações do serviço (apenas em modo edição) */}
+      {isEditing && (
+        <div className="max-w-2xl mt-6 animate-fade-in-up delay-200">
+          <ServiceOptionsManager serviceId={Number(id)} />
+        </div>
+      )}
     </div>
   );
 }

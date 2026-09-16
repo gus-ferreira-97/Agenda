@@ -11,11 +11,14 @@ import {
   Settings as SettingsIcon,
   Menu,
   X,
+  ExternalLink,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import TrialBanner from './TrialBanner';
 import TrialBlockedScreen from './TrialBlockedScreen';
 import { useTrial } from '../hooks/useTrial';
+import { useTenantInfo } from '../hooks/useTenantInfo';
 
 const navItems = [
   {
@@ -54,12 +57,18 @@ const navItems = [
     label: 'Configurações',
     icon: SettingsIcon,
   },
+  {
+    to: '/admin/profile',
+    label: 'Meu Perfil',
+    icon: UserCircle,
+  },
 ];
 
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { trial, loading: trialLoading } = useTrial();
+  const { tenant } = useTenantInfo();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Fecha o menu ao trocar de rota
@@ -108,6 +117,23 @@ export default function DashboardLayout() {
         </button>
       </div>
 
+      {/* Link para a agenda pública */}
+      {publicUrl && (
+        <div className="p-4 border-t border-gray-800">
+          <a
+            href={publicUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-blue-300 hover:bg-blue-600/10 hover:text-blue-200 transition group"
+          >
+            <ExternalLink className="w-5 h-5 flex-shrink-0" />
+            <span className="flex-1 truncate">Ver minha agenda</span>
+          </a>
+        </div>
+      )}
+
+
+
       {/* Navegação */}
       <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
@@ -154,6 +180,11 @@ export default function DashboardLayout() {
   if (!trialLoading && trial?.isExpired) {
     return <TrialBlockedScreen />;
   }
+
+  const publicDomain = import.meta.env.VITE_PUBLIC_DOMAIN || 'agendaapp.com.br';
+  const publicUrl = tenant?.subdomain
+    ? `${window.location.protocol}//${tenant.subdomain}.${publicDomain}/agendar`
+    : null;
 
   return (
     <div className="min-h-screen bg-gray-100 flex">

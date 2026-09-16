@@ -8,6 +8,7 @@ import {
   LogOut,
   Menu,
   X,
+  UserCircle
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -28,6 +29,9 @@ const navItems = [
     label: 'Usuários',
     icon: Users,
   },
+  { to: '/super-admin/profile', 
+    label: 'Meu Perfil', 
+    icon: UserCircle },
 ];
 
 export default function SuperAdminLayout() {
@@ -90,11 +94,10 @@ export default function SuperAdminLayout() {
             <Link
               key={item.to}
               to={item.to}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${
-                active
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition ${active
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-300 hover:bg-gray-800 hover:text-white'
-              }`}
+                }`}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               {item.label}

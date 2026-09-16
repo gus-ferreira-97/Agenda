@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Calendar,
   ChevronLeft,
+  Package,
 } from 'lucide-react';
 import api from '../services/api';
 
@@ -35,6 +36,15 @@ interface Service {
   price?: number;
 }
 
+interface ServiceOption {
+  id: number;
+  name: string;
+  description: string | null;
+  imageUrl: string | null;
+  price: number | null;
+  durationMinutes: number | null;
+}
+
 interface ProfessionalService {
   professional_id: number;
   service_id: number;
@@ -48,6 +58,9 @@ export default function PublicBooking() {
 
   const [selectedProfessional, setSelectedProfessional] = useState<number | null>(null);
   const [selectedService, setSelectedService] = useState<number | null>(null);
+  const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
+  const [loadingOptions, setLoadingOptions] = useState(false);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [selectedDate, setSelectedDate] = useState('');
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState('');
@@ -59,6 +72,8 @@ export default function PublicBooking() {
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [loadingInitial, setLoadingInitial] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // ============ CARREGAMENTO INICIAL ============
 
   useEffect(() => {
     async function loadData() {
@@ -87,6 +102,8 @@ export default function PublicBooking() {
     loadData();
   }, []);
 
+  // ============ SERVIÇOS DISPONÍVEIS POR PROFISSIONAL ============
+
   const availableServices = useMemo(() => {
     if (!selectedProfessional) return [];
     if (associations.length === 0) return services;
@@ -96,8 +113,39 @@ export default function PublicBooking() {
     return services.filter((s) => serviceIds.includes(s.id));
   }, [selectedProfessional, services, associations]);
 
+  // ============ CARREGAR VARIAÇÕES DO SERVIÇO ============
+
   useEffect(() => {
-    if (selectedProfessional && selectedService && selectedDate) {
+    if (!selectedService) {
+      setServiceOptions([]);
+      setSelectedOption(null);
+      return;
+    }
+
+    setLoadingOptions(true);
+    setSelectedOption(null);
+
+    api
+      .get(`/public/services/${selectedService}/options`)
+      .then((resp) => {
+        setServiceOptions(resp.data);
+      })
+      .catch(() => {
+        setServiceOptions([]);
+      })
+      .finally(() => setLoadingOptions(false));
+  }, [selectedService]);
+
+  const hasOptions = serviceOptions.length > 0;
+  const canChooseDate = selectedService && (!hasOptions || selectedOption);
+
+  // Números das etapas mudam se tiver etapa de variação
+  const stepOffset = hasOptions ? 1 : 0;
+
+  // ============ CARREGAR SLOTS ============
+
+  useEffect(() => {
+    if (canChooseDate && selectedDate) {
       setLoadingSlots(true);
       setError('');
       api
@@ -106,6 +154,7 @@ export default function PublicBooking() {
             professionalId: selectedProfessional,
             serviceId: selectedService,
             date: selectedDate,
+            ...(selectedOption ? { serviceOptionId: selectedOption } : {}),
           },
         })
         .then((response) => {
@@ -120,7 +169,9 @@ export default function PublicBooking() {
     } else {
       setAvailableSlots([]);
     }
-  }, [selectedProfessional, selectedService, selectedDate]);
+  }, [selectedProfessional, selectedService, selectedOption, selectedDate, canChooseDate]);
+
+  // ============ SUBMIT ============
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,11 +183,17 @@ export default function PublicBooking() {
       return;
     }
 
+    if (hasOptions && !selectedOption) {
+      setError('Selecione uma variação do serviço.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.post('/public/appointments', {
         professionalId: selectedProfessional,
         serviceId: selectedService,
+        ...(selectedOption ? { serviceOptionId: selectedOption } : {}),
         customerName,
         customerContact,
         startTime: `${selectedDate}T${selectedSlot}:00`,
@@ -145,12 +202,13 @@ export default function PublicBooking() {
       setCustomerName('');
       setCustomerContact('');
       setSelectedSlot('');
-      if (selectedProfessional && selectedService && selectedDate) {
+      if (canChooseDate && selectedDate) {
         const resp = await api.get('/public/available-slots', {
           params: {
             professionalId: selectedProfessional,
             serviceId: selectedService,
             date: selectedDate,
+            ...(selectedOption ? { serviceOptionId: selectedOption } : {}),
           },
         });
         setAvailableSlots(resp.data);
@@ -165,6 +223,8 @@ export default function PublicBooking() {
   const resetAll = () => {
     setSelectedProfessional(null);
     setSelectedService(null);
+    setServiceOptions([]);
+    setSelectedOption(null);
     setSelectedDate('');
     setSelectedSlot('');
     setAvailableSlots([]);
@@ -174,7 +234,7 @@ export default function PublicBooking() {
 
   const primary = tenant?.primaryColor || '#2563eb';
 
-  const formatCurrency = (value?: number) => {
+  const formatCurrency = (value?: number | null) => {
     if (value === undefined || value === null) return null;
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
@@ -205,6 +265,9 @@ export default function PublicBooking() {
 
   const selectedProfessionalData = professionals.find((p) => p.id === selectedProfessional);
   const selectedServiceData = services.find((s) => s.id === selectedService);
+  const selectedOptionData = serviceOptions.find((o) => o.id === selectedOption);
+
+  // ============ RENDER ============
 
   if (loadingInitial) {
     return (
@@ -320,12 +383,11 @@ export default function PublicBooking() {
                         onClick={() => {
                           setSelectedProfessional(p.id);
                           setSelectedService(null);
+                          setSelectedOption(null);
                           setSelectedSlot('');
                         }}
                         className={`p-3 rounded-xl border-2 text-left transition ${
-                          isSelected
-                            ? 'shadow-md'
-                            : 'border-gray-200 hover:border-gray-300 bg-white'
+                          isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
                         }`}
                         style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
                       >
@@ -376,9 +438,7 @@ export default function PublicBooking() {
                             setSelectedSlot('');
                           }}
                           className={`w-full p-3 rounded-xl border-2 text-left transition flex items-center justify-between gap-3 ${
-                            isSelected
-                              ? 'shadow-md'
-                              : 'border-gray-200 hover:border-gray-300 bg-white'
+                            isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
                           }`}
                           style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
                         >
@@ -407,8 +467,20 @@ export default function PublicBooking() {
               </section>
             )}
 
-            {/* Etapa 3: Data */}
-            {selectedProfessional && selectedService && (
+            {/* Etapa 3: Variação (só se o serviço tiver variações) */}
+            {selectedProfessional && selectedService && loadingOptions && (
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="py-2 text-center text-sm text-gray-500">
+                  <svg className="animate-spin w-5 h-5 mx-auto mb-2" style={{ color: primary }} fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                  Carregando opções...
+                </div>
+              </section>
+            )}
+
+            {selectedProfessional && selectedService && !loadingOptions && hasOptions && (
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
                 <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
@@ -416,6 +488,87 @@ export default function PublicBooking() {
                     style={{ backgroundColor: primary }}
                   >
                     3
+                  </div>
+                  <h2 className="text-sm font-semibold text-gray-900">Escolha a variação</h2>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                  {serviceOptions.map((option) => {
+                    const isSelected = selectedOption === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedOption(option.id);
+                          setSelectedSlot('');
+                        }}
+                        className={`rounded-xl border-2 overflow-hidden text-left transition ${
+                          isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
+                        }`}
+                        style={isSelected ? { backgroundColor: `${primary}10`, borderColor: primary } : {}}
+                      >
+                        {/* Imagem */}
+                        {option.imageUrl && (
+                          <div className="aspect-video bg-gray-100 overflow-hidden">
+                            <img
+                              src={option.imageUrl}
+                              alt={option.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        <div className="p-3">
+                          <div className="flex items-start gap-2 mb-1">
+                            <Package className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: primary }} />
+                            <p className="text-sm font-medium text-gray-900">{option.name}</p>
+                          </div>
+
+                          {option.description && (
+                            <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                              {option.description}
+                            </p>
+                          )}
+
+                          <div className="flex items-center gap-3 text-xs text-gray-700 flex-wrap">
+                            {option.price !== null && (
+                              <span className="font-semibold text-gray-900">
+                                {formatCurrency(option.price)}
+                              </span>
+                            )}
+                            {option.durationMinutes !== null && (
+                              <span className="flex items-center gap-1">
+                                <Clock className="w-3 h-3 text-gray-400" />
+                                {option.durationMinutes} min
+                              </span>
+                            )}
+                            {option.price === null && option.durationMinutes === null && (
+                              <span className="text-gray-400">
+                                Preço e duração do serviço
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
+
+            {/* Etapa Date: Data (aparece se já pode escolher) */}
+            {selectedProfessional && selectedService && !loadingOptions && canChooseDate && (
+              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  <div
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                    style={{ backgroundColor: primary }}
+                  >
+                    {3 + stepOffset}
                   </div>
                   <h2 className="text-sm font-semibold text-gray-900">Escolha a data</h2>
                 </div>
@@ -436,15 +589,15 @@ export default function PublicBooking() {
               </section>
             )}
 
-            {/* Etapa 4: Horário */}
-            {selectedProfessional && selectedService && selectedDate && (
+            {/* Etapa Time: Horário */}
+            {selectedProfessional && selectedService && !loadingOptions && canChooseDate && selectedDate && (
               <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
                 <div className="flex items-center gap-2 mb-3 md:mb-4">
                   <div
                     className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
                     style={{ backgroundColor: primary }}
                   >
-                    4
+                    {4 + stepOffset}
                   </div>
                   <h2 className="text-sm font-semibold text-gray-900">Escolha o horário</h2>
                 </div>
@@ -516,92 +669,103 @@ export default function PublicBooking() {
               </section>
             )}
 
-            {/* Etapa 5: Dados do cliente + resumo */}
-            {selectedProfessional && selectedService && selectedDate && selectedSlot && (
-              <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
-                <div className="flex items-center gap-2 mb-3 md:mb-4">
+            {/* Etapa Data: dados do cliente + resumo */}
+            {selectedProfessional &&
+              selectedService &&
+              !loadingOptions &&
+              canChooseDate &&
+              selectedDate &&
+              selectedSlot && (
+                <section className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 animate-fade-in-up">
+                  <div className="flex items-center gap-2 mb-3 md:mb-4">
+                    <div
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
+                      style={{ backgroundColor: primary }}
+                    >
+                      {5 + stepOffset}
+                    </div>
+                    <h2 className="text-sm font-semibold text-gray-900">Seus dados</h2>
+                  </div>
+
+                  {/* Resumo */}
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold flex-shrink-0"
-                    style={{ backgroundColor: primary }}
+                    className="rounded-xl p-3 md:p-4 mb-4 border"
+                    style={{ backgroundColor: `${primary}10`, borderColor: `${primary}30` }}
                   >
-                    5
+                    <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Resumo</p>
+                    <div className="space-y-1.5 text-sm">
+                      <div className="flex items-center gap-2 text-gray-700 min-w-0">
+                        <User className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
+                        <span className="truncate">{selectedProfessionalData?.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700 min-w-0">
+                        <Briefcase className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
+                        <span className="truncate">{selectedServiceData?.name}</span>
+                      </div>
+                      {selectedOptionData && (
+                        <div className="flex items-center gap-2 text-gray-700 min-w-0">
+                          <Package className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
+                          <span className="truncate">{selectedOptionData.name}</span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-gray-700 min-w-0">
+                        <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
+                        <span className="truncate capitalize">{formatDateLabel(selectedDate)}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-700">
+                        <Clock className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
+                        <span>{selectedSlot}</span>
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="text-sm font-semibold text-gray-900">Seus dados</h2>
-                </div>
 
-                {/* Resumo */}
-                <div
-                  className="rounded-xl p-3 md:p-4 mb-4 border"
-                  style={{ backgroundColor: `${primary}10`, borderColor: `${primary}30` }}
-                >
-                  <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Resumo</p>
-                  <div className="space-y-1.5 text-sm">
-                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
-                      <User className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      <span className="truncate">{selectedProfessionalData?.name}</span>
+                  <form onSubmit={handleSubmit} className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1.5">Seu nome</label>
+                      <input
+                        type="text"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
+                        placeholder="Como podemos te chamar?"
+                        required
+                      />
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
-                      <Briefcase className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      <span className="truncate">{selectedServiceData?.name}</span>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1.5">Telefone ou e-mail</label>
+                      <input
+                        type="text"
+                        value={customerContact}
+                        onChange={(e) => setCustomerContact(e.target.value)}
+                        className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
+                        placeholder="(11) 99999-9999 ou seu@email.com"
+                        required
+                      />
                     </div>
-                    <div className="flex items-center gap-2 text-gray-700 min-w-0">
-                      <Calendar className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      <span className="truncate capitalize">{formatDateLabel(selectedDate)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-700">
-                      <Clock className="w-4 h-4 flex-shrink-0" style={{ color: primary }} />
-                      <span>{selectedSlot}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Seu nome</label>
-                    <input
-                      type="text"
-                      value={customerName}
-                      onChange={(e) => setCustomerName(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
-                      placeholder="Como podemos te chamar?"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Telefone ou e-mail</label>
-                    <input
-                      type="text"
-                      value={customerContact}
-                      onChange={(e) => setCustomerContact(e.target.value)}
-                      className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition text-sm"
-                      placeholder="(11) 99999-9999 ou seu@email.com"
-                      required
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="w-full py-3 rounded-xl text-white font-semibold disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-                    style={{ backgroundColor: primary }}
-                  >
-                    {submitting ? (
-                      <>
-                        <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                        </svg>
-                        Confirmando...
-                      </>
-                    ) : (
-                      <>
-                        <CheckCircle2 className="w-4 h-4" />
-                        Confirmar agendamento
-                      </>
-                    )}
-                  </button>
-                </form>
-              </section>
-            )}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="w-full py-3 rounded-xl text-white font-semibold disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                      style={{ backgroundColor: primary }}
+                    >
+                      {submitting ? (
+                        <>
+                          <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                          </svg>
+                          Confirmando...
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="w-4 h-4" />
+                          Confirmar agendamento
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </section>
+              )}
 
             {/* Começar de novo */}
             {(selectedProfessional || selectedService || selectedDate) && (

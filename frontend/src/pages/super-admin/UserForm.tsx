@@ -1,7 +1,18 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Save, User, Mail, Lock, Shield, Building2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  Save,
+  User,
+  Mail,
+  Lock,
+  Shield,
+  Building2,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import api from '../../services/api';
+import PasswordChecklist, { isPasswordStrong } from '../../components/PasswordChecklist';
 
 interface Tenant {
   id: number;
@@ -17,6 +28,9 @@ export default function UserForm() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [role, setRole] = useState('tenant_admin');
   const [tenantId, setTenantId] = useState<number | ''>('');
   const [loading, setLoading] = useState(isEditing);
@@ -48,6 +62,21 @@ export default function UserForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    // Ao criar, ou ao alterar a senha na edição, valida as regras fortes
+    const isChangingPassword = !isEditing || password.length > 0;
+
+    if (isChangingPassword) {
+      if (!isPasswordStrong(password)) {
+        setError('A senha não atende todos os requisitos de segurança.');
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError('As senhas não coincidem.');
+        return;
+      }
+    }
+
     setSaving(true);
 
     const payload: any = {
@@ -57,7 +86,7 @@ export default function UserForm() {
       tenantId: role === 'tenant_admin' && tenantId !== '' ? Number(tenantId) : null,
     };
 
-    if (!isEditing || password) {
+    if (isChangingPassword) {
       payload.password = password;
     }
 
@@ -70,7 +99,7 @@ export default function UserForm() {
       navigate('/super-admin/users');
     } catch (err: any) {
       const msg = err.response?.data?.message;
-      setError(Array.isArray(msg) ? msg.join(' ') : msg || 'Erro ao salvar');
+      setError(Array.isArray(msg) ? msg.join(' • ') : msg || 'Erro ao salvar');
     } finally {
       setSaving(false);
     }
@@ -170,16 +199,61 @@ export default function UserForm() {
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               <input
                 id="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                placeholder="Mínimo 6 caracteres"
-                minLength={6}
+                className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                placeholder={isEditing ? 'Nova senha (opcional)' : 'Crie uma senha forte'}
                 required={!isEditing}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+            {(!isEditing || password.length > 0) && (
+              <PasswordChecklist password={password} show={password.length > 0} />
+            )}
           </div>
+
+          {(!isEditing || password.length > 0) && (
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
+                Repita a senha
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                <input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
+                    confirmPassword.length > 0 && confirmPassword !== password
+                      ? 'border-red-300'
+                      : 'border-gray-300'
+                  }`}
+                  placeholder="Digite a senha novamente"
+                  required={!isEditing || password.length > 0}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+              {confirmPassword.length > 0 && confirmPassword !== password && (
+                <p className="text-xs text-red-600 mt-1">As senhas não coincidem</p>
+              )}
+            </div>
+          )}
 
           <div>
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">

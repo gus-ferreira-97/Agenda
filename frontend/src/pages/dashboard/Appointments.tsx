@@ -8,6 +8,8 @@ import {
   Clock,
   User,
   Briefcase,
+  CheckCheck,
+  Package,
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -24,6 +26,9 @@ interface Appointment {
   service: {
     name: string;
   };
+  service_option?: {
+    name: string;
+  } | null;
 }
 
 interface Professional {
@@ -78,8 +83,9 @@ export default function Appointments() {
     try {
       await api.patch(`/appointments/${id}`, { status });
       loadAppointments();
-    } catch (err) {
-      console.error(err);
+    } catch (err: any) {
+      const msg = err.response?.data?.message;
+      alert(Array.isArray(msg) ? msg.join(' ') : msg || 'Erro ao atualizar status.');
     }
   };
 
@@ -256,7 +262,15 @@ export default function Appointments() {
                         <div className="text-xs text-gray-500">{a.customer_contact}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.professional?.name}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{a.service?.name}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                        <div>{a.service?.name}</div>
+                        {a.service_option && (
+                          <div className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                            <Package className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                            {a.service_option.name}
+                          </div>
+                        )}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                         <div className="flex items-center gap-1.5">
                           <Clock className="w-4 h-4 text-gray-400" />
@@ -277,6 +291,15 @@ export default function Appointments() {
                               className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition"
                             >
                               <CheckCircle2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          {a.status === 'confirmed' && (
+                            <button
+                              onClick={() => updateStatus(a.id, 'completed')}
+                              title="Concluir"
+                              className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                            >
+                              <CheckCheck className="w-4 h-4" />
                             </button>
                           )}
                           {a.status !== 'cancelled' && a.status !== 'completed' && (
@@ -311,7 +334,7 @@ export default function Appointments() {
                 key={a.id}
                 className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${Math.min((index + 1) * 100, 500)}`}
               >
-                {/* Header do card: cliente + status */}
+                {/* Header do card */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-gray-900 truncate">{a.customer_name}</p>
@@ -332,9 +355,17 @@ export default function Appointments() {
                     <User className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     <span className="truncate">{a.professional?.name}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="truncate">{a.service?.name}</span>
+                  <div className="flex items-start gap-2 text-sm text-gray-700">
+                    <Briefcase className="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate">{a.service?.name}</div>
+                      {a.service_option && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 mt-0.5">
+                          <Package className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                          <span className="truncate">{a.service_option.name}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -349,6 +380,15 @@ export default function Appointments() {
                       Confirmar
                     </button>
                   )}
+                  {a.status === 'confirmed' && (
+                    <button
+                      onClick={() => updateStatus(a.id, 'completed')}
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                    >
+                      <CheckCheck className="w-4 h-4" />
+                      Concluir
+                    </button>
+                  )}
                   {a.status !== 'cancelled' && a.status !== 'completed' && (
                     <button
                       onClick={() => updateStatus(a.id, 'cancelled')}
@@ -360,9 +400,8 @@ export default function Appointments() {
                   )}
                   <button
                     onClick={() => deleteAppointment(a.id)}
-                    className={`${
-                      a.status === 'cancelled' || a.status === 'completed' ? 'flex-1' : ''
-                    } inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 transition`}
+                    className={`${a.status === 'cancelled' || a.status === 'completed' ? 'flex-1' : ''
+                      } inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium text-gray-600 bg-gray-50 hover:bg-gray-100 transition`}
                     title="Excluir"
                   >
                     <Trash2 className="w-4 h-4" />

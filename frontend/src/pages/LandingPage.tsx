@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { Check, Sparkles } from 'lucide-react';
 import Reveal from '../components/Reveal';
 
 export default function LandingPage() {
@@ -18,20 +19,20 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-white shadow-sm animate-fade-in">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-3">
-          <Link to="/" className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
+          <Link to="/" className="text-lg md:text-xl font-bold text-violet-600 flex-shrink-0">
             AgendaApp
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-gray-700">
-            <button onClick={() => scrollToSection('como-funciona')} className="hover:text-blue-600">
+            <button onClick={() => scrollToSection('como-funciona')} className="hover:text-violet-600 transition">
               Como funciona
             </button>
-            <button onClick={() => scrollToSection('planos')} className="hover:text-blue-600">
+            <button onClick={() => scrollToSection('planos')} className="hover:text-violet-600 transition">
               Planos
             </button>
-            <button onClick={() => scrollToSection('faq')} className="hover:text-blue-600">
+            <button onClick={() => scrollToSection('faq')} className="hover:text-violet-600 transition">
               Dúvidas
             </button>
           </nav>
@@ -39,13 +40,13 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 md:gap-3">
             <Link
               to="/login"
-              className="hidden sm:inline text-sm font-medium text-gray-700 hover:text-blue-600"
+              className="hidden sm:inline text-sm font-medium text-gray-700 hover:text-violet-600 transition"
             >
               Entrar
             </Link>
             <Link
               to="/cadastro"
-              className="bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-lg hover:bg-blue-700 whitespace-nowrap"
+              className="bg-violet-600 text-white text-xs md:text-sm font-medium px-4 md:px-5 py-2 md:py-2.5 rounded-full hover:bg-violet-700 transition whitespace-nowrap"
             >
               Começar grátis
             </Link>
@@ -71,16 +72,16 @@ export default function LandingPage() {
         {menuOpen && (
           <div className="md:hidden border-t border-gray-100 bg-white">
             <nav className="flex flex-col px-4 py-3 space-y-1 text-sm font-medium text-gray-700">
-              <button onClick={() => scrollToSection('como-funciona')} className="text-left py-2.5 hover:text-blue-600">
+              <button onClick={() => scrollToSection('como-funciona')} className="text-left py-2.5 hover:text-violet-600 transition">
                 Como funciona
               </button>
-              <button onClick={() => scrollToSection('planos')} className="text-left py-2.5 hover:text-blue-600">
+              <button onClick={() => scrollToSection('planos')} className="text-left py-2.5 hover:text-violet-600 transition">
                 Planos
               </button>
-              <button onClick={() => scrollToSection('faq')} className="text-left py-2.5 hover:text-blue-600">
+              <button onClick={() => scrollToSection('faq')} className="text-left py-2.5 hover:text-violet-600 transition">
                 Dúvidas
               </button>
-              <Link to="/login" className="py-2.5 hover:text-blue-600">
+              <Link to="/login" className="py-2.5 hover:text-violet-600 transition">
                 Entrar
               </Link>
             </nav>
@@ -89,206 +90,166 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="bg-gradient-to-b from-blue-50 to-white py-12 md:py-24">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 items-center">
+      <section className="relative overflow-hidden">
+        {/* Fundo decorativo suave */}
+        <div className="absolute inset-0 bg-gradient-to-b from-violet-50/70 to-white" aria-hidden="true" />
+        <div
+          className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-violet-200/40 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <div className="relative max-w-6xl mx-auto px-4 py-16 md:py-28 grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
           <div>
             <Reveal>
-              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 leading-tight mb-4">
-                A agenda online do seu salão, barbearia ou estúdio
+              <span className="inline-flex items-center gap-1.5 bg-violet-100 text-violet-700 text-xs md:text-sm font-medium px-3 py-1.5 rounded-full mb-5">
+                <Sparkles className="w-3.5 h-3.5" />
+                Feito para beleza, estética e bem-estar
+              </span>
+            </Reveal>
+
+            <Reveal delay={100}>
+              <h1 className="text-4xl md:text-6xl font-bold text-gray-900 leading-[1.1] tracking-tight mb-5">
+                Seus clientes
+                <br />
+                agendam.
+                <br />
+                <span className="text-violet-600">Você só atende.</span>
               </h1>
             </Reveal>
-            <Reveal delay={100}>
-              <p className="text-gray-600 text-base md:text-lg mb-8">
-                Seus clientes agendam sozinhos pelo seu link, sem baixar app e sem criar conta.
-                Você gerencia profissionais, serviços e horários em um só lugar.
+
+            <Reveal delay={200}>
+              <p className="text-gray-600 text-base md:text-lg mb-8 max-w-lg leading-relaxed">
+                Compartilhe um único link. Seus clientes escolhem o serviço e o horário
+                em segundos, sem baixar nada e sem criar conta.
               </p>
             </Reveal>
-            <Reveal delay={200}>
-              <div className="flex flex-col sm:flex-row gap-3">
+
+            <Reveal delay={300}>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-5">
                 <Link
                   to="/cadastro"
-                  className="w-full sm:w-auto bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 text-center"
+                  className="bg-violet-600 text-white px-7 py-3.5 rounded-full font-semibold hover:bg-violet-700 transition text-center shadow-lg shadow-violet-600/20"
                 >
-                  Começar grátis
+                  Criar minha agenda
                 </Link>
-                <button
-                  onClick={() => scrollToSection('mockups')}
-                  className="w-full sm:w-auto border border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 text-center"
-                >
-                  Ver como funciona
-                </button>
+                <p className="text-xs text-gray-500 text-center sm:text-left">
+                  7 dias grátis
+                  <br className="hidden sm:block" />
+                  <span className="sm:hidden"> · </span>
+                  Sem cartão
+                </p>
               </div>
             </Reveal>
           </div>
 
-          <Reveal delay={300}>
-            <div className="flex justify-center">
-              <div className="w-full max-w-xs md:max-w-sm h-72 md:h-96 bg-white rounded-2xl shadow-lg border border-gray-100 flex items-center justify-center text-gray-400 text-sm">
-                Mockup do celular aqui
-              </div>
+          <Reveal delay={200}>
+            <div className="flex justify-center md:justify-end">
+              <PhoneMockup
+                src="/mockups/public-booking.png"
+                alt="Página pública de agendamento"
+              />
             </div>
           </Reveal>
-        </div>
-      </section>
-
-      {/* Benefícios */}
-      <section className="py-12 md:py-20 bg-white">
-        <div className="max-w-6xl mx-auto px-4">
-          <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Por que usar o AgendaApp?
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-                Tudo o que você precisa para organizar sua agenda e atender melhor seus clientes.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                ),
-                title: 'Link próprio para agendar',
-                description: 'Compartilhe seu link personalizado e deixe seus clientes agendarem sozinhos, sem baixar nada.',
-              },
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-5.13a4 4 0 11-8 0 4 4 0 018 0zm6 0a3 3 0 11-6 0 3 3 0 016 0z" />
-                ),
-                title: 'Vários profissionais',
-                description: 'Cada profissional com seus próprios horários, serviços e agenda — tudo no mesmo lugar.',
-              },
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                ),
-                title: 'Sem cadastro para o cliente',
-                description: 'Seu cliente só informa nome e contato. Nada de senhas ou aplicativos.',
-              },
-              {
-                icon: (
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                ),
-                title: 'Você no controle',
-                description: 'Gerencie serviços, horários e agendamentos em um painel simples e rápido.',
-              },
-            ].map((item, index) => (
-              <Reveal key={index} delay={(index + 1) * 100} className="h-full">
-                <div className="bg-gray-50 rounded-xl p-5 md:p-6 border border-gray-100 hover:shadow-md transition h-full">
-                  <div className="w-11 h-11 md:w-12 md:h-12 rounded-lg bg-blue-100 flex items-center justify-center mb-3 md:mb-4">
-                    <svg className="w-5 h-5 md:w-6 md:h-6 text-blue-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                      {item.icon}
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 text-sm md:text-base">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
         </div>
       </section>
 
       {/* Como funciona */}
-      <section id="como-funciona" className="scroll-mt-20 py-12 md:py-20 bg-gray-50">
+      <section id="como-funciona" className="scroll-mt-20 py-16 md:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            <div className="max-w-2xl mb-12 md:mb-16">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
                 Como funciona
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-                Em três passos simples você já está com sua agenda online pronta para receber clientes.
+              <p className="text-gray-600 text-base md:text-lg">
+                Você configura uma vez. Depois é só compartilhar o link.
               </p>
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-10">
             {[
-              { step: '1', title: 'Crie sua conta', description: 'Cadastre-se gratuitamente em menos de um minuto e escolha o subdomínio da sua agenda.' },
-              { step: '2', title: 'Configure tudo', description: 'Adicione seus profissionais, serviços, preços e horários de atendimento em poucos cliques.' },
-              { step: '3', title: 'Compartilhe seu link', description: 'Divulgue seu link único nas redes sociais e deixe seus clientes agendarem sozinhos.' },
+              {
+                step: '01',
+                title: 'Crie sua conta',
+                description:
+                  'Menos de um minuto. Você escolhe o endereço da sua agenda e pronto.',
+              },
+              {
+                step: '02',
+                title: 'Configure o negócio',
+                description:
+                  'Cadastre profissionais, serviços, preços e horários de atendimento.',
+              },
+              {
+                step: '03',
+                title: 'Compartilhe o link',
+                description:
+                  'Divulgue nas redes sociais e receba agendamentos automaticamente.',
+              },
             ].map((item, index) => (
               <Reveal key={index} delay={(index + 1) * 100}>
-                <div className="text-center">
-                  <div className="w-12 h-12 md:w-14 md:h-14 mx-auto rounded-full bg-blue-600 text-white flex items-center justify-center text-lg md:text-xl font-bold mb-4">
+                <div className="relative">
+                  <span className="text-5xl md:text-6xl font-bold text-violet-100 block mb-4 tabular-nums">
                     {item.step}
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2 text-base md:text-lg">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
+                  </span>
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </Reveal>
             ))}
           </div>
-
-          <Reveal delay={400}>
-            <div className="mt-10 md:mt-16 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-12 text-center">
-              <h3 className="text-lg md:text-2xl font-bold text-gray-900 mb-3">
-                Pronto para ver na prática?
-              </h3>
-              <p className="text-gray-600 mb-6 max-w-lg mx-auto text-sm md:text-base">
-                Veja como seus clientes vão agendar em segundos, direto pelo celular.
-              </p>
-              <button
-                onClick={() => scrollToSection('mockups')}
-                className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700"
-              >
-                Ver o produto em ação
-              </button>
-            </div>
-          </Reveal>
         </div>
       </section>
 
-      {/* Mockups do produto */}
-      <section id="mockups" className="scroll-mt-20 py-12 md:py-20 bg-white">
+      {/* Mockups */}
+      <section id="mockups" className="scroll-mt-20 py-16 md:py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Veja como é simples
+            <div className="max-w-2xl mb-12 md:mb-16">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
+                Por dentro do AgendaApp
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-                Do agendamento do cliente até o painel do seu negócio — tudo pensado para ser rápido e intuitivo.
+              <p className="text-gray-600 text-base md:text-lg">
+                A tela que seu cliente vê e o painel que você usa para gerenciar tudo.
               </p>
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-start">
-            {/* Mockup 1 — Página pública */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
             <Reveal delay={100}>
               <div className="flex flex-col items-center">
                 <PhoneMockup
                   src="/mockups/public-booking.png"
                   alt="Página pública de agendamento"
                 />
-                <div className="mt-6 text-center">
-                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                <div className="mt-8 text-center">
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                     Página de agendamento
                   </h3>
-                  <p className="text-sm text-gray-600 max-w-xs mx-auto">
+                  <p className="text-sm text-gray-600 max-w-xs mx-auto leading-relaxed">
                     Seus clientes escolhem profissional, serviço e horário em poucos toques.
                   </p>
                 </div>
               </div>
             </Reveal>
 
-            {/* Mockup 2 — Painel admin */}
             <Reveal delay={200}>
               <div className="flex flex-col items-center">
                 <PhoneMockup
                   src="/mockups/admin-dashboard.png"
                   alt="Painel administrativo"
                 />
-                <div className="mt-6 text-center">
-                  <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-1">
+                <div className="mt-8 text-center">
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
                     Painel de gestão
                   </h3>
-                  <p className="text-sm text-gray-600 max-w-xs mx-auto">
-                    Acompanhe agendamentos, profissionais e resultados do seu negócio em um só lugar.
+                  <p className="text-sm text-gray-600 max-w-xs mx-auto leading-relaxed">
+                    Acompanhe agendamentos, profissionais e resultados em um só lugar.
                   </p>
                 </div>
               </div>
@@ -297,154 +258,147 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Segmentos */}
-      <section className="py-12 md:py-20 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Feito para o seu tipo de negócio
-              </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-                Seja qual for a sua área, o AgendaApp se adapta à sua rotina.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-            {[
-              { label: 'Lash Design', emoji: '👁️' },
-              { label: 'Nail Design', emoji: '💅' },
-              { label: 'Cabeleireiros', emoji: '💇' },
-              { label: 'Barbearias', emoji: '💈' },
-              { label: 'Estética', emoji: '✨' },
-              { label: 'Maquiagem', emoji: '💄' },
-            ].map((segment, index) => (
-              <Reveal key={segment.label} delay={(index + 1) * 100}>
-                <div className="bg-white border border-gray-100 rounded-xl p-3 md:p-4 flex flex-col items-center justify-center text-center hover:shadow-sm transition">
-                  <span className="text-2xl md:text-3xl mb-1 md:mb-2">{segment.emoji}</span>
-                  <span className="text-xs md:text-sm font-medium text-gray-800">{segment.label}</span>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Planos */}
-      <section id="planos" className="scroll-mt-20 py-12 md:py-20 bg-white">
+      <section id="planos" className="scroll-mt-20 py-16 md:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            <div className="max-w-2xl mb-12 md:mb-16">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
                 Planos que cabem no seu negócio
               </h2>
-              <p className="text-gray-600 max-w-2xl mx-auto text-sm md:text-base">
-                Comece grátis e evolua conforme sua agenda crescer. Sem contrato de fidelidade.
+              <p className="text-gray-600 text-base md:text-lg">
+                Comece grátis e evolua conforme sua agenda crescer.
               </p>
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 max-w-5xl mx-auto">
-            {/* Card Básico */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
+            {/* Básico */}
             <Reveal delay={100} className="h-full">
               <div
                 onClick={() => setSelectedPlan('basico')}
-                className={`cursor-pointer w-full bg-white rounded-2xl p-5 md:p-6 flex flex-col h-full transition-all duration-200 ${selectedPlan === 'basico'
-                    ? 'border-2 border-blue-600 shadow-md'
-                    : 'border border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                  }`}
+                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full transition-all duration-200 ${
+                  selectedPlan === 'basico'
+                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
+                    : 'border border-gray-200 hover:border-gray-300'
+                }`}
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Básico</h3>
                 <p className="text-sm text-gray-500 mb-6">Para quem está começando</p>
                 <div className="mb-6">
-                  <span className="text-3xl font-bold text-gray-900">R$ 49</span>
+                  <span className="text-4xl font-bold text-gray-900">R$ 49</span>
                   <span className="text-gray-500 text-sm">/mês</span>
                 </div>
                 <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> 1 profissional</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Serviços ilimitados</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Link público de agendamento</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Painel de agendamentos</li>
+                  {[
+                    '1 profissional',
+                    'Serviços ilimitados',
+                    'Link público de agendamento',
+                    'Painel de agendamentos',
+                  ].map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Link
                   to="/cadastro?plan=basico"
-                  className={`block text-center py-2.5 rounded-lg font-semibold transition ${selectedPlan === 'basico'
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
-                    }`}
+                  className={`block text-center py-3 rounded-full font-semibold transition ${
+                    selectedPlan === 'basico'
+                      ? 'bg-violet-600 text-white hover:bg-violet-700'
+                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
+                  }`}
                 >
                   Começar grátis
                 </Link>
               </div>
             </Reveal>
 
-            {/* Card Profissional */}
+            {/* Profissional */}
             <Reveal delay={200} className="h-full">
               <div
                 onClick={() => setSelectedPlan('profissional')}
-                className={`cursor-pointer w-full bg-white rounded-2xl p-5 md:p-6 flex flex-col h-full relative transition-all duration-200 ${selectedPlan === 'profissional'
-                    ? 'border-2 border-blue-600 shadow-md'
-                    : 'border border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                  }`}
+                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full relative transition-all duration-200 ${
+                  selectedPlan === 'profissional'
+                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
+                    : 'border border-gray-200 hover:border-gray-300'
+                }`}
               >
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
                   Mais popular
                 </span>
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Profissional</h3>
                 <p className="text-sm text-gray-500 mb-6">Para salões em crescimento</p>
                 <div className="mb-6">
-                  <span className="text-3xl font-bold text-gray-900">R$ 89</span>
+                  <span className="text-4xl font-bold text-gray-900">R$ 89</span>
                   <span className="text-gray-500 text-sm">/mês</span>
                 </div>
                 <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Até 5 profissionais</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Serviços ilimitados</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Link público de agendamento</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Painel completo de gestão</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Suporte por e-mail</li>
+                  {[
+                    'Até 5 profissionais',
+                    'Serviços ilimitados',
+                    'Link público de agendamento',
+                    'Painel completo de gestão',
+                    'Suporte por e-mail',
+                  ].map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Link
                   to="/cadastro?plan=profissional"
-                  className={`block text-center py-2.5 rounded-lg font-semibold transition ${selectedPlan === 'profissional'
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
-                    }`}
+                  className={`block text-center py-3 rounded-full font-semibold transition ${
+                    selectedPlan === 'profissional'
+                      ? 'bg-violet-600 text-white hover:bg-violet-700'
+                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
+                  }`}
                 >
                   Assinar agora
                 </Link>
               </div>
             </Reveal>
 
-            {/* Card Premium */}
+            {/* Premium */}
             <Reveal delay={300} className="h-full">
               <div
                 onClick={() => setSelectedPlan('premium')}
-                className={`cursor-pointer w-full bg-white rounded-2xl p-5 md:p-6 flex flex-col h-full transition-all duration-200 ${selectedPlan === 'premium'
-                    ? 'border-2 border-blue-600 shadow-md'
-                    : 'border border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                  }`}
+                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full transition-all duration-200 ${
+                  selectedPlan === 'premium'
+                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
+                    : 'border border-gray-200 hover:border-gray-300'
+                }`}
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-1">Premium</h3>
                 <p className="text-sm text-gray-500 mb-6">Para estúdios e equipes grandes</p>
                 <div className="mb-6">
-                  <span className="text-3xl font-bold text-gray-900">R$ 149</span>
+                  <span className="text-4xl font-bold text-gray-900">R$ 149</span>
                   <span className="text-gray-500 text-sm">/mês</span>
                 </div>
                 <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Profissionais ilimitados</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Serviços ilimitados</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Link público de agendamento</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Painel completo de gestão</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Suporte prioritário</li>
-                  <li className="flex items-start gap-2"><span className="text-blue-600">✓</span> Relatórios avançados</li>
+                  {[
+                    'Profissionais ilimitados',
+                    'Serviços ilimitados',
+                    'Link público de agendamento',
+                    'Painel completo de gestão',
+                    'Suporte prioritário',
+                    'Relatórios avançados',
+                  ].map((feature) => (
+                    <li key={feature} className="flex items-start gap-2">
+                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+                      <span>{feature}</span>
+                    </li>
+                  ))}
                 </ul>
                 <Link
                   to="/cadastro?plan=premium"
-                  className={`block text-center py-2.5 rounded-lg font-semibold transition ${selectedPlan === 'premium'
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'border border-blue-600 text-blue-600 hover:bg-blue-50'
-                    }`}
+                  className={`block text-center py-3 rounded-full font-semibold transition ${
+                    selectedPlan === 'premium'
+                      ? 'bg-violet-600 text-white hover:bg-violet-700'
+                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
+                  }`}
                 >
                   Assinar agora
                 </Link>
@@ -453,7 +407,7 @@ export default function LandingPage() {
           </div>
 
           <Reveal delay={400}>
-            <p className="text-center text-xs text-gray-500 mt-6 md:mt-8">
+            <p className="text-center text-xs text-gray-500 mt-8">
               Todos os planos incluem 7 dias grátis. Cancele quando quiser.
             </p>
           </Reveal>
@@ -461,14 +415,14 @@ export default function LandingPage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="scroll-mt-20 py-12 md:py-20 bg-gray-50">
+      <section id="faq" className="scroll-mt-20 py-16 md:py-24 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4">
           <Reveal>
-            <div className="text-center mb-10 md:mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            <div className="text-center mb-12 md:mb-16">
+              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
                 Perguntas frequentes
               </h2>
-              <p className="text-gray-600 text-sm md:text-base">
+              <p className="text-gray-600 text-base md:text-lg">
                 Ficou com alguma dúvida? Separamos as mais comuns.
               </p>
             </div>
@@ -502,18 +456,20 @@ export default function LandingPage() {
               },
             ].map((item, index) => (
               <Reveal key={index} delay={(index + 1) * 100}>
-                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white">
                   <button
                     onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                    className="w-full flex items-center justify-between text-left px-4 md:px-5 py-3.5 md:py-4 hover:bg-gray-50 gap-3"
+                    className="w-full flex items-center justify-between text-left px-5 py-4 hover:bg-gray-50 gap-3 transition"
                   >
-                    <span className="font-medium text-gray-900 text-sm md:text-base">{item.q}</span>
-                    <span className="text-blue-600 text-xl leading-none flex-shrink-0">
+                    <span className="font-medium text-gray-900 text-sm md:text-base">
+                      {item.q}
+                    </span>
+                    <span className="text-violet-600 text-xl leading-none flex-shrink-0">
                       {openFaq === index ? '−' : '+'}
                     </span>
                   </button>
                   {openFaq === index && (
-                    <div className="px-4 md:px-5 py-3.5 md:py-4 bg-gray-50 text-sm text-gray-600 border-t border-gray-200">
+                    <div className="px-5 py-4 bg-gray-50 text-sm text-gray-600 border-t border-gray-200 leading-relaxed">
                       {item.a}
                     </div>
                   )}
@@ -525,28 +481,37 @@ export default function LandingPage() {
       </section>
 
       {/* CTA final */}
-      <section className="py-12 md:py-20 bg-blue-600">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      <section className="py-16 md:py-24 bg-violet-600 relative overflow-hidden">
+        <div
+          className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-violet-500/40 blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="absolute -bottom-24 -left-24 w-80 h-80 rounded-full bg-violet-500/30 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <div className="relative max-w-3xl mx-auto px-4 text-center">
           <Reveal>
-            <h2 className="text-2xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-5 tracking-tight">
               Pronto para organizar sua agenda?
             </h2>
           </Reveal>
           <Reveal delay={100}>
-            <p className="text-blue-100 text-sm md:text-lg mb-8 max-w-2xl mx-auto">
+            <p className="text-violet-100 text-base md:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
               Crie sua conta em menos de um minuto e comece a receber agendamentos hoje mesmo.
             </p>
           </Reveal>
           <Reveal delay={200}>
             <Link
               to="/cadastro"
-              className="inline-block bg-white text-blue-600 px-6 md:px-8 py-3 rounded-lg font-semibold hover:bg-blue-50"
+              className="inline-block bg-white text-violet-600 px-8 py-3.5 rounded-full font-semibold hover:bg-violet-50 transition shadow-xl shadow-violet-900/20"
             >
               Criar minha agenda grátis
             </Link>
           </Reveal>
           <Reveal delay={300}>
-            <p className="text-blue-100 text-xs mt-4">
+            <p className="text-violet-200 text-xs mt-5">
               7 dias grátis. Sem cartão de crédito.
             </p>
           </Reveal>
@@ -554,32 +519,64 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-gray-400 py-10 md:py-12">
+      <footer className="bg-gray-900 text-gray-400 py-12 md:py-16">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-8 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
             <div className="md:col-span-2">
               <h3 className="text-white text-lg md:text-xl font-bold mb-3">AgendaApp</h3>
-              <p className="text-sm max-w-md">
+              <p className="text-sm max-w-md leading-relaxed">
                 A agenda online feita para salões, barbearias, estúdios e profissionais da beleza.
               </p>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-3 text-sm uppercase">Produto</h4>
-              <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('como-funciona')} className="hover:text-white">Como funciona</button></li>
-                <li><button onClick={() => scrollToSection('planos')} className="hover:text-white">Planos</button></li>
-                <li><button onClick={() => scrollToSection('faq')} className="hover:text-white">Dúvidas</button></li>
-                <li><Link to="/login" className="hover:text-white">Entrar</Link></li>
+              <h4 className="text-white font-semibold mb-4 text-xs uppercase tracking-wider">
+                Produto
+              </h4>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <button onClick={() => scrollToSection('como-funciona')} className="hover:text-white transition">
+                    Como funciona
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('planos')} className="hover:text-white transition">
+                    Planos
+                  </button>
+                </li>
+                <li>
+                  <button onClick={() => scrollToSection('faq')} className="hover:text-white transition">
+                    Dúvidas
+                  </button>
+                </li>
+                <li>
+                  <Link to="/login" className="hover:text-white transition">
+                    Entrar
+                  </Link>
+                </li>
               </ul>
             </div>
 
             <div>
-              <h4 className="text-white font-semibold mb-3 text-sm uppercase">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/termos" className="hover:text-white">Termos de uso</Link></li>
-                <li><Link to="/privacidade" className="hover:text-white">Política de privacidade</Link></li>
-                <li><a href="mailto:[E-MAIL DE CONTATO]" className="hover:text-white">Contato</a></li>
+              <h4 className="text-white font-semibold mb-4 text-xs uppercase tracking-wider">
+                Legal
+              </h4>
+              <ul className="space-y-2.5 text-sm">
+                <li>
+                  <Link to="/termos" className="hover:text-white transition">
+                    Termos de uso
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/privacidade" className="hover:text-white transition">
+                    Política de privacidade
+                  </Link>
+                </li>
+                <li>
+                  <a href="mailto:[E-MAIL DE CONTATO]" className="hover:text-white transition">
+                    Contato
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
@@ -589,7 +586,7 @@ export default function LandingPage() {
               © {new Date().getFullYear()} AgendaApp. Todos os direitos reservados.
             </p>
             <p className="text-xs text-center md:text-right">
-              Feito com carinho para profissionais da beleza 💙
+              Feito com carinho para profissionais da beleza
             </p>
           </div>
         </div>
@@ -598,19 +595,15 @@ export default function LandingPage() {
   );
 }
 
-// Componente auxiliar: mockup de celular
+// Mockup de celular
 function PhoneMockup({ src, alt }: { src: string; alt: string }) {
   return (
-    <div className="relative w-full max-w-[220px] sm:max-w-[260px] md:max-w-[280px]">
-      {/* Moldura do celular */}
+    <div className="relative w-full max-w-[240px] sm:max-w-[260px] md:max-w-[280px]">
       <div className="relative rounded-[2.5rem] bg-gray-900 p-3 shadow-2xl">
-        {/* Notch */}
         <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-4 md:w-24 md:h-5 bg-gray-900 rounded-b-2xl z-10" />
 
-        {/* Tela */}
         <div className="relative rounded-[2rem] overflow-hidden bg-white aspect-[9/19.5]">
-          {/* Placeholder caso a imagem não exista */}
-          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-gray-100 text-gray-400 text-xs text-center px-6">
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-violet-50 to-gray-100 text-gray-400 text-xs text-center px-6">
             <div>
               <svg
                 className="w-10 h-10 mx-auto mb-3 text-gray-300"
@@ -628,7 +621,6 @@ function PhoneMockup({ src, alt }: { src: string; alt: string }) {
             </div>
           </div>
 
-          {/* Imagem real (fica por cima do placeholder quando carregada) */}
           <img
             src={src}
             alt={alt}
@@ -640,7 +632,6 @@ function PhoneMockup({ src, alt }: { src: string; alt: string }) {
         </div>
       </div>
 
-      {/* Sombra/reflexo abaixo do celular */}
       <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-4 bg-gray-900/20 rounded-full blur-xl" />
     </div>
   );

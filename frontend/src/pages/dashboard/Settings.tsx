@@ -42,7 +42,6 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
   const [name, setName] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [primaryColor, setPrimaryColor] = useState('#2563eb');
@@ -50,6 +49,7 @@ export default function Settings() {
   const [welcomeMessage, setWelcomeMessage] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
+  const [logoError, setLogoError] = useState(false);
 
   const canEdit = plan?.allowBranding ?? false;
 
@@ -68,6 +68,10 @@ export default function Settings() {
       .catch(() => setError('Erro ao carregar configurações'))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [logoUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -167,11 +171,10 @@ export default function Settings() {
                     key={color}
                     type="button"
                     onClick={() => setPrimaryColor(color)}
-                    className={`w-9 h-9 rounded-lg border-2 transition ${
-                      primaryColor.toLowerCase() === color.toLowerCase()
-                        ? 'border-gray-900 scale-110'
-                        : 'border-gray-200 hover:border-gray-400'
-                    }`}
+                    className={`w-9 h-9 rounded-lg border-2 transition ${primaryColor.toLowerCase() === color.toLowerCase()
+                      ? 'border-gray-900 scale-110'
+                      : 'border-gray-200 hover:border-gray-400'
+                      }`}
                     style={{ backgroundColor: color }}
                     title={color}
                   />
@@ -212,6 +215,16 @@ export default function Settings() {
               <p className="text-xs text-gray-500 mt-1">
                 Cole o link de uma imagem hospedada online. Em breve teremos upload direto.
               </p>
+              {logoUrl && logoError && (
+                <div className="mt-2 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-lg flex items-start gap-2">
+                  <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>
+                    Não foi possível carregar a imagem. Verifique se a URL aponta direto para um arquivo (ex.: <code className="text-[10px]">.png</code>, <code className="text-[10px]">.jpg</code>, <code className="text-[10px]">.svg</code>).
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Mensagem de boas-vindas */}
@@ -318,20 +331,19 @@ export default function Settings() {
                 className="p-4 flex items-center gap-3"
                 style={{ backgroundColor: primaryColor }}
               >
-                {logoUrl ? (
+                {logoUrl && !logoError ? (
                   <img
                     src={logoUrl}
                     alt="Logo"
                     className="w-10 h-10 rounded-lg object-cover bg-white flex-shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
+                    onError={() => setLogoError(true)}
                   />
                 ) : (
                   <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center text-white font-bold flex-shrink-0">
                     {name?.[0]?.toUpperCase() || 'A'}
                   </div>
                 )}
+
                 <div className="min-w-0">
                   <p className="text-white font-semibold text-sm truncate">{name || 'Seu estabelecimento'}</p>
                   <p className="text-white/80 text-xs truncate">

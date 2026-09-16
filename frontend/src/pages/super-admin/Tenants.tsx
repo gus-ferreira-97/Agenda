@@ -60,6 +60,8 @@ export default function Tenants() {
         return 'bg-green-100 text-green-800';
       case 'pendente':
         return 'bg-yellow-100 text-yellow-800';
+      case 'aguardando_verificacao':
+        return 'bg-sky-100 text-sky-800';
       case 'suspenso':
         return 'bg-red-100 text-red-800';
       case 'trial_expirado':
@@ -76,6 +78,8 @@ export default function Tenants() {
         return 'Ativo';
       case 'pendente':
         return 'Pendente';
+      case 'aguardando_verificacao':
+        return 'Aguardando e-mail';
       case 'suspenso':
         return 'Suspenso';
       case 'trial_expirado':
@@ -236,7 +240,7 @@ export default function Tenants() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                         <div className="inline-flex items-center gap-2">
-                          {t.status !== 'ativo' && (
+                          {t.status !== 'ativo' && t.status !== 'aguardando_verificacao' && (
                             <button
                               onClick={() => updateStatus(t.id, 'ativo')}
                               title="Ativar"
@@ -342,13 +346,13 @@ export default function Tenants() {
 
                 {/* Ações */}
                 <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-                  {t.status !== 'ativo' && (
+                  {t.status !== 'ativo' && t.status !== 'aguardando_verificacao' && (
                     <button
                       onClick={() => updateStatus(t.id, 'ativo')}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100 transition"
+                      title="Ativar"
+                      className="p-1.5 rounded-lg text-green-600 hover:bg-green-50 transition"
                     >
                       <Power className="w-4 h-4" />
-                      Ativar
                     </button>
                   )}
                   {t.status === 'ativo' && (

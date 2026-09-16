@@ -23,11 +23,24 @@ interface Service {
 export default function Services() {
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(true);
+  const [optionCounts, setOptionCounts] = useState<Record<number, number>>({});
 
   const loadServices = () => {
     setLoading(true);
-    api.get('/services')
-      .then((response) => setServices(response.data))
+    Promise.all([
+      api.get('/services'),
+      api.get('/service-options'),
+    ])
+      .then(([servicesResp, optionsResp]) => {
+        setServices(servicesResp.data);
+
+        // Conta as variações por serviço
+        const counts: Record<number, number> = {};
+        optionsResp.data.forEach((option: any) => {
+          counts[option.service_id] = (counts[option.service_id] || 0) + 1;
+        });
+        setOptionCounts(counts);
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   };
@@ -124,6 +137,7 @@ export default function Services() {
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Duração</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Preço</th>
                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Variações</th>
                     <th className="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Ações</th>
                   </tr>
                 </thead>
@@ -146,24 +160,31 @@ export default function Services() {
                         {formatCurrency(s.price)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${
-                          s.is_active
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full ${s.is_active
+                          ? 'bg-green-100 text-green-800'
+                          : 'bg-gray-100 text-gray-800'
+                          }`}>
                           {s.is_active ? 'Ativo' : 'Inativo'}
                         </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        {optionCounts[s.id] ? (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                            {optionCounts[s.id]} {optionCounts[s.id] === 1 ? 'variação' : 'variações'}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="inline-flex items-center gap-2">
                           <button
                             onClick={() => toggleStatus(s.id, s.is_active)}
                             title={s.is_active ? 'Desativar' : 'Ativar'}
-                            className={`p-1.5 rounded-lg transition ${
-                              s.is_active
-                                ? 'text-yellow-600 hover:bg-yellow-50'
-                                : 'text-green-600 hover:bg-green-50'
-                            }`}
+                            className={`p-1.5 rounded-lg transition ${s.is_active
+                              ? 'text-yellow-600 hover:bg-yellow-50'
+                              : 'text-green-600 hover:bg-green-50'
+                              }`}
                           >
                             {s.is_active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
                           </button>
@@ -205,17 +226,16 @@ export default function Services() {
                       <p className="text-xs text-gray-500 truncate mt-0.5">{s.description}</p>
                     )}
                   </div>
-                  <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
-                    s.is_active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}>
+                  <span className={`inline-flex px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${s.is_active
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-100 text-gray-800'
+                    }`}>
                     {s.is_active ? 'Ativo' : 'Inativo'}
                   </span>
                 </div>
 
                 {/* Detalhes */}
-                <div className="flex items-center gap-4 mb-4 text-sm text-gray-700">
+                <div className="flex items-center gap-4 mb-2 text-sm text-gray-700 flex-wrap">
                   <div className="flex items-center gap-1.5">
                     <Clock className="w-4 h-4 text-gray-400" />
                     {s.duration_minutes} min
@@ -226,16 +246,25 @@ export default function Services() {
                     </div>
                   )}
                 </div>
+                {optionCounts[s.id] > 0 && (
+                  <div className="mb-4">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                      {optionCounts[s.id]} {optionCounts[s.id] === 1 ? 'variação' : 'variações'}
+                    </span>
+                  </div>
+                )}
+                {optionCounts[s.id] === 0 || !optionCounts[s.id] ? (
+                  <div className="mb-4" />
+                ) : null}
 
                 {/* Ações */}
                 <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
                   <button
                     onClick={() => toggleStatus(s.id, s.is_active)}
-                    className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition ${
-                      s.is_active
-                        ? 'text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
-                        : 'text-green-700 bg-green-50 hover:bg-green-100'
-                    }`}
+                    className={`flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium transition ${s.is_active
+                      ? 'text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
+                      : 'text-green-700 bg-green-50 hover:bg-green-100'
+                      }`}
                   >
                     {s.is_active ? (
                       <>

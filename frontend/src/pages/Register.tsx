@@ -1,17 +1,23 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { Mail, Lock, User, Building2, CheckCircle2, Globe, AlertCircle } from 'lucide-react';
+import { Mail, Lock, User, Building2, Globe, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
+import PasswordChecklist, { isPasswordStrong } from '../components/PasswordChecklist';
 
 export default function Register() {
   const [ownerName, setOwnerName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [tenantName, setTenantName] = useState('');
   const [subdomain, setSubdomain] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
+
   const [searchParams] = useSearchParams();
   const planFromUrl = searchParams.get('plan') || 'basico';
   const validPlans = ['basico', 'profissional', 'premium'];
@@ -38,6 +44,17 @@ export default function Register() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    if (!isPasswordStrong(password)) {
+      setError('A senha não atende todos os requisitos de segurança.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError('As senhas não coincidem.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -47,12 +64,14 @@ export default function Register() {
         password,
         tenantName,
         subdomain,
-        plan
+        plan,
       });
+      setRegisteredEmail(email);
       setSuccess(response.data.message);
       setOwnerName('');
       setEmail('');
       setPassword('');
+      setConfirmPassword('');
       setTenantName('');
       setSubdomain('');
     } catch (err: any) {
@@ -90,17 +109,44 @@ export default function Register() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 md:p-8 animate-fade-in-up delay-100">
           {success ? (
-            <div className="text-center py-6">
-              <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-7 h-7 md:w-8 md:h-8 text-green-600" />
+            <div className="text-center py-6 animate-fade-in">
+              <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-5">
+                <Mail className="w-8 h-8 md:w-10 md:h-10 text-blue-600" />
               </div>
-              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">Cadastro realizado!</h2>
-              <p className="text-sm text-gray-600 mb-6">{success}</p>
+              <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
+                Confira seu e-mail
+              </h2>
+              <p className="text-sm text-gray-600 mb-5">
+                Enviamos um link de confirmação para:
+              </p>
+
+              <div className="bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 mb-5">
+                <p className="text-sm font-medium text-gray-900 break-all">
+                  {registeredEmail}
+                </p>
+              </div>
+
+              <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-left mb-5">
+                <p className="text-xs text-blue-900 leading-relaxed font-semibold mb-1">
+                  Próximos passos:
+                </p>
+                <ol className="text-xs text-blue-900 leading-relaxed list-decimal list-inside space-y-0.5">
+                  <li>Clique no link do e-mail para confirmar sua conta</li>
+                  <li>Aguarde a aprovação do nosso time</li>
+                  <li>Faça login e comece a usar o AgendaApp</li>
+                </ol>
+              </div>
+
+              <p className="text-xs text-gray-500 mb-5 leading-relaxed">
+                Não recebeu? Verifique a caixa de <strong>spam</strong> ou
+                <strong> lixo eletrônico</strong>. O e-mail pode levar alguns minutos para chegar.
+              </p>
+
               <Link
-                to="/"
-                className="inline-block bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700"
+                to="/login"
+                className="inline-block w-full bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
               >
-                Voltar para o início
+                Ir para o login
               </Link>
             </div>
           ) : (
@@ -123,7 +169,9 @@ export default function Register() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 {error && (
                   <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                    <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
                     <span>{error}</span>
                   </div>
                 )}
@@ -175,15 +223,64 @@ export default function Register() {
                       <Lock className="w-4 h-4 text-gray-400" />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      placeholder="Mínimo 6 caracteres"
-                      minLength={6}
+                      className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      placeholder="Crie uma senha forte"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                   </div>
+                  <PasswordChecklist password={password} show={password.length > 0} />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Repita sua senha
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Lock className="w-4 h-4 text-gray-400" />
+                    </div>
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={`w-full pl-9 pr-12 py-2.5 border rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
+                        ? 'border-red-300'
+                        : 'border-gray-300'
+                        }`}
+                      placeholder="Digite a senha novamente"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                      aria-label={showConfirmPassword ? 'Ocultar senha' : 'Mostrar senha'}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  {confirmPassword.length > 0 && confirmPassword !== password && (
+                    <p className="text-xs text-red-600 mt-1">As senhas não coincidem</p>
+                  )}
                 </div>
 
                 <div>
@@ -219,15 +316,7 @@ export default function Register() {
                     <input
                       type="text"
                       value={subdomain}
-                      onChange={(e) =>
-                        setSubdomain(
-                          e.target.value
-                            .toLowerCase()
-                            .replace(/[^a-z0-9-]/g, '')
-                            .replace(/-+/g, '-')
-                            .replace(/^-/, '')
-                        )
-                      }
+                      onChange={(e) => setSubdomain(e.target.value.toLowerCase())}
                       className="flex-1 min-w-0 px-3 sm:px-0 py-2.5 focus:outline-none text-sm"
                       placeholder="seu-subdominio"
                       pattern="[a-z0-9-]+"
