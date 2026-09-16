@@ -1,12 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, Sparkles } from 'lucide-react';
 import Reveal from '../components/Reveal';
+import PhoneMockupCarousel from '../components/PhoneMockupCarousel';
+import api from '../services/api';
 
 export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<'basico' | 'profissional' | 'premium'>('profissional');
+
+  interface PublicPlan {
+    key: 'basico' | 'profissional' | 'premium';
+    name: string;
+    price: number;
+    tagline: string;
+    features: string[];
+    ctaLabel: string;
+    isPopular: boolean;
+  }
+
+  const [plans, setPlans] = useState<PublicPlan[]>([]);
+  const [loadingPlans, setLoadingPlans] = useState(true);
+
+  useEffect(() => {
+    api
+      .get('/public/plans')
+      .then((resp) => setPlans(resp.data))
+      .catch((err) => console.error('Erro ao carregar planos:', err))
+      .finally(() => setLoadingPlans(false));
+  }, []);
 
   const scrollToSection = (id: string) => {
     setMenuOpen(false);
@@ -144,9 +167,13 @@ export default function LandingPage() {
 
           <Reveal delay={200}>
             <div className="flex justify-center md:justify-end">
-              <PhoneMockup
-                src="/mockups/public-booking.png"
-                alt="Página pública de agendamento"
+              <PhoneMockupCarousel
+                images={[
+                  { src: '/mockups/public-booking-1.png', alt: 'Escolha do profissional' },
+                  { src: '/mockups/public-booking-2.png', alt: 'Escolha do serviço' },
+                  { src: '/mockups/public-booking-3.png', alt: 'Escolha do horário' },
+                  { src: '/mockups/public-booking-4.png', alt: 'Confirmação do agendamento' },
+                ]}
               />
             </div>
           </Reveal>
@@ -209,49 +236,43 @@ export default function LandingPage() {
       {/* Mockups */}
       <section id="mockups" className="scroll-mt-20 py-16 md:py-24 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <Reveal>
-            <div className="max-w-2xl mb-12 md:mb-16">
-              <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-3 tracking-tight">
-                Por dentro do AgendaApp
-              </h2>
-              <p className="text-gray-600 text-base md:text-lg">
-                A tela que seu cliente vê e o painel que você usa para gerenciar tudo.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-start">
-            <Reveal delay={100}>
-              <div className="flex flex-col items-center">
-                <PhoneMockup
-                  src="/mockups/public-booking.png"
-                  alt="Página pública de agendamento"
-                />
-                <div className="mt-8 text-center">
-                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                    Página de agendamento
-                  </h3>
-                  <p className="text-sm text-gray-600 max-w-xs mx-auto leading-relaxed">
-                    Seus clientes escolhem profissional, serviço e horário em poucos toques.
-                  </p>
-                </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16 items-center">
+            <Reveal>
+              <div>
+                <h2 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4 tracking-tight">
+                  O painel que organiza o seu dia
+                </h2>
+                <p className="text-gray-600 text-base md:text-lg mb-6 leading-relaxed">
+                  Acompanhe agendamentos, gerencie profissionais, serviços e horários
+                  em um só lugar.
+                </p>
+                <ul className="space-y-3 text-sm md:text-base text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-600 font-bold">·</span>
+                    Agenda do dia com filtros por profissional e serviço
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-600 font-bold">·</span>
+                    Cadastro de profissionais, serviços e variações
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-violet-600 font-bold">·</span>
+                    Relatórios de agendamentos e faturamento
+                  </li>
+                </ul>
               </div>
             </Reveal>
 
             <Reveal delay={200}>
-              <div className="flex flex-col items-center">
-                <PhoneMockup
-                  src="/mockups/admin-dashboard.png"
-                  alt="Painel administrativo"
+              <div className="flex justify-center md:justify-end">
+                <PhoneMockupCarousel
+                  images={[
+                    { src: '/mockups/admin-1.png', alt: 'Dashboard' },
+                    { src: '/mockups/admin-2.png', alt: 'Agendamentos do dia' },
+                    { src: '/mockups/admin-3.png', alt: 'Lista de profissionais' },
+                    { src: '/mockups/admin-4.png', alt: 'Configurações' },
+                  ]}
                 />
-                <div className="mt-8 text-center">
-                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                    Painel de gestão
-                  </h3>
-                  <p className="text-sm text-gray-600 max-w-xs mx-auto leading-relaxed">
-                    Acompanhe agendamentos, profissionais e resultados em um só lugar.
-                  </p>
-                </div>
               </div>
             </Reveal>
           </div>
@@ -272,139 +293,70 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
-            {/* Básico */}
-            <Reveal delay={100} className="h-full">
-              <div
-                onClick={() => setSelectedPlan('basico')}
-                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full transition-all duration-200 ${
-                  selectedPlan === 'basico'
-                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
-                    : 'border border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">Básico</h3>
-                <p className="text-sm text-gray-500 mb-6">Para quem está começando</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-gray-900">R$ 49</span>
-                  <span className="text-gray-500 text-sm">/mês</span>
-                </div>
-                <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  {[
-                    '1 profissional',
-                    'Serviços ilimitados',
-                    'Link público de agendamento',
-                    'Painel de agendamentos',
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/cadastro?plan=basico"
-                  className={`block text-center py-3 rounded-full font-semibold transition ${
-                    selectedPlan === 'basico'
-                      ? 'bg-violet-600 text-white hover:bg-violet-700'
-                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
-                  }`}
-                >
-                  Começar grátis
-                </Link>
-              </div>
-            </Reveal>
+          {loadingPlans ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="animate-pulse bg-gray-100 rounded-3xl h-96"
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl">
+              {plans.map((plan, index) => {
+                const isSelected = selectedPlan === plan.key;
+                return (
+                  <Reveal key={plan.key} delay={(index + 1) * 100} className="h-full">
+                    <div
+                      onClick={() => setSelectedPlan(plan.key)}
+                      className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full relative transition-all duration-200 ${isSelected
+                          ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
+                          : 'border border-gray-200 hover:border-gray-300'
+                        }`}
+                    >
+                      {plan.isPopular && (
+                        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
+                          Mais popular
+                        </span>
+                      )}
 
-            {/* Profissional */}
-            <Reveal delay={200} className="h-full">
-              <div
-                onClick={() => setSelectedPlan('profissional')}
-                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full relative transition-all duration-200 ${
-                  selectedPlan === 'profissional'
-                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
-                    : 'border border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-violet-600 text-white text-xs font-semibold px-3 py-1 rounded-full whitespace-nowrap">
-                  Mais popular
-                </span>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">Profissional</h3>
-                <p className="text-sm text-gray-500 mb-6">Para salões em crescimento</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-gray-900">R$ 89</span>
-                  <span className="text-gray-500 text-sm">/mês</span>
-                </div>
-                <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  {[
-                    'Até 5 profissionais',
-                    'Serviços ilimitados',
-                    'Link público de agendamento',
-                    'Painel completo de gestão',
-                    'Suporte por e-mail',
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/cadastro?plan=profissional"
-                  className={`block text-center py-3 rounded-full font-semibold transition ${
-                    selectedPlan === 'profissional'
-                      ? 'bg-violet-600 text-white hover:bg-violet-700'
-                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
-                  }`}
-                >
-                  Assinar agora
-                </Link>
-              </div>
-            </Reveal>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {plan.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-6">{plan.tagline}</p>
 
-            {/* Premium */}
-            <Reveal delay={300} className="h-full">
-              <div
-                onClick={() => setSelectedPlan('premium')}
-                className={`cursor-pointer w-full bg-white rounded-3xl p-6 md:p-8 flex flex-col h-full transition-all duration-200 ${
-                  selectedPlan === 'premium'
-                    ? 'border-2 border-violet-600 shadow-xl shadow-violet-600/10'
-                    : 'border border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">Premium</h3>
-                <p className="text-sm text-gray-500 mb-6">Para estúdios e equipes grandes</p>
-                <div className="mb-6">
-                  <span className="text-4xl font-bold text-gray-900">R$ 149</span>
-                  <span className="text-gray-500 text-sm">/mês</span>
-                </div>
-                <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
-                  {[
-                    'Profissionais ilimitados',
-                    'Serviços ilimitados',
-                    'Link público de agendamento',
-                    'Painel completo de gestão',
-                    'Suporte prioritário',
-                    'Relatórios avançados',
-                  ].map((feature) => (
-                    <li key={feature} className="flex items-start gap-2">
-                      <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/cadastro?plan=premium"
-                  className={`block text-center py-3 rounded-full font-semibold transition ${
-                    selectedPlan === 'premium'
-                      ? 'bg-violet-600 text-white hover:bg-violet-700'
-                      : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
-                  }`}
-                >
-                  Assinar agora
-                </Link>
-              </div>
-            </Reveal>
-          </div>
+                      <div className="mb-6">
+                        <span className="text-4xl font-bold text-gray-900">
+                          R$ {plan.price}
+                        </span>
+                        <span className="text-gray-500 text-sm">/mês</span>
+                      </div>
+
+                      <ul className="space-y-3 text-sm text-gray-700 mb-8 flex-1">
+                        {plan.features.map((feature) => (
+                          <li key={feature} className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-violet-600 flex-shrink-0 mt-0.5" />
+                            <span>{feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <Link
+                        to={`/cadastro?plan=${plan.key}`}
+                        className={`block text-center py-3 rounded-full font-semibold transition ${isSelected
+                            ? 'bg-violet-600 text-white hover:bg-violet-700'
+                            : 'border border-violet-600 text-violet-600 hover:bg-violet-50'
+                          }`}
+                      >
+                        {plan.ctaLabel}
+                      </Link>
+                    </div>
+                  </Reveal>
+                );
+              })}
+            </div>
+          )}
 
           <Reveal delay={400}>
             <p className="text-center text-xs text-gray-500 mt-8">
