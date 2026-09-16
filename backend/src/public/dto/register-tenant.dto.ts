@@ -8,6 +8,7 @@ import {
   Length,
   Matches,
 } from 'class-validator';
+import { IsStrongPassword } from '../../common/validators/is-strong-password.decorator';
 
 export class RegisterTenantDto {
   @IsString({ message: 'O nome deve ser um texto válido' })
@@ -22,9 +23,7 @@ export class RegisterTenantDto {
   email: string;
 
   @IsString({ message: 'A senha deve ser um texto válido' })
-  @MinLength(6, {
-    message: 'A senha deve ter pelo menos 6 caracteres',
-  })
+  @IsStrongPassword()
   password: string;
 
   @IsString({ message: 'O nome do estabelecimento deve ser um texto válido' })

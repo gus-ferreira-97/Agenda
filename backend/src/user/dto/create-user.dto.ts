@@ -7,6 +7,7 @@ import {
   IsInt,
   IsIn,
 } from 'class-validator';
+import { IsStrongPassword } from '../../common/validators/is-strong-password.decorator';
 
 export class CreateUserDto {
   @IsString({ message: 'O nome deve ser um texto válido' })
@@ -18,9 +19,7 @@ export class CreateUserDto {
   email: string;
 
   @IsString({ message: 'A senha deve ser um texto válido' })
-  @MinLength(6, {
-    message: 'A senha deve ter pelo menos 6 caracteres',
-  })
+  @IsStrongPassword()
   password: string;
 
   @IsString({ message: 'O papel deve ser um texto válido' })

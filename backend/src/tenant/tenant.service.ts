@@ -275,15 +275,28 @@ export class TenantService {
 
     const now = new Date();
     const trialEndsAt = tenant.trial_ends_at;
-    const isTrial = !!trialEndsAt && tenant.trial_used;
-    const isExpired = isTrial && trialEndsAt! < now;
+
+    // Só é considerado "trial" se estiver ativo, tiver datas e ainda não expirou
+    const isTrial =
+      tenant.status === 'ativo' &&
+      tenant.trial_used === true &&
+      !!trialEndsAt &&
+      trialEndsAt > now;
+
+    // Só é "expirado" quando o status é explicitamente trial_expirado
+    const isExpired = tenant.status === 'trial_expirado';
 
     let daysLeft = 0;
-    if (isTrial && !isExpired && trialEndsAt) {
-      // Zera as horas de ambas as datas para comparar por dia de calendário
+    if (isTrial && trialEndsAt) {
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const startOfEnd = new Date(trialEndsAt.getFullYear(), trialEndsAt.getMonth(), trialEndsAt.getDate());
-      const diffDays = Math.round((startOfEnd.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24));
+      const startOfEnd = new Date(
+        trialEndsAt.getFullYear(),
+        trialEndsAt.getMonth(),
+        trialEndsAt.getDate(),
+      );
+      const diffDays = Math.round(
+        (startOfEnd.getTime() - startOfToday.getTime()) / (1000 * 60 * 60 * 24),
+      );
       daysLeft = Math.max(0, diffDays);
     }
 

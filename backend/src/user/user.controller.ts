@@ -12,14 +12,40 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  // ============ ENDPOINTS DO PRÓPRIO USUÁRIO ============
+  // Devem vir ANTES de :id para não serem capturados pelo parâmetro
+
+  @Get('me')
+  @Roles('super_admin', 'tenant_admin')
+  getMe(@CurrentUser() user: any) {
+    return this.userService.findMe(user.userId);
+  }
+
+  @Patch('me')
+  @Roles('super_admin', 'tenant_admin')
+  updateMe(@CurrentUser() user: any, @Body() dto: UpdateMeDto) {
+    return this.userService.updateMe(user.userId, dto);
+  }
+
+  @Patch('me/password')
+  @Roles('super_admin', 'tenant_admin')
+  changePassword(@CurrentUser() user: any, @Body() dto: ChangePasswordDto) {
+    return this.userService.changePassword(user.userId, dto);
+  }
+
+  // ============ ENDPOINTS DO SUPER ADMIN ============
 
   @Post()
   @Roles('super_admin')

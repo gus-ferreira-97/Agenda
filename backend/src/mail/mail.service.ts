@@ -76,4 +76,33 @@ export class MailService {
 
     await this.send(to, subject, html, resetLink);
   }
+
+  async sendEmailVerificationEmail(to: string, token: string): Promise<void> {
+    const verifyLink = `${this.frontendUrl}/verificar-email?token=${token}`;
+    const subject = 'Confirme seu e-mail - AgendaApp';
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #2563eb;">Bem-vindo ao AgendaApp!</h2>
+        <p>Olá,</p>
+        <p>Estamos quase lá! Para ativar sua conta e começar a usar o AgendaApp, confirme seu e-mail clicando no botão abaixo:</p>
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="${verifyLink}"
+             style="background-color: #2563eb; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block;">
+            Confirmar meu e-mail
+          </a>
+        </p>
+        <p>Ou copie e cole o link abaixo no navegador:</p>
+        <p style="word-break: break-all; color: #2563eb;">${verifyLink}</p>
+        <p><strong>Este link expira em 24 horas.</strong></p>
+        <p>Se você não se cadastrou no AgendaApp, ignore este e-mail.</p>
+        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;" />
+        <p style="color: #6b7280; font-size: 12px;">
+          Este é um e-mail automático, não responda.<br />
+          AgendaApp - Agenda online para profissionais da beleza
+        </p>
+      </div>
+    `;
+
+    await this.send(to, subject, html, verifyLink);
+  }
 }

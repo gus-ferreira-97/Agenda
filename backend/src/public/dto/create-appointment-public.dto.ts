@@ -7,6 +7,10 @@ export class CreateAppointmentPublicDto {
   @IsInt()
   serviceId: number;
 
+  @IsOptional()
+  @IsInt({ message: 'A variação do serviço é inválida' })
+  serviceOptionId?: number;
+
   @IsString()
   @IsNotEmpty()
   customerName: string;

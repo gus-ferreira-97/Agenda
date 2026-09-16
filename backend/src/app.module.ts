@@ -25,6 +25,8 @@ import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantMetricsModule } from './tenant-metrics/tenant-metrics.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
+import { ServiceOption } from './service/entities/service-option.entity';
+import { ServiceOptionModule } from './service-option/service-option.module';
 
 @Module({
   imports: [
@@ -42,7 +44,8 @@ import { TasksModule } from './tasks/tasks.module';
         MailModule,
         SuperAdminModule,
         TenantMetricsModule,
-        TasksModule
+        TasksModule,
+        ServiceOptionModule,
       ],
 
       useFactory: (configService: ConfigService) => ({
@@ -59,6 +62,7 @@ import { TasksModule } from './tasks/tasks.module';
           Professional,
           WorkSchedule,
           Service,
+          ServiceOption,
           ProfessionalService,
           Appointment,
           AuditLog,
@@ -78,7 +82,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(TenantMiddleware)
-      .exclude('public/register')
+      .exclude('public/register', 'public/verify-email')
       .forRoutes({ path: 'public/*', method: RequestMethod.ALL });
   }
 }

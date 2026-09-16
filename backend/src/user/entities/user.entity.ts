@@ -49,4 +49,13 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   reset_password_expires: Date | null;
+
+  @Column({ type: 'boolean', default: true })
+  email_verified: boolean;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  email_verification_token: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  email_verification_expires: Date | null;
 }

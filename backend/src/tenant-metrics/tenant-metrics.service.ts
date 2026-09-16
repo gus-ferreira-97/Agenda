@@ -4,6 +4,7 @@ import { Repository, Between, MoreThanOrEqual, Not } from 'typeorm';
 import { Appointment } from '../appointment/entities/appointment.entity';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
+import { ServiceOption } from '../service/entities/service-option.entity';
 
 @Injectable()
 export class TenantMetricsService {
@@ -14,7 +15,7 @@ export class TenantMetricsService {
     private readonly professionalRepo: Repository<Professional>,
     @InjectRepository(Service)
     private readonly serviceRepo: Repository<Service>,
-  ) {}
+  ) { }
 
   private getPeriodRange(period: number) {
     const now = new Date();
@@ -85,11 +86,12 @@ export class TenantMetricsService {
       }),
     ]);
 
-    // Faturamento estimado (soma dos preços dos serviços com status confirmed ou completed)
+    // Faturamento estimado: usa o preço da variação quando existir, senão o do serviço
     const revenueResult = await this.appointmentRepo
       .createQueryBuilder('a')
       .leftJoin(Service, 's', 's.id = a.service_id')
-      .select('COALESCE(SUM(s.price), 0)', 'total')
+      .leftJoin(ServiceOption, 'so', 'so.id = a.service_option_id')
+      .select('COALESCE(SUM(COALESCE(so.price, s.price)), 0)', 'total')
       .where('a.tenant_id = :tenantId', { tenantId })
       .andWhere('a.start_time >= :since', { since: currentStart })
       .andWhere('a.status IN (:...statuses)', { statuses: ['confirmed', 'completed'] })
@@ -98,7 +100,8 @@ export class TenantMetricsService {
     const revenuePrevResult = await this.appointmentRepo
       .createQueryBuilder('a')
       .leftJoin(Service, 's', 's.id = a.service_id')
-      .select('COALESCE(SUM(s.price), 0)', 'total')
+      .leftJoin(ServiceOption, 'so', 'so.id = a.service_option_id')
+      .select('COALESCE(SUM(COALESCE(so.price, s.price)), 0)', 'total')
       .where('a.tenant_id = :tenantId', { tenantId })
       .andWhere('a.start_time >= :start', { start: previousStart })
       .andWhere('a.start_time < :end', { end: currentStart })

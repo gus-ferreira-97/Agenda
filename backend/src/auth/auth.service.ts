@@ -31,6 +31,12 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    if (!user.email_verified) {
+      throw new ForbiddenException(
+        'Confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.',
+      );
+    }
+
     // Se for tenant_admin, verifica se o tenant está ativo
     if (user.role === 'tenant_admin' && user.tenant_id) {
       const tenant = await this.tenantRepository.findOne({

@@ -244,7 +244,7 @@ export class AppointmentService {
 
     return this.appointmentRepository.find({
       where,
-      relations: ['professional', 'service'],
+      relations: ['professional', 'service', 'service_option'],
       order: { start_time: 'ASC' },
     });
   }
@@ -252,7 +252,7 @@ export class AppointmentService {
   async findOne(id: number, user: any): Promise<Appointment> {
     const appointment = await this.appointmentRepository.findOne({
       where: { id },
-      relations: ['professional', 'service'],
+      relations: ['professional', 'service', 'service_option'],
     });
     if (!appointment) {
       throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
@@ -280,22 +280,41 @@ export class AppointmentService {
       }
     }
 
+    if (
+      updateAppointmentDto.status !== undefined &&
+      updateAppointmentDto.status !== appointment.status
+    ) {
+      const allowedTransitions: Record<string, string[]> = {
+        pending: ['confirmed', 'cancelled'],
+        confirmed: ['completed', 'cancelled'],
+        completed: [],
+        cancelled: [],
+      };
+
+      const allowed = allowedTransitions[appointment.status] || [];
+      if (!allowed.includes(updateAppointmentDto.status)) {
+        throw new BadRequestException(
+          `Não é possível alterar o status de "${appointment.status}" para "${updateAppointmentDto.status}".`,
+        );
+      }
+    }
+
     if (updateAppointmentDto.professionalId) {
       appointment.professional_id = updateAppointmentDto.professionalId;
     }
     if (updateAppointmentDto.serviceId) {
       appointment.service_id = updateAppointmentDto.serviceId;
     }
-    if (updateAppointmentDto.customerName) {
+    if (updateAppointmentDto.customerName !== undefined) {
       appointment.customer_name = updateAppointmentDto.customerName;
     }
-    if (updateAppointmentDto.customerContact) {
+    if (updateAppointmentDto.customerContact !== undefined) {
       appointment.customer_contact = updateAppointmentDto.customerContact;
     }
     if (updateAppointmentDto.notes !== undefined) {
       appointment.notes = updateAppointmentDto.notes;
     }
-    if (updateAppointmentDto.status) {
+    if (updateAppointmentDto.status !== undefined) {
       appointment.status = updateAppointmentDto.status;
     }
 

@@ -10,6 +10,7 @@ import {
 import { Tenant } from '../../tenant/entities/tenant.entity';
 import { Professional } from '../../professional/entities/professional.entity';
 import { Service } from '../../service/entities/service.entity';
+import { ServiceOption } from '../../service/entities/service-option.entity';
 
 @Entity('appointments')
 export class Appointment {
@@ -24,6 +25,13 @@ export class Appointment {
 
   @Column({ type: 'int' })
   service_id: number;
+
+  @Column({ type: 'int', nullable: true })
+  service_option_id: number | null;
+
+  @ManyToOne(() => ServiceOption, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'service_option_id' })
+  service_option: ServiceOption;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.appointments)
   @JoinColumn({ name: 'tenant_id' })

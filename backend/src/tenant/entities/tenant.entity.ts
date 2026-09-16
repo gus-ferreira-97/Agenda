@@ -25,7 +25,7 @@ export class Tenant {
   @Column({ length: 100, unique: true })
   subdomain: string;
 
-  @Column({ length: 20, default: 'ativo' })
+  @Column({ length: 30, default: 'ativo' })
   status: string;
 
   @Column({ type: 'varchar', length: 20, default: 'basico' })

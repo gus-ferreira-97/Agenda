@@ -8,6 +8,7 @@ import { TenantConfig } from '../tenant/entities/tenant-config.entity';
 import { AppointmentService } from './appointment.service';
 import { AppointmentController } from './appointment.controller';
 import { AuthModule } from '../auth/auth.module';
+import { ServiceOption } from '../service/entities/service-option.entity';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from '../auth/auth.module';
       Service,
       WorkSchedule,
       TenantConfig,
+      ServiceOption
     ]),
     AuthModule,
   ],
