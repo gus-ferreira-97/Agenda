@@ -82,7 +82,7 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(TenantMiddleware)
-      .exclude('public/register', 'public/verify-email')
+      .exclude('public/register', 'public/verify-email', 'public/plans')
       .forRoutes({ path: 'public/*', method: RequestMethod.ALL });
   }
 }

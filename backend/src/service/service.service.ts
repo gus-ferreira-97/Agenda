@@ -1,12 +1,9 @@
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Service } from './entities/service.entity';
+import { ServiceOption } from './entities/service-option.entity';
+import { Appointment } from '../appointment/entities/appointment.entity';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
 
@@ -15,7 +12,11 @@ export class ServiceService {
   constructor(
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
-  ) {}
+    @InjectRepository(ServiceOption)
+    private readonly serviceOptionRepository: Repository<ServiceOption>,
+    @InjectRepository(Appointment)
+    private readonly appointmentRepository: Repository<Appointment>,
+  ) { }
 
   async create(createServiceDto: CreateServiceDto, user: any): Promise<Service> {
     let tenantId: number | undefined;
@@ -78,15 +79,48 @@ export class ServiceService {
     user: any,
   ): Promise<Service> {
     const service = await this.findOne(id, user);
-    Object.assign(service, updateServiceDto);
+
+    if (updateServiceDto.name !== undefined) {
+      service.name = updateServiceDto.name;
+    }
+    if (updateServiceDto.description !== undefined) {
+      service.description = updateServiceDto.description || null;
+    }
+    if (updateServiceDto.durationMinutes !== undefined) {
+      service.duration_minutes = updateServiceDto.durationMinutes;
+    }
+    if (updateServiceDto.price !== undefined) {
+      service.price = updateServiceDto.price;
+    }
+    if (updateServiceDto.isActive !== undefined) {
+      service.is_active = updateServiceDto.isActive;
+    }
+
     return this.serviceRepository.save(service);
   }
 
-  async remove(id: number, user: any): Promise<void> {
+  async remove(id: number, user: any): Promise<{ message: string }> {
     const service = await this.findOne(id, user);
-    const result = await this.serviceRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Serviço com ID ${id} não encontrado`);
+
+    // Conta agendamentos que usam este serviço diretamente OU uma de suas variações
+    const appointmentCount = await this.appointmentRepository
+      .createQueryBuilder('a')
+      .leftJoin(ServiceOption, 'so', 'so.id = a.service_option_id')
+      .where('a.service_id = :id OR so.service_id = :id', { id })
+      .getCount();
+
+    if (appointmentCount > 0) {
+      service.is_active = false;
+      await this.serviceRepository.save(service);
+      return {
+        message: `Este serviço possui ${appointmentCount} agendamento(s) e foi desativado em vez de excluído.`,
+      };
     }
+
+    // Remove as variações antes do serviço, evitando bloqueio por FK
+    await this.serviceOptionRepository.delete({ service_id: id });
+
+    await this.serviceRepository.delete(id);
+    return { message: 'Serviço excluído com sucesso.' };
   }
 }

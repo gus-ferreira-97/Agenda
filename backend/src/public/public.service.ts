@@ -20,6 +20,7 @@ import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { ProfessionalService } from '../service/entities/professional-service.entity';
 import { MailService } from '../mail/mail.service';
 import { ServiceOption } from '../service/entities/service-option.entity';
+import { getPublicPlans } from '../common/plans';
 
 @Injectable()
 export class PublicService {
@@ -392,5 +393,9 @@ export class PublicService {
       price: option.price,
       durationMinutes: option.duration_minutes,
     }));
+  }
+
+  getPublicPlans() {
+    return getPublicPlans();
   }
 }

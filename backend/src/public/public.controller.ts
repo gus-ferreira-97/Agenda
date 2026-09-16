@@ -20,6 +20,11 @@ export class PublicController {
     return this.publicService.getServices(req.tenantId);
   }
 
+  @Get('plans')
+  getPlans() {
+    return this.publicService.getPublicPlans();
+  }
+
   @Get('services/:id/options')
   getServiceOptions(
     @Req() req: any,

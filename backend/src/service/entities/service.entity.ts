@@ -28,7 +28,7 @@ export class Service {
   name: string;
 
   @Column({ type: 'text', nullable: true })
-  description: string;
+  description: string | null;
 
   @Column({ type: 'int' })
   duration_minutes: number;
