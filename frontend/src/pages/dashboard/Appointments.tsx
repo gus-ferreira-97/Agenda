@@ -231,7 +231,7 @@ export default function Appointments() {
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Calendar className="w-7 h-7 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">Nenhum agendamento encontrado</h3>
+          <p className="font-semibold text-gray-900 mb-1">Nenhum agendamento encontrado</p>
           <p className="text-sm text-gray-600">
             {hasFilters
               ? 'Tente ajustar os filtros para ver outros resultados.'

@@ -386,9 +386,8 @@ export default function PublicBooking() {
                           setSelectedOption(null);
                           setSelectedSlot('');
                         }}
-                        className={`p-3 rounded-xl border-2 text-left transition ${
-                          isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
-                        }`}
+                        className={`p-3 rounded-xl border-2 text-left transition ${isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
                         style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
                       >
                         <div className="flex items-center gap-2 mb-1">
@@ -437,9 +436,8 @@ export default function PublicBooking() {
                             setSelectedService(s.id);
                             setSelectedSlot('');
                           }}
-                          className={`w-full p-3 rounded-xl border-2 text-left transition flex items-center justify-between gap-3 ${
-                            isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
-                          }`}
+                          className={`w-full p-3 rounded-xl border-2 text-left transition flex items-center justify-between gap-3 ${isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
+                            }`}
                           style={isSelected ? { backgroundColor: `${primary}15`, borderColor: primary } : {}}
                         >
                           <div className="flex items-center gap-3 min-w-0">
@@ -503,9 +501,8 @@ export default function PublicBooking() {
                           setSelectedOption(option.id);
                           setSelectedSlot('');
                         }}
-                        className={`rounded-xl border-2 overflow-hidden text-left transition ${
-                          isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
-                        }`}
+                        className={`rounded-xl border-2 overflow-hidden text-left transition ${isSelected ? 'shadow-md' : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
                         style={isSelected ? { backgroundColor: `${primary}10`, borderColor: primary } : {}}
                       >
                         {/* Imagem */}
@@ -515,6 +512,8 @@ export default function PublicBooking() {
                               src={option.imageUrl}
                               alt={option.name}
                               className="w-full h-full object-cover"
+                              loading="lazy"
+                              decoding="async"
                               onError={(e) => {
                                 (e.target as HTMLImageElement).style.display = 'none';
                               }}
@@ -803,7 +802,7 @@ export default function PublicBooking() {
           <p className="text-xs text-gray-400">
             Agendamento online por{' '}
             <span className="font-medium" style={{ color: primary }}>
-              AgendaApp
+              Agendy
             </span>
           </p>
         </div>
@@ -828,9 +827,8 @@ function SlotButton({
     <button
       type="button"
       onClick={onClick}
-      className={`py-2 rounded-lg border text-xs md:text-sm font-medium transition ${
-        isSelected ? 'text-white' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
-      }`}
+      className={`py-2 rounded-lg border text-xs md:text-sm font-medium transition ${isSelected ? 'text-white' : 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+        }`}
       style={isSelected ? { backgroundColor: primary, borderColor: primary } : {}}
     >
       {slot}

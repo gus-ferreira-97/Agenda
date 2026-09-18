@@ -1,12 +1,81 @@
 <!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Agenda SaaS</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO básico -->
+  <title>Agendy - Agenda online para salões, barbearias e estúdios</title>
+  <meta name="description"
+    content="Agenda online para salões, barbearias e estúdios. Seus clientes agendam em segundos, sem baixar app e sem criar conta." />
+  <meta name="keywords"
+    content="agenda online, sistema de agendamento, agendamento para salão, agenda para barbearia, software para estética, agendamento online" />
+  <meta name="author" content="Agendy" />
+  <meta name="robots" content="index, follow" />
+  <meta name="theme-color" content="#7c3aed" />
+
+  <!-- URL canônica -->
+  <link rel="canonical" href="https://agendyapp.com.br/" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
+
+  <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://agendyapp.com.br/" />
+  <meta property="og:title" content="Agendy — Agenda online para salões, barbearias e estúdios" />
+  <meta property="og:description" content="Seus clientes agendam em segundos, sem baixar app e sem criar conta." />
+  <meta property="og:image" content="https://agendyapp.com.br/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:locale" content="pt_BR" />
+  <meta property="og:site_name" content="Agendy" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://agendyapp.com.br/" />
+  <meta name="twitter:title" content="Agendy — Agenda online para salões, barbearias e estúdios" />
+  <meta name="twitter:description" content="Seus clientes agendam em segundos, sem baixar app e sem criar conta." />
+  <meta name="twitter:image" content="https://agendyapp.com.br/og-image.png" />
+
+  <!-- Dados estruturados (Schema.org) -->
+  <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Agendy",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Agenda online para salões, barbearias e estúdios. Seus clientes agendam em segundos, sem baixar app e sem criar conta.",
+        "url": "https://agendyapp.com.br",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "BRL",
+          "lowPrice": "49",
+          "highPrice": "149",
+          "offerCount": "3"
+        },
+        "featureList": [
+          "Link público de agendamento",
+          "Sem cadastro para o cliente final",
+          "Vários profissionais na mesma agenda",
+          "Gestão de serviços, horários e agendamentos"
+        ]
+      }
+    </script>
+
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

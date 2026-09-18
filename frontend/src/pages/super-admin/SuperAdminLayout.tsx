@@ -70,7 +70,7 @@ export default function SuperAdminLayout() {
             <Calendar className="w-5 h-5 text-white" />
           </div>
           <div>
-            <span className="text-white font-bold text-sm block leading-tight">AgendaApp</span>
+            <span className="text-white font-bold text-sm block leading-tight">Agendy</span>
             <span className="text-xs text-gray-400">Super Admin</span>
           </div>
         </Link>
@@ -167,7 +167,7 @@ export default function SuperAdminLayout() {
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
               <Calendar className="w-4 h-4 text-white" />
             </div>
-            <span className="font-bold text-gray-900 text-sm">AgendaApp</span>
+            <span className="font-bold text-gray-900 text-sm">Agendy</span>
           </Link>
 
           <div className="w-6" /> {/* Espaçador para centralizar a logo */}

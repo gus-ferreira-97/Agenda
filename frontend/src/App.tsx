@@ -30,6 +30,7 @@ import Settings from './pages/dashboard/Settings';
 import Profile from './pages/Profile';
 import VerifyEmail from './pages/VerifyEmail';
 import IdleManager from './components/IdleManager';
+import TenantNoIndex from './components/TenantNoIndex';
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { token } = useAuth();
@@ -40,6 +41,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <TenantNoIndex />
         <ScrollToTop />
         <CookieConsent />
         <IdleManager />
@@ -54,7 +56,7 @@ function App() {
           <Route path="/verificar-email" element={<VerifyEmail />} />
           <Route path="/termos" element={<Terms />} />
           <Route path="/privacidade" element={<Privacy />} />
-          
+
           <Route
             path="/admin"
             element={

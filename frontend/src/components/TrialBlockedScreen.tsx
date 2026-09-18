@@ -17,14 +17,14 @@ export default function TrialBlockedScreen() {
           Seu período de teste terminou
         </h1>
         <p className="text-sm text-gray-600 mb-8">
-          Esperamos que você tenha gostado do AgendaApp! Para continuar usando,
+          Esperamos que você tenha gostado do Agendy! Para continuar usando,
           é só ativar sua assinatura. Entre em contato com a gente que te ajudamos
           com o próximo passo.
         </p>
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-3">
           <a
-            href="https://wa.me/5511986698398?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20do%20AgendaApp"
+            href="https://wa.me/5511986698398?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20do%20Agendy"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"

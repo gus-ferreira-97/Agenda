@@ -113,7 +113,7 @@ export default function Services() {
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Briefcase className="w-7 h-7 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">Nenhum serviço cadastrado</h3>
+          <p className="font-semibold text-gray-900 mb-1">Nenhum serviço cadastrado</p>
           <p className="text-sm text-gray-600 mb-4">
             Adicione os serviços que você oferece aos seus clientes.
           </p>

@@ -160,61 +160,61 @@ export default function TenantDashboard() {
 
   const kpiCards = kpis
     ? [
-        {
-          label: 'Agendamentos',
-          value: kpis.appointments.value,
-          trend: kpis.appointments.trend,
-          invertTrend: false,
-          Icon: CalendarCheck,
-          color: 'blue',
-          trendHint: `últimos ${period}d`,
-        },
-        {
-          label: 'Confirmados',
-          value: kpis.confirmed.value,
-          trend: kpis.confirmed.trend,
-          invertTrend: false,
-          Icon: CheckCircle2,
-          color: 'green',
-          trendHint: `últimos ${period}d`,
-        },
-        {
-          label: 'Pendentes',
-          value: kpis.pending.value,
-          trend: kpis.pending.trend,
-          invertTrend: true,
-          Icon: Clock,
-          color: 'yellow',
-          trendHint: `aguardando ação`,
-        },
-        {
-          label: 'Cancelados',
-          value: kpis.cancelled.value,
-          trend: kpis.cancelled.trend,
-          invertTrend: true,
-          Icon: XCircle,
-          color: 'red',
-          trendHint: `últimos ${period}d`,
-        },
-        {
-          label: 'Profissionais',
-          value: kpis.professionals.value,
-          trend: kpis.professionals.trend,
-          invertTrend: false,
-          Icon: Users,
-          color: 'purple',
-          trendHint: `ativos`,
-        },
-        {
-          label: 'Faturamento',
-          value: formatCurrency(kpis.revenue.value),
-          trend: kpis.revenue.trend,
-          invertTrend: false,
-          Icon: DollarSign,
-          color: 'pink',
-          trendHint: `confirmados em ${period}d`,
-        },
-      ]
+      {
+        label: 'Agendamentos',
+        value: kpis.appointments.value,
+        trend: kpis.appointments.trend,
+        invertTrend: false,
+        Icon: CalendarCheck,
+        color: 'blue',
+        trendHint: `últimos ${period}d`,
+      },
+      {
+        label: 'Confirmados',
+        value: kpis.confirmed.value,
+        trend: kpis.confirmed.trend,
+        invertTrend: false,
+        Icon: CheckCircle2,
+        color: 'green',
+        trendHint: `últimos ${period}d`,
+      },
+      {
+        label: 'Pendentes',
+        value: kpis.pending.value,
+        trend: kpis.pending.trend,
+        invertTrend: true,
+        Icon: Clock,
+        color: 'yellow',
+        trendHint: `aguardando ação`,
+      },
+      {
+        label: 'Cancelados',
+        value: kpis.cancelled.value,
+        trend: kpis.cancelled.trend,
+        invertTrend: true,
+        Icon: XCircle,
+        color: 'red',
+        trendHint: `últimos ${period}d`,
+      },
+      {
+        label: 'Profissionais',
+        value: kpis.professionals.value,
+        trend: kpis.professionals.trend,
+        invertTrend: false,
+        Icon: Users,
+        color: 'purple',
+        trendHint: `ativos`,
+      },
+      {
+        label: 'Faturamento',
+        value: formatCurrency(kpis.revenue.value),
+        trend: kpis.revenue.trend,
+        invertTrend: false,
+        Icon: DollarSign,
+        color: 'pink',
+        trendHint: `confirmados em ${period}d`,
+      },
+    ]
     : [];
 
   const colorClasses: Record<string, { bg: string; text: string }> = {
@@ -277,11 +277,10 @@ export default function TenantDashboard() {
               <button
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
-                className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${
-                  period === p.value
+                className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${period === p.value
                     ? 'bg-blue-600 text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 {p.label}
               </button>
@@ -461,9 +460,9 @@ export default function TenantDashboard() {
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
             <Lock className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
           </div>
-          <h3 className="text-base md:text-xl font-bold text-gray-900 mb-2">
+          <p className="text-base md:text-xl font-bold text-gray-900 mb-2">
             Desbloqueie relatórios avançados
-          </h3>
+          </p>
           <p className="text-sm text-gray-600 max-w-md mx-auto mb-6">
             Tenha acesso a gráficos detalhados de agendamentos por status, distribuição por dia da semana,
             ranking de profissionais e serviços mais procurados.

@@ -373,6 +373,8 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                   src={imageUrl}
                   alt="Pré-visualização"
                   className="w-14 h-14 rounded-lg object-cover border border-gray-200 bg-white"
+                  loading="lazy"
+                  decoding="async"
                   onError={() => setImageError(true)}
                 />
                 <span className="text-xs text-gray-500">Pré-visualização</span>
@@ -467,11 +469,10 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
           {options.map((option) => (
             <div
               key={option.id}
-              className={`border rounded-xl overflow-hidden transition ${
-                option.is_active
-                  ? 'border-gray-200 bg-white'
-                  : 'border-gray-200 bg-gray-50 opacity-70'
-              }`}
+              className={`border rounded-xl overflow-hidden transition ${option.is_active
+                ? 'border-gray-200 bg-white'
+                : 'border-gray-200 bg-gray-50 opacity-70'
+                }`}
             >
               {/* Imagem */}
               <div className="aspect-video bg-gradient-to-br from-purple-50 to-gray-100 flex items-center justify-center overflow-hidden">
@@ -480,6 +481,8 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                     src={option.image_url}
                     alt={option.name}
                     className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = 'none';
                     }}
@@ -497,11 +500,10 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                   <p className="text-sm font-semibold text-gray-900 truncate flex-1">
                     {option.name}
                   </p>
-                  <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap ${
-                    option.is_active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-200 text-gray-700'
-                  }`}>
+                  <span className={`inline-flex px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap ${option.is_active
+                    ? 'bg-green-100 text-green-800'
+                    : 'bg-gray-200 text-gray-700'
+                    }`}>
                     {option.is_active ? 'Ativa' : 'Inativa'}
                   </span>
                 </div>
@@ -535,11 +537,10 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                     type="button"
                     onClick={() => handleToggleActive(option)}
                     title={option.is_active ? 'Desativar' : 'Ativar'}
-                    className={`p-1.5 rounded-lg transition ${
-                      option.is_active
-                        ? 'text-yellow-600 hover:bg-yellow-50'
-                        : 'text-green-600 hover:bg-green-50'
-                    }`}
+                    className={`p-1.5 rounded-lg transition ${option.is_active
+                      ? 'text-yellow-600 hover:bg-yellow-50'
+                      : 'text-green-600 hover:bg-green-50'
+                      }`}
                   >
                     {option.is_active ? (
                       <PowerOff className="w-3.5 h-3.5" />

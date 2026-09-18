@@ -334,8 +334,10 @@ export default function Settings() {
                 {logoUrl && !logoError ? (
                   <img
                     src={logoUrl}
-                    alt="Logo"
+                    alt="Pré-visualização do logo"
                     className="w-10 h-10 rounded-lg object-cover bg-white flex-shrink-0"
+                    loading="lazy"
+                    decoding="async"
                     onError={() => setLogoError(true)}
                   />
                 ) : (
@@ -347,7 +349,7 @@ export default function Settings() {
                 <div className="min-w-0">
                   <p className="text-white font-semibold text-sm truncate">{name || 'Seu estabelecimento'}</p>
                   <p className="text-white/80 text-xs truncate">
-                    {subdomain ? `${subdomain}.agendaapp.com.br` : 'seu-subdominio.agendaapp.com.br'}
+                    {subdomain ? `${subdomain}.agendy.com.br` : 'seu-subdominio.agendy.com.br'}
                   </p>
                 </div>
               </div>

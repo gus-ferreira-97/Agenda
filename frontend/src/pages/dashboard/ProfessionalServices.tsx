@@ -211,7 +211,7 @@ export default function ProfessionalServices() {
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Link2 className="w-7 h-7 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">Nenhuma associação cadastrada</h3>
+          <p className="font-semibold text-gray-900 mb-1">Nenhuma associação cadastrada</p>
           <p className="text-sm text-gray-600">
             Use o formulário acima para vincular serviços aos seus profissionais.
           </p>

@@ -147,12 +147,12 @@ export default function TenantForm() {
                 required
               />
               <span className="hidden sm:inline text-gray-600 text-xs py-2.5 px-3 whitespace-nowrap">
-                .agendaapp.com.br
+                .agendy.com.br
               </span>
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {subdomain
-                ? `Sua URL: ${subdomain}.agendaapp.com.br`
+                ? `Sua URL: ${subdomain}.Agendy.com.br`
                 : 'Apenas letras minúsculas, números e hífens'}
             </p>
           </div>

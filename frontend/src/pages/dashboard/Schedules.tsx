@@ -89,7 +89,7 @@ export default function Schedules() {
           <div className="w-14 h-14 mx-auto rounded-full bg-gray-100 flex items-center justify-center mb-4">
             <Clock className="w-7 h-7 text-gray-400" />
           </div>
-          <h3 className="font-semibold text-gray-900 mb-1">Nenhum horário cadastrado</h3>
+          <p className="font-semibold text-gray-900 mb-1">Nenhum horário cadastrado</p>
           <p className="text-sm text-gray-600 mb-4">
             Configure quando seus profissionais estarão disponíveis para atender.
           </p>
