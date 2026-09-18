@@ -27,6 +27,9 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { ServiceOption } from './service/entities/service-option.entity';
 import { ServiceOptionModule } from './service-option/service-option.module';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { AuditLogModule } from './audit-log/audit-log.module';
+import { AuditInterceptor } from './audit-log/audit.interceptor';
 
 @Module({
   imports: [
@@ -46,6 +49,7 @@ import { ServiceOptionModule } from './service-option/service-option.module';
         TenantMetricsModule,
         TasksModule,
         ServiceOptionModule,
+        AuditLogModule,
       ],
 
       useFactory: (configService: ConfigService) => ({
@@ -77,6 +81,12 @@ import { ServiceOptionModule } from './service-option/service-option.module';
     UserModule,
     AuthModule,
   ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ]
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

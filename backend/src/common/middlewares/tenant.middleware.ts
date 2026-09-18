@@ -16,7 +16,7 @@ export class TenantMiddleware implements NestMiddleware {
       return next();
     }
 
-    // Exemplo: "barbeariadoze.agendaapp.local:5173" -> ["barbeariadoze", "agendaapp", "local:5173"]
+    // Exemplo: "barbeariadoze.Agendy.local:5173" -> ["barbeariadoze", "Agendy", "local:5173"]
     const parts = host.split('.');
     let subdomain: string | null = null;
 

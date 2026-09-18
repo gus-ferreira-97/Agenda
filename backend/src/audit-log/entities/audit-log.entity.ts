@@ -15,10 +15,10 @@ export class AuditLog {
   id: number;
 
   @Column({ type: 'int', nullable: true })
-  tenant_id: number;
+  tenant_id: number | null;
 
   @Column({ type: 'int', nullable: true })
-  user_id: number;
+  user_id: number | null;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.auditLogs, { nullable: true })
   @JoinColumn({ name: 'tenant_id' })
