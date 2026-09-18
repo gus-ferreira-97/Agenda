@@ -1,3 +1,10 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+build/
+
 # compiled output
 /dist
 /node_modules
@@ -14,6 +21,7 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+Thumbs.db
 
 # Tests
 /coverage
@@ -34,6 +42,8 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+.vscode/
+.idea/
 
 # dotenv environment variable files
 .env
@@ -41,6 +51,7 @@ lerna-debug.log*
 .env.test.local
 .env.production.local
 .env.local
+.env.*.local
 
 # temp directory
 .temp

@@ -1,5 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
 import { AuthService } from './auth.service';
@@ -12,9 +13,23 @@ import { Tenant } from '../tenant/entities/tenant.entity';
   imports: [
     forwardRef(() => UserModule),
     TypeOrmModule.forFeature([Tenant]),
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secretKey',
-      signOptions: { expiresIn: '1h' },
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const secret = configService.get<string>('JWT_SECRET');
+
+        if (!secret || secret.trim() === '') {
+          throw new Error(
+            'JWT_SECRET não está configurada. Defina no .env antes de iniciar a aplicação.',
+          );
+        }
+
+        return {
+          secret,
+          signOptions: { expiresIn: '1h' },
+        };
+      },
     }),
   ],
   controllers: [AuthController],
