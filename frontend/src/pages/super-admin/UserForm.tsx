@@ -162,6 +162,7 @@ export default function UserForm() {
                 id="name"
                 type="text"
                 value={name}
+                autoComplete="name"
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="Ex.: Maria Silva"
@@ -180,6 +181,7 @@ export default function UserForm() {
                 id="email"
                 type="email"
                 value={email}
+                autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder="voce@email.com"
@@ -201,6 +203,7 @@ export default function UserForm() {
                 id="password"
                 type={showPassword ? 'text' : 'password'}
                 value={password}
+                autoComplete="new-password"
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                 placeholder={isEditing ? 'Nova senha (opcional)' : 'Crie uma senha forte'}
@@ -231,6 +234,7 @@ export default function UserForm() {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={confirmPassword}
+                  autoComplete="new-password"
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${
                     confirmPassword.length > 0 && confirmPassword !== password

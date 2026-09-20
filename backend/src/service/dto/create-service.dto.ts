@@ -7,14 +7,17 @@ import {
   IsBoolean,
   IsNumber,
 } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateServiceDto {
   @IsString()
   @IsNotEmpty()
+  @SanitizeHtml()
   name: string;
 
   @IsOptional()
   @IsString()
+  @SanitizeHtml()
   description?: string;
 
   @IsInt()

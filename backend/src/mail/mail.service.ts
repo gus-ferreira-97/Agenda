@@ -36,14 +36,20 @@ export class MailService {
         this.logger.error(`Falha ao enviar e-mail para ${to}`, error);
       }
     } else {
-      // Modo desenvolvimento: apenas loga
-      this.logger.log('==== E-MAIL (MODO DESENVOLVIMENTO) ====');
-      this.logger.log(`Para: ${to}`);
-      this.logger.log(`Assunto: ${subject}`);
-      if (fallbackLink) {
-        this.logger.log(`Link: ${fallbackLink}`);
+      // Modo desenvolvimento: apenas loga (nunca em produção)
+      if (process.env.NODE_ENV !== 'production') {
+        this.logger.log('==== E-MAIL (MODO DESENVOLVIMENTO) ====');
+        this.logger.log(`Para: ${to}`);
+        this.logger.log(`Assunto: ${subject}`);
+        if (fallbackLink) {
+          this.logger.log(`Link: ${fallbackLink}`);
+        }
+        this.logger.log('========================================');
+      } else {
+        this.logger.warn(
+          `RESEND_API_KEY não configurada em produção. E-mail para ${to} NÃO foi enviado.`,
+        );
       }
-      this.logger.log('========================================');
     }
   }
 

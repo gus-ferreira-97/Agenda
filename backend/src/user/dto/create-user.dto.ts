@@ -8,10 +8,12 @@ import {
   IsIn,
 } from 'class-validator';
 import { IsStrongPassword } from '../../common/validators/is-strong-password.decorator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateUserDto {
   @IsString({ message: 'O nome deve ser um texto válido' })
   @IsNotEmpty({ message: 'Informe o nome do usuário' })
+  @SanitizeHtml()
   name: string;
 
   @IsEmail({}, { message: 'Informe um e-mail válido' })

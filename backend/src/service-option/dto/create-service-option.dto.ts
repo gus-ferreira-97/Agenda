@@ -9,6 +9,7 @@ import {
   MinLength,
   IsBoolean,
 } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateServiceOptionDto {
   @IsInt({ message: 'O serviço é inválido' })
@@ -18,16 +19,19 @@ export class CreateServiceOptionDto {
   @IsNotEmpty({ message: 'Informe o nome da variação' })
   @MinLength(2, { message: 'O nome deve ter pelo menos 2 caracteres' })
   @MaxLength(100, { message: 'O nome deve ter no máximo 100 caracteres' })
+  @SanitizeHtml()
   name: string;
 
   @IsOptional()
   @IsString({ message: 'A descrição deve ser um texto válido' })
   @MaxLength(1000, { message: 'A descrição deve ter no máximo 1000 caracteres' })
+  @SanitizeHtml()
   description?: string;
 
   @IsOptional()
   @IsString({ message: 'A URL da imagem deve ser um texto válido' })
   @MaxLength(500, { message: 'A URL da imagem deve ter no máximo 500 caracteres' })
+  @SanitizeHtml()
   imageUrl?: string;
 
   @IsOptional()

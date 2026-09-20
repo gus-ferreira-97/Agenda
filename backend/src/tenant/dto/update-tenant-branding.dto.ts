@@ -5,6 +5,7 @@ import {
   Matches,
   MaxLength,
 } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class UpdateTenantBrandingDto {
   @IsOptional()
@@ -22,6 +23,7 @@ export class UpdateTenantBrandingDto {
   @IsOptional()
   @IsString()
   @MaxLength(200)
+  @SanitizeHtml()
   welcomeMessage?: string;
 
   @IsOptional()
@@ -32,5 +34,6 @@ export class UpdateTenantBrandingDto {
   @IsOptional()
   @IsString()
   @MaxLength(255)
+  @SanitizeHtml()
   address?: string;
 }

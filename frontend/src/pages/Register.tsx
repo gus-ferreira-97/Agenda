@@ -18,6 +18,7 @@ export default function Register() {
   const [success, setSuccess] = useState('');
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
+  const [honeypot, setHoneypot] = useState('');
 
   const [searchParams] = useSearchParams();
   const planFromUrl = searchParams.get('plan') || 'basico';
@@ -66,6 +67,7 @@ export default function Register() {
         tenantName,
         subdomain,
         plan,
+        _hp: honeypot,
       });
       setRegisteredEmail(email);
       setSuccess(response.data.message);
@@ -173,6 +175,30 @@ export default function Register() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '-9999px',
+                      opacity: 0,
+                      height: 0,
+                      width: 0,
+                      overflow: 'hidden',
+                    }}
+                    aria-hidden="true"
+                  >
+                    <label htmlFor="_hp_register">Não preencha este campo</label>
+                    <input
+                      id="_hp_register"
+                      type="text"
+                      name="_hp"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={honeypot}
+                      onChange={(e) => setHoneypot(e.target.value)}
+                    />
+                  </div>
+
                   {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2">
                       <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -193,6 +219,7 @@ export default function Register() {
                       <input
                         type="text"
                         value={ownerName}
+                        autoComplete="name"
                         onChange={(e) => setOwnerName(e.target.value)}
                         className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         placeholder="Como devemos te chamar?"
@@ -212,6 +239,7 @@ export default function Register() {
                       <input
                         type="email"
                         value={email}
+                        autoComplete="email"
                         onChange={(e) => setEmail(e.target.value)}
                         className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         placeholder="voce@email.com"
@@ -231,6 +259,7 @@ export default function Register() {
                       <input
                         type={showPassword ? 'text' : 'password'}
                         value={password}
+                        autoComplete="new-password"
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         placeholder="Crie uma senha forte"
@@ -263,6 +292,7 @@ export default function Register() {
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
+                        autoComplete="new-password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`w-full pl-9 pr-12 py-2.5 border rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
                           ? 'border-red-300'

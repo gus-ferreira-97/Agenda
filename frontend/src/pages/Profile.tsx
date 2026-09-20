@@ -9,7 +9,6 @@ import {
     CheckCircle2,
     AlertCircle,
     Calendar,
-    Building2,
     Crown,
     Shield,
     Sparkles,
@@ -219,6 +218,7 @@ export default function Profile() {
                                         id="name"
                                         type="text"
                                         value={name}
+                                        autoComplete="name"
                                         onChange={(e) => setName(e.target.value)}
                                         className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="Seu nome"
@@ -237,6 +237,7 @@ export default function Profile() {
                                         id="email"
                                         type="email"
                                         value={email}
+                                        autoComplete="email"
                                         onChange={(e) => setEmail(e.target.value)}
                                         className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                         placeholder="voce@email.com"
@@ -318,6 +319,7 @@ export default function Profile() {
                                             id="currentPassword"
                                             type={showCurrent ? 'text' : 'password'}
                                             value={currentPassword}
+                                            autoComplete="current-password"
                                             onChange={(e) => setCurrentPassword(e.target.value)}
                                             className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                             placeholder="Digite sua senha atual"
@@ -343,6 +345,7 @@ export default function Profile() {
                                             id="newPassword"
                                             type={showNew ? 'text' : 'password'}
                                             value={newPassword}
+                                            autoComplete="new-password"
                                             onChange={(e) => setNewPassword(e.target.value)}
                                             className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                                             placeholder="Crie uma senha forte"
@@ -369,6 +372,7 @@ export default function Profile() {
                                             id="confirmPassword"
                                             type={showConfirm ? 'text' : 'password'}
                                             value={confirmPassword}
+                                            autoComplete="new-password"
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== newPassword
                                                     ? 'border-red-300'

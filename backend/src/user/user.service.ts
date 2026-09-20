@@ -52,15 +52,38 @@ export class UserService {
     return user || undefined;
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto, requestingUser: any): Promise<User> {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`Usuário com ID ${id} não encontrado`);
     }
 
-    if (updateUserDto.name) user.name = updateUserDto.name;
-    if (updateUserDto.email) user.email = updateUserDto.email;
-    if (updateUserDto.role) user.role = updateUserDto.role;
+    // ========== Bloqueio de escalação de privilégios ==========
+    // Apenas super_admin pode alterar o papel de um usuário
+    if (updateUserDto.role !== undefined && updateUserDto.role !== user.role) {
+      if (requestingUser?.role !== 'super_admin') {
+        throw new ForbiddenException(
+          'Apenas super administradores podem alterar o papel de um usuário.',
+        );
+      }
+    }
+
+    // Apenas super_admin pode mover um usuário entre tenants
+    if (
+      updateUserDto.tenantId !== undefined &&
+      updateUserDto.tenantId !== user.tenant_id
+    ) {
+      if (requestingUser?.role !== 'super_admin') {
+        throw new ForbiddenException(
+          'Apenas super administradores podem mover usuários entre tenants.',
+        );
+      }
+    }
+
+    // ========== Aplica as alterações ==========
+    if (updateUserDto.name !== undefined) user.name = updateUserDto.name;
+    if (updateUserDto.email !== undefined) user.email = updateUserDto.email;
+    if (updateUserDto.role !== undefined) user.role = updateUserDto.role;
 
     if (updateUserDto.tenantId !== undefined) {
       user.tenant_id = updateUserDto.tenantId ?? null;
@@ -68,10 +91,12 @@ export class UserService {
 
     if (updateUserDto.password) {
       user.password_hash = await bcrypt.hash(updateUserDto.password, 10);
+      user.reset_password_token = null;
+      user.reset_password_expires = null;
     }
 
     const updatedUser = await this.userRepository.save(user);
-    const { password_hash, ...result } = updatedUser;
+    const { password_hash, reset_password_token, reset_password_expires, ...result } = updatedUser;
     return result as User;
   }
 
@@ -202,5 +227,35 @@ export class UserService {
     await this.userRepository.save(user);
 
     return { message: 'Senha alterada com sucesso.' };
+  }
+
+  async incrementFailedLogin(userId: number): Promise<{ attempts: number; locked: boolean }> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) return { attempts: 0, locked: false };
+
+    user.failed_login_attempts = (user.failed_login_attempts || 0) + 1;
+
+    const MAX_ATTEMPTS = 5;
+    const LOCK_DURATION_MS = 15 * 60 * 1000; // 15 minutos
+
+    if (user.failed_login_attempts >= MAX_ATTEMPTS) {
+      user.locked_until = new Date(Date.now() + LOCK_DURATION_MS);
+    }
+
+    await this.userRepository.save(user);
+
+    return {
+      attempts: user.failed_login_attempts,
+      locked: user.locked_until !== null && user.locked_until > new Date(),
+    };
+  }
+
+  async resetFailedLogin(userId: number): Promise<void> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) return;
+
+    user.failed_login_attempts = 0;
+    user.locked_until = null;
+    await this.userRepository.save(user);
   }
 }

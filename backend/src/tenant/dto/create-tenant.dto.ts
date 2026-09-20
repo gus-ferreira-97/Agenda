@@ -6,6 +6,7 @@ import {
   IsIn,
   Matches,
 } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateTenantDto {
   @IsString({ message: 'O nome deve ser um texto válido' })
@@ -13,6 +14,7 @@ export class CreateTenantDto {
   @Length(3, 255, {
     message: 'O nome deve ter entre 3 e 255 caracteres',
   })
+  @SanitizeHtml()
   name: string;
 
   @IsString({ message: 'O subdomínio deve ser um texto válido' })

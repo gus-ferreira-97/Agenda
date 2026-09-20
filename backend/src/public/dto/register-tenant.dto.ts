@@ -9,6 +9,7 @@ import {
   Matches,
 } from 'class-validator';
 import { IsStrongPassword } from '../../common/validators/is-strong-password.decorator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class RegisterTenantDto {
   @IsString({ message: 'O nome deve ser um texto válido' })
@@ -16,6 +17,7 @@ export class RegisterTenantDto {
   @Length(3, 255, {
     message: 'O nome deve ter entre 3 e 255 caracteres',
   })
+  @SanitizeHtml()
   ownerName: string;
 
   @IsEmail({}, { message: 'Informe um e-mail válido' })
@@ -31,6 +33,7 @@ export class RegisterTenantDto {
   @Length(3, 255, {
     message: 'O nome do estabelecimento deve ter entre 3 e 255 caracteres',
   })
+  @SanitizeHtml()
   tenantName: string;
 
   @IsString({ message: 'O subdomínio deve ser um texto válido' })
@@ -49,4 +52,8 @@ export class RegisterTenantDto {
     message: 'O plano deve ser: básico, profissional ou premium',
   })
   plan?: string;
+
+  @IsOptional()
+  @IsString()
+  _hp?: string;
 }

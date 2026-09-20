@@ -58,4 +58,10 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   email_verification_expires: Date | null;
+
+  @Column({ type: 'int', default: 0 })
+  failed_login_attempts: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  locked_until: Date | null;
 }

@@ -130,6 +130,7 @@ export default function ResetPassword() {
                         id="password"
                         type={showPassword ? 'text' : 'password'}
                         value={password}
+                        autoComplete="new-password"
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
                         placeholder="Crie uma senha forte"
@@ -159,6 +160,7 @@ export default function ResetPassword() {
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
+                        autoComplete="new-password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`w-full pl-10 pr-12 py-3 border rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
                             ? 'border-red-300'

@@ -30,10 +30,70 @@ import { ServiceOptionModule } from './service-option/service-option.module';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { AuditInterceptor } from './audit-log/audit.interceptor';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
+    LoggerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+
+        return {
+          pinoHttp: {
+            transport: !isProduction
+              ? {
+                target: 'pino-pretty',
+                options: {
+                  colorize: true,
+                  singleLine: true,
+                  translateTime: 'HH:MM:ss',
+                  ignore: 'pid,hostname',
+                },
+              }
+              : undefined,
+            level: isProduction ? 'info' : 'debug',
+            redact: {
+              paths: [
+                'req.headers.authorization',
+                'req.headers.cookie',
+                'req.body.password',
+                'req.body.currentPassword',
+                'req.body.newPassword',
+                'req.body.password_hash',
+                'req.body.reset_password_token',
+                'req.body.email_verification_token',
+                'res.headers["set-cookie"]',
+              ],
+              censor: '[REDACTED]',
+            },
+            autoLogging: {
+              ignore: (req) => {
+                const url = req.url || '';
+                return (
+                  url.includes('/public/plans') ||
+                  url.includes('/public/tenant-info') ||
+                  url.includes('/favicon') ||
+                  url.includes('/robots.txt') ||
+                  url.includes('/sitemap.xml')
+                );
+              },
+            },
+          },
+        };
+      },
+    }),
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+        blockDuration: 60000,
+      },
+    ]),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
       imports: [
@@ -82,6 +142,10 @@ import { AuditInterceptor } from './audit-log/audit.interceptor';
     AuthModule,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,

@@ -47,6 +47,12 @@ export class PublicService {
   ) { }
 
   async registerTenant(dto: RegisterTenantDto): Promise<{ message: string }> {
+
+    // Honeypot: se o campo `_hp` estiver preenchido, é bot
+    if (dto._hp && dto._hp.trim() !== '') {
+      throw new BadRequestException('Requisição inválida.');
+    }
+
     const subdomain = dto.subdomain
       .toLowerCase()
       .trim()
@@ -213,6 +219,11 @@ export class PublicService {
   }
 
   async createAppointment(tenantId: number, dto: CreateAppointmentPublicDto): Promise<Appointment> {
+
+    if (dto._hp && dto._hp.trim() !== '') {
+      throw new BadRequestException('Requisição inválida.');
+    }
+    
     const {
       professionalId,
       serviceId,

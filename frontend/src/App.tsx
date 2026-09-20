@@ -1,3 +1,4 @@
+import type { ReactElement } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
@@ -32,7 +33,7 @@ import VerifyEmail from './pages/VerifyEmail';
 import IdleManager from './components/IdleManager';
 import TenantNoIndex from './components/TenantNoIndex';
 
-function PrivateRoute({ children }: { children: JSX.Element }) {
+function PrivateRoute({ children }: { children: ReactElement }) {
   const { token } = useAuth();
   return token ? children : <Navigate to="/login" replace />;
 }

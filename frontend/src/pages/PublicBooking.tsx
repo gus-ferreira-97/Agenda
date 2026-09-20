@@ -64,6 +64,7 @@ export default function PublicBooking() {
   const [selectedDate, setSelectedDate] = useState('');
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState('');
+  const [honeypot, setHoneypot] = useState('');
 
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
@@ -197,6 +198,7 @@ export default function PublicBooking() {
         customerName,
         customerContact,
         startTime: `${selectedDate}T${selectedSlot}:00`,
+        _hp: honeypot,
       });
       setMessage('Agendamento realizado com sucesso!');
       setCustomerName('');
@@ -719,6 +721,30 @@ export default function PublicBooking() {
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-3">
+
+                    <div
+                      style={{
+                        position: 'absolute',
+                        left: '-9999px',
+                        opacity: 0,
+                        height: 0,
+                        width: 0,
+                        overflow: 'hidden',
+                      }}
+                      aria-hidden="true"
+                    >
+                      <label htmlFor="_hp_booking">Não preencha este campo</label>
+                      <input
+                        id="_hp_booking"
+                        type="text"
+                        name="_hp"
+                        tabIndex={-1}
+                        autoComplete="off"
+                        value={honeypot}
+                        onChange={(e) => setHoneypot(e.target.value)}
+                      />
+                    </div>
+
                     <div>
                       <label className="block text-xs font-medium text-gray-600 mb-1.5">Seu nome</label>
                       <input

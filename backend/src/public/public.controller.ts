@@ -3,6 +3,7 @@ import { PublicService } from './public.service';
 import { CreateAppointmentPublicDto } from './dto/create-appointment-public.dto';
 import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('public')
 export class PublicController {
@@ -56,6 +57,7 @@ export class PublicController {
   }
 
   @Post('appointments')
+  @Throttle({ default: { limit: 10, ttl: 3600000, blockDuration: 3600000 } })
   createAppointment(@Req() req: any, @Body() dto: CreateAppointmentPublicDto) {
     if (!req.tenantId) {
       throw new BadRequestException('Tenant não identificado');
@@ -64,6 +66,7 @@ export class PublicController {
   }
 
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 3600000, blockDuration: 3600000 } })
   register(@Body() dto: RegisterTenantDto) {
     return this.publicService.registerTenant(dto);
   }

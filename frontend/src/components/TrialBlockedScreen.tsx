@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Lock, Sparkles, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 

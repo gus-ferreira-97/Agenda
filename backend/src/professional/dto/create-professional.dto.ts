@@ -1,12 +1,15 @@
 import { IsString, IsNotEmpty, IsOptional, IsBoolean, IsInt } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateProfessionalDto {
   @IsString()
   @IsNotEmpty()
+  @SanitizeHtml()
   name: string;
 
   @IsString()
   @IsNotEmpty()
+  @SanitizeHtml()
   specialty: string;
 
   @IsOptional()

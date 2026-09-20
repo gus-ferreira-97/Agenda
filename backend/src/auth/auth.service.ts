@@ -26,18 +26,51 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    // ========== Verifica se a conta está bloqueada ==========
+    if (user.locked_until && user.locked_until > new Date()) {
+      const minutesLeft = Math.ceil(
+        (user.locked_until.getTime() - Date.now()) / 60000,
+      );
+      throw new ForbiddenException(
+        `Conta temporariamente bloqueada por excesso de tentativas. Tente novamente em ${minutesLeft} minuto(s).`,
+      );
+    }
+
+    // Se o bloqueio expirou, reseta antes de continuar
+    if (user.locked_until && user.locked_until <= new Date()) {
+      await this.userService.resetFailedLogin(user.id);
+      user.failed_login_attempts = 0;
+      user.locked_until = null;
+    }
+
+    // ========== Valida a senha ==========
     const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+
     if (!isPasswordValid) {
+      const result = await this.userService.incrementFailedLogin(user.id);
+
+      if (result.locked) {
+        throw new ForbiddenException(
+          'Conta temporariamente bloqueada por excesso de tentativas. Tente novamente em 15 minuto(s).',
+        );
+      }
+
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    // ========== Login correto: reseta contador se necessário ==========
+    if (user.failed_login_attempts > 0 || user.locked_until) {
+      await this.userService.resetFailedLogin(user.id);
+    }
+
+    // ========== Verifica e-mail confirmado ==========
     if (!user.email_verified) {
       throw new ForbiddenException(
         'Confirme seu e-mail antes de fazer login. Verifique sua caixa de entrada.',
       );
     }
 
-    // Se for tenant_admin, verifica se o tenant está ativo
+    // ========== Verifica status do tenant ==========
     if (user.role === 'tenant_admin' && user.tenant_id) {
       const tenant = await this.tenantRepository.findOne({
         where: { id: user.tenant_id },
