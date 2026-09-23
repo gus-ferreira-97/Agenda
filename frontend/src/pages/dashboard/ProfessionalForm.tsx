@@ -106,6 +106,7 @@ export default function ProfessionalForm() {
               <input
                 id="name"
                 type="text"
+                maxLength={255}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -124,6 +125,7 @@ export default function ProfessionalForm() {
               <input
                 id="specialty"
                 type="text"
+                maxLength={100}
                 value={specialty}
                 onChange={(e) => setSpecialty(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

@@ -59,6 +59,12 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @Delete('me')
+  @Roles('super_admin', 'tenant_admin')
+  async deleteMe(@CurrentUser() user: any) {
+    return this.userService.anonymizeAndDeactivate(user.userId, user);
+  }
+
   @Get(':id')
   @Roles('super_admin')
   findOne(@Param('id', ParseIntPipe) id: number) {

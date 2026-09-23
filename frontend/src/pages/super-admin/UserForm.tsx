@@ -161,6 +161,7 @@ export default function UserForm() {
               <input
                 id="name"
                 type="text"
+                maxLength={255}
                 value={name}
                 autoComplete="name"
                 onChange={(e) => setName(e.target.value)}
@@ -180,6 +181,7 @@ export default function UserForm() {
               <input
                 id="email"
                 type="email"
+                maxLength={255}
                 value={email}
                 autoComplete="email"
                 onChange={(e) => setEmail(e.target.value)}
@@ -202,6 +204,7 @@ export default function UserForm() {
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
+                maxLength={128}
                 value={password}
                 autoComplete="new-password"
                 onChange={(e) => setPassword(e.target.value)}
@@ -233,6 +236,7 @@ export default function UserForm() {
                 <input
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
+                  maxLength={128}
                   value={confirmPassword}
                   autoComplete="new-password"
                   onChange={(e) => setConfirmPassword(e.target.value)}

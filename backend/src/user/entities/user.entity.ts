@@ -64,4 +64,7 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   locked_until: Date | null;
+
+  @Column({ type: 'boolean', default: true })
+  is_active: boolean;
 }

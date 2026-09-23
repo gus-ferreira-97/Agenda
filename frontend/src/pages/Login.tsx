@@ -135,6 +135,7 @@ export default function Login() {
                   <input
                     id="email"
                     type="email"
+                    maxLength={255}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -162,6 +163,7 @@ export default function Login() {
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    maxLength={128}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

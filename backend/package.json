@@ -7,8 +7,10 @@
   "license": "UNLICENSED",
   "scripts": {
     "typeorm": "typeorm-ts-node-commonjs -d ./src/config/typeorm.config.ts",
-    "migration:generate": "npm run typeorm -- migration:generate",
-    "migration:run": "npm run typeorm -- migration:run",
+    "typeorm:migrator": "cross-env MIGRATOR_MODE=true typeorm-ts-node-commonjs -d ./src/config/typeorm.config.ts",
+    "migration:generate": "npm run typeorm:migrator -- migration:generate",
+    "migration:run": "npm run typeorm:migrator -- migration:run",
+    "migration:revert": "npm run typeorm:migrator -- migration:revert",
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

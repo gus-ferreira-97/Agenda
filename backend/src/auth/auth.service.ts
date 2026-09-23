@@ -26,6 +26,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciais inválidas');
     }
 
+    if (!user.is_active) {
+      throw new UnauthorizedException('Esta conta não está mais ativa.');
+    }
+
     // ========== Verifica se a conta está bloqueada ==========
     if (user.locked_until && user.locked_until > new Date()) {
       const minutesLeft = Math.ceil(

@@ -217,6 +217,7 @@ export default function Profile() {
                                     <input
                                         id="name"
                                         type="text"
+                                        maxLength={255}
                                         value={name}
                                         autoComplete="name"
                                         onChange={(e) => setName(e.target.value)}
@@ -236,6 +237,7 @@ export default function Profile() {
                                     <input
                                         id="email"
                                         type="email"
+                                        maxLength={255}
                                         value={email}
                                         autoComplete="email"
                                         onChange={(e) => setEmail(e.target.value)}
@@ -318,6 +320,7 @@ export default function Profile() {
                                         <input
                                             id="currentPassword"
                                             type={showCurrent ? 'text' : 'password'}
+                                            maxLength={128}
                                             value={currentPassword}
                                             autoComplete="current-password"
                                             onChange={(e) => setCurrentPassword(e.target.value)}
@@ -344,6 +347,7 @@ export default function Profile() {
                                         <input
                                             id="newPassword"
                                             type={showNew ? 'text' : 'password'}
+                                            maxLength={128}
                                             value={newPassword}
                                             autoComplete="new-password"
                                             onChange={(e) => setNewPassword(e.target.value)}
@@ -371,6 +375,7 @@ export default function Profile() {
                                         <input
                                             id="confirmPassword"
                                             type={showConfirm ? 'text' : 'password'}
+                                            maxLength={128}
                                             value={confirmPassword}
                                             autoComplete="new-password"
                                             onChange={(e) => setConfirmPassword(e.target.value)}

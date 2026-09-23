@@ -129,6 +129,7 @@ export default function ResetPassword() {
                       <input
                         id="password"
                         type={showPassword ? 'text' : 'password'}
+                        maxLength={128}
                         value={password}
                         autoComplete="new-password"
                         onChange={(e) => setPassword(e.target.value)}
@@ -159,6 +160,7 @@ export default function ResetPassword() {
                       <input
                         id="confirmPassword"
                         type={showConfirmPassword ? 'text' : 'password'}
+                        maxLength={128}
                         value={confirmPassword}
                         autoComplete="new-password"
                         onChange={(e) => setConfirmPassword(e.target.value)}

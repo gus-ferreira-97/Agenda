@@ -117,6 +117,7 @@ export default function ServiceForm() {
               <input
                 id="name"
                 type="text"
+                maxLength={255}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -134,6 +135,7 @@ export default function ServiceForm() {
               <FileText className="absolute left-3 top-3 w-4 h-4 text-gray-400 pointer-events-none" />
               <textarea
                 id="description"
+                maxLength={1000}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none"
@@ -153,10 +155,11 @@ export default function ServiceForm() {
                 <input
                   id="durationMinutes"
                   type="number"
+                  min={1}
+                  max={1440}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(parseInt(e.target.value, 10))}
                   className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  min={1}
                   required
                 />
               </div>
@@ -172,6 +175,8 @@ export default function ServiceForm() {
                   id="price"
                   type="number"
                   step="0.01"
+                  min={0}
+                  max={999999}
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"

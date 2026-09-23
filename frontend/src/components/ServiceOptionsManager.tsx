@@ -294,6 +294,8 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
               </label>
               <input
                 type="number"
+                min={0}
+                max={9999}
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
@@ -326,6 +328,8 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 <input
                   type="number"
                   step="0.01"
+                  min={0}
+                  max={999999}
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
@@ -342,11 +346,12 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 <input
                   type="number"
+                  min={1}
+                  max={1440}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(e.target.value)}
                   className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
                   placeholder="Se vazio, usa a do serviço"
-                  min={1}
                 />
               </div>
             </div>

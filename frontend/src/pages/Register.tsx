@@ -218,6 +218,7 @@ export default function Register() {
                       </div>
                       <input
                         type="text"
+                        maxLength={255}
                         value={ownerName}
                         autoComplete="name"
                         onChange={(e) => setOwnerName(e.target.value)}
@@ -238,6 +239,7 @@ export default function Register() {
                       </div>
                       <input
                         type="email"
+                        maxLength={255}
                         value={email}
                         autoComplete="email"
                         onChange={(e) => setEmail(e.target.value)}
@@ -258,6 +260,7 @@ export default function Register() {
                       </div>
                       <input
                         type={showPassword ? 'text' : 'password'}
+                        maxLength={128}
                         value={password}
                         autoComplete="new-password"
                         onChange={(e) => setPassword(e.target.value)}
@@ -292,6 +295,7 @@ export default function Register() {
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
+                        maxLength={128}
                         autoComplete="new-password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
                         className={`w-full pl-9 pr-12 py-2.5 border rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
@@ -329,6 +333,7 @@ export default function Register() {
                       </div>
                       <input
                         type="text"
+                        maxLength={255}
                         value={tenantName}
                         onChange={(e) => handleTenantNameChange(e.target.value)}
                         className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
@@ -351,6 +356,7 @@ export default function Register() {
                       </span>
                       <input
                         type="text"
+                        maxLength={100}
                         value={subdomain}
                         onChange={(e) => setSubdomain(e.target.value.toLowerCase())}
                         className="flex-1 min-w-0 px-3 sm:px-0 py-2.5 focus:outline-none text-sm"

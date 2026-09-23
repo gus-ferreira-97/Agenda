@@ -258,4 +258,42 @@ export class UserService {
     user.locked_until = null;
     await this.userRepository.save(user);
   }
+
+  async anonymizeAndDeactivate(userId: number, requestingUser: any): Promise<{ message: string }> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`Usuário com ID ${userId} não encontrado`);
+    }
+
+    // Impede que o super admin se auto-exclua
+    if (user.role === 'super_admin' && userId === requestingUser.userId) {
+      throw new ForbiddenException(
+        'Super administradores não podem excluir a própria conta. Peça a outro super admin.',
+      );
+    }
+
+    // Se o usuário já foi anonimizado, retorna mensagem amigável
+    if (!user.is_active && user.email.startsWith('deleted_')) {
+      return { message: 'Esta conta já foi removida.' };
+    }
+
+    // Anonimiza os dados
+    user.name = 'Usuário removido';
+    user.email = `deleted_${user.id}@removed.local`;
+    user.password_hash = 'DELETED_ACCOUNT_NO_LOGIN';
+    user.reset_password_token = null;
+    user.reset_password_expires = null;
+    user.email_verification_token = null;
+    user.email_verification_expires = null;
+    user.failed_login_attempts = 0;
+    user.locked_until = null;
+    user.is_active = false;
+
+    await this.userRepository.save(user);
+
+    return {
+      message:
+        'Sua conta foi removida. Os dados pessoais foram anonimizados conforme a LGPD.',
+    };
+  }
 }
