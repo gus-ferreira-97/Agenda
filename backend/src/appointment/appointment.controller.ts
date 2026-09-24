@@ -14,11 +14,12 @@ import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { PaginationDto } from '../common/dto/pagination.dto';
 
 @Controller('appointments')
 @Roles('super_admin', 'tenant_admin')
 export class AppointmentController {
-  constructor(private readonly appointmentService: AppointmentService) {}
+  constructor(private readonly appointmentService: AppointmentService) { }
 
   @Get('available-slots')
   findAvailableSlots(
@@ -38,6 +39,7 @@ export class AppointmentController {
   @Get()
   findAll(
     @CurrentUser() user: any,
+    @Query() pagination: PaginationDto,
     @Query('professionalId') professionalId?: string,
     @Query('serviceId') serviceId?: string,
     @Query('date') date?: string,
@@ -46,6 +48,8 @@ export class AppointmentController {
       professionalId: professionalId ? parseInt(professionalId, 10) : undefined,
       serviceId: serviceId ? parseInt(serviceId, 10) : undefined,
       date,
+      page: pagination.page,
+      limit: pagination.limit,
     });
   }
 

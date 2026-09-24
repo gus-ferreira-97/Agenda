@@ -223,13 +223,27 @@ export class AppointmentService {
     return this.appointmentRepository.save(appointment);
   }
 
-  async findAll(user: any, filters?: { professionalId?: number; serviceId?: number; date?: string }): Promise<Appointment[]> {
+  async findAll(
+    user: any,
+    filters?: {
+      professionalId?: number;
+      serviceId?: number;
+      date?: string;
+      page?: number;
+      limit?: number;
+    },
+  ): Promise<{
+    items: Appointment[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+  }> {
     const where: any = {};
     if (user.role === 'tenant_admin') {
       where.tenant_id = user.tenantId;
     } else if (user.role === 'super_admin') {
-      // pode filtrar por tenant via query se quiser
-      // por simplicidade, não aplica filtro de tenant
+      // super_admin vê tudo
     } else {
       throw new ForbiddenException('Papel sem permissão');
     }
@@ -242,11 +256,25 @@ export class AppointmentService {
       where.start_time = Between(startOfDay, endOfDay);
     }
 
-    return this.appointmentRepository.find({
+    const page = Math.max(1, filters?.page ?? 1);
+    const limit = Math.min(100, Math.max(1, filters?.limit ?? 20));
+    const skip = (page - 1) * limit;
+
+    const [items, total] = await this.appointmentRepository.findAndCount({
       where,
       relations: ['professional', 'service', 'service_option'],
       order: { start_time: 'ASC' },
+      skip,
+      take: limit,
     });
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   }
 
   async findOne(id: number, user: any): Promise<Appointment> {

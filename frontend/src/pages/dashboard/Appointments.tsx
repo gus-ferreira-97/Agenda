@@ -10,6 +10,8 @@ import {
   Briefcase,
   CheckCheck,
   Package,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import api from '../../services/api';
 
@@ -49,6 +51,10 @@ export default function Appointments() {
   const [dateFilter, setDateFilter] = useState('');
   const [professionalId, setProfessionalId] = useState<number | ''>('');
   const [serviceId, setServiceId] = useState<number | ''>('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
+
 
   useEffect(() => {
     Promise.all([
@@ -63,21 +69,29 @@ export default function Appointments() {
   }, []);
 
   const loadAppointments = () => {
-    const params: any = {};
+    const params: any = { page, limit: 20 };
     if (dateFilter) params.date = dateFilter;
     if (professionalId !== '') params.professionalId = professionalId;
     if (serviceId !== '') params.serviceId = serviceId;
 
     setLoading(true);
     api.get('/appointments', { params })
-      .then((response) => setAppointments(response.data))
+      .then((response) => {
+        setAppointments(response.data.items);
+        setTotal(response.data.total);
+        setTotalPages(response.data.totalPages);
+      })
       .catch((err) => console.error(err))
       .finally(() => setLoading(false));
   };
 
   useEffect(() => {
-    loadAppointments();
+    setPage(1);
   }, [dateFilter, professionalId, serviceId]);
+
+  useEffect(() => {
+    loadAppointments();
+  }, [page, dateFilter, professionalId, serviceId]);
 
   const updateStatus = async (id: number, status: string) => {
     try {
@@ -324,8 +338,43 @@ export default function Appointments() {
                   ))}
                 </tbody>
               </table>
+              {/* Paginação — desktop */}
+              {total > 0 && (
+                <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
+                  <div className="text-xs text-gray-600">
+                    Mostrando <strong>{appointments.length}</strong> de <strong>{total}</strong> agendamento{total !== 1 ? 's' : ''}
+                  </div>
+
+                  {totalPages > 1 && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                        disabled={page === 1 || loading}
+                        className="p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        aria-label="Página anterior"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                      <span className="text-xs text-gray-700 px-2">
+                        Página <strong>{page}</strong> de <strong>{totalPages}</strong>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={page === totalPages || loading}
+                        className="p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition"
+                        aria-label="Próxima página"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
+
 
           {/* Cards (mobile) */}
           <div className="md:hidden space-y-3">
@@ -409,6 +458,40 @@ export default function Appointments() {
                 </div>
               </div>
             ))}
+            {/* Paginação — mobile */}
+            {total > 0 && (
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 px-4 py-3 flex items-center justify-between">
+                <div className="text-xs text-gray-600">
+                  {appointments.length} de {total}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      disabled={page === 1 || loading}
+                      className="p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      aria-label="Página anterior"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs text-gray-700 px-1">
+                      {page} / {totalPages}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={page === totalPages || loading}
+                      className="p-1.5 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      aria-label="Próxima página"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}
