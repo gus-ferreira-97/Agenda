@@ -30,7 +30,8 @@ import { ServiceOptionModule } from './service-option/service-option.module';
 import { APP_INTERCEPTOR, APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { AuditInterceptor } from './audit-log/audit.interceptor';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { TenantThrottlerGuard } from './common/guards/tenant-throttler.guard';
 import { LoggerModule } from 'nestjs-pino';
 import { HealthController } from './health.controller';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
@@ -158,7 +159,7 @@ import { TurnstileModule } from './common/turnstile/turnstile.module';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: TenantThrottlerGuard,
     },
     {
       provide: APP_GUARD,
