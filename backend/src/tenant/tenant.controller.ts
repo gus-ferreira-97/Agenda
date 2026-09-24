@@ -7,21 +7,17 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
   ForbiddenException,
 } from '@nestjs/common';
 import { TenantService } from './tenant.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { UpdateTenantBrandingDto } from './dto/update-tenant-branding.dto';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 
 @Controller('tenants')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class TenantController {
   constructor(private readonly tenantService: TenantService) { }

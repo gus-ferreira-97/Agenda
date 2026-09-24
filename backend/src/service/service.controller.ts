@@ -7,18 +7,14 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('services')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class ServiceController {
   constructor(private readonly serviceService: ServiceService) {}

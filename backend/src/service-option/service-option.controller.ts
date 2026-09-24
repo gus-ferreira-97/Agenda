@@ -8,18 +8,14 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ServiceOptionService } from './service-option.service';
 import { CreateServiceOptionDto } from './dto/create-service-option.dto';
 import { UpdateServiceOptionDto } from './dto/update-service-option.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('service-options')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class ServiceOptionController {
   constructor(private readonly serviceOptionService: ServiceOptionService) {}

@@ -27,7 +27,8 @@ import { Tenant } from '../tenant/entities/tenant.entity';
 
         return {
           secret,
-          signOptions: { expiresIn: '1h' },
+          signOptions: { expiresIn: '1h', algorithm: 'HS256' },
+          verifyOptions: { algorithms: ['HS256'] },
         };
       },
     }),
@@ -36,4 +37,4 @@ import { Tenant } from '../tenant/entities/tenant.entity';
   providers: [AuthService, JwtAuthGuard, RolesGuard],
   exports: [JwtAuthGuard, RolesGuard, JwtModule],
 })
-export class AuthModule {}
+export class AuthModule { }

@@ -4,7 +4,9 @@ import { CreateAppointmentPublicDto } from './dto/create-appointment-public.dto'
 import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { Throttle } from '@nestjs/throttler';
+import { Public } from '../auth/decorators/public.decorator';
 
+@Public()
 @Controller('public')
 export class PublicController {
   constructor(private readonly publicService: PublicService) { }
@@ -36,6 +38,7 @@ export class PublicController {
   }
 
   @Get('available-slots')
+  @Throttle({ default: { limit: 30, ttl: 60000, blockDuration: 60000 } })
   getAvailableSlots(
     @Req() req: any,
     @Query('professionalId') professionalId: string,
@@ -72,6 +75,7 @@ export class PublicController {
   }
 
   @Post('verify-email')
+  @Throttle({ default: { limit: 10, ttl: 3600000, blockDuration: 3600000 } })
   verifyEmail(@Body() dto: VerifyEmailDto) {
     return this.publicService.verifyEmail(dto.token);
   }

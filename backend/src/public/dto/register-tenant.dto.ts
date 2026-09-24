@@ -56,4 +56,9 @@ export class RegisterTenantDto {
   @IsOptional()
   @IsString()
   _hp?: string;
+
+  // Cloudflare Turnstile
+  @IsString()
+  @IsNotEmpty({ message: 'Token de CAPTCHA é obrigatório' })
+  captchaToken: string;
 }

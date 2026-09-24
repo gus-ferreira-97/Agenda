@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import {
   MapPin,
   Phone,
@@ -11,6 +11,8 @@ import {
   Package,
 } from 'lucide-react';
 import api from '../services/api';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
+import { TurnstileWidget } from '../components/TurnstileWidget';
 
 interface TenantInfo {
   id: number;
@@ -55,7 +57,6 @@ export default function PublicBooking() {
   const [professionals, setProfessionals] = useState<Professional[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [associations, setAssociations] = useState<ProfessionalService[]>([]);
-
   const [selectedProfessional, setSelectedProfessional] = useState<number | null>(null);
   const [selectedService, setSelectedService] = useState<number | null>(null);
   const [serviceOptions, setServiceOptions] = useState<ServiceOption[]>([]);
@@ -65,7 +66,8 @@ export default function PublicBooking() {
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [selectedSlot, setSelectedSlot] = useState('');
   const [honeypot, setHoneypot] = useState('');
-
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const [customerName, setCustomerName] = useState('');
   const [customerContact, setCustomerContact] = useState('');
   const [message, setMessage] = useState('');
@@ -189,6 +191,11 @@ export default function PublicBooking() {
       return;
     }
 
+    if (!captchaToken) {
+      setError('Aguarde a verificação de segurança e tente novamente.');
+      return;
+    }
+
     setSubmitting(true);
     try {
       await api.post('/public/appointments', {
@@ -199,11 +206,15 @@ export default function PublicBooking() {
         customerContact,
         startTime: `${selectedDate}T${selectedSlot}:00`,
         _hp: honeypot,
+        captchaToken,
       });
       setMessage('Agendamento realizado com sucesso!');
       setCustomerName('');
       setCustomerContact('');
       setSelectedSlot('');
+      // Reseta o CAPTCHA (token já foi consumido)
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
       if (canChooseDate && selectedDate) {
         const resp = await api.get('/public/available-slots', {
           params: {
@@ -217,6 +228,9 @@ export default function PublicBooking() {
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Erro ao realizar agendamento.');
+      // Reseta o CAPTCHA em caso de erro (token foi consumido)
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setSubmitting(false);
     }
@@ -767,6 +781,14 @@ export default function PublicBooking() {
                         required
                       />
                     </div>
+                    <div className="flex justify-center">
+                      <TurnstileWidget
+                        ref={turnstileRef}
+                        onSuccess={(token) => setCaptchaToken(token)}
+                        onError={() => setCaptchaToken(null)}
+                        onExpire={() => setCaptchaToken(null)}
+                      />
+                    </div>
                     <button
                       type="submit"
                       disabled={submitting}
@@ -789,6 +811,7 @@ export default function PublicBooking() {
                       )}
                     </button>
                   </form>
+
                 </section>
               )}
 

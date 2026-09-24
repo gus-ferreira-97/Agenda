@@ -1,4 +1,4 @@
-version: '3.8'
+name: agenda
 
 services:
   db:
@@ -6,19 +6,62 @@ services:
     container_name: agenda_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-agenda}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD é obrigatória}
-      POSTGRES_DB: ${POSTGRES_DB:-agenda}
+      POSTGRES_USER: ${POSTGRES_USER:?obrigatória}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?obrigatória}
+      POSTGRES_DB: ${POSTGRES_DB:?obrigatória}
       TZ: America/Sao_Paulo
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
+    # SEM "ports" — banco só acessível pela rede interna
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U agenda"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
+    networks:
+      - agenda_internal
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: agenda_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      DB_PORT: 5432
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - agenda_internal
+    # SEM "ports" — só o reverse proxy acessa
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_SENTRY_DSN: ${VITE_SENTRY_DSN}
+        VITE_PUBLIC_DOMAIN: ${VITE_PUBLIC_DOMAIN}
+        VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
+    container_name: agenda_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"   # ou 443, com reverse proxy
+    networks:
+      - agenda_internal
 
 volumes:
   postgres_data:
+
+networks:
+  agenda_internal:
+    driver: bridge

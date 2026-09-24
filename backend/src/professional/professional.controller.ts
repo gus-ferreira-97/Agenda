@@ -7,18 +7,14 @@ import {
   Param,
   Delete,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ProfessionalService } from './professional.service';
 import { CreateProfessionalDto } from './dto/create-professional.dto';
 import { UpdateProfessionalDto } from './dto/update-professional.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 
 @Controller('professionals')
-@UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('super_admin', 'tenant_admin')
 export class ProfessionalController {
   constructor(private readonly professionalService: ProfessionalService) { }

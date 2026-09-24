@@ -21,6 +21,7 @@ import { ProfessionalService } from '../service/entities/professional-service.en
 import { MailService } from '../mail/mail.service';
 import { ServiceOption } from '../service/entities/service-option.entity';
 import { getPublicPlans } from '../common/plans';
+import { TurnstileService } from '../common/turnstile/turnstile.service';
 
 @Injectable()
 export class PublicService {
@@ -44,9 +45,13 @@ export class PublicService {
     @InjectRepository(ProfessionalService)
     private readonly professionalServiceRepo: Repository<ProfessionalService>,
     private readonly mailService: MailService,
+    private readonly turnstileService: TurnstileService,
   ) { }
 
   async registerTenant(dto: RegisterTenantDto): Promise<{ message: string }> {
+
+    // Valida o CAPTCHA primeiro (antes de qualquer processamento)
+    await this.turnstileService.validateToken(dto.captchaToken);
 
     // Honeypot: se o campo `_hp` estiver preenchido, é bot
     if (dto._hp && dto._hp.trim() !== '') {
@@ -220,10 +225,13 @@ export class PublicService {
 
   async createAppointment(tenantId: number, dto: CreateAppointmentPublicDto): Promise<Appointment> {
 
+    // Valida o CAPTCHA primeiro
+    await this.turnstileService.validateToken(dto.captchaToken);
+
     if (dto._hp && dto._hp.trim() !== '') {
       throw new BadRequestException('Requisição inválida.');
     }
-    
+
     const {
       professionalId,
       serviceId,

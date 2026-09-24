@@ -20,11 +20,22 @@ export class TenantMiddleware implements NestMiddleware {
     const parts = host.split('.');
     let subdomain: string | null = null;
 
-    // Se tiver pelo menos 3 partes, o primeiro é o subdomínio
+    // Caso 1: host padrão de produção (ex.: barbeariadoze.agendyapp.com.br)
     if (parts.length >= 3) {
       subdomain = parts[0].toLowerCase();
-    } else if (host.includes('localhost')) {
-      // Fallback para desenvolvimento local sem subdomínio
+    }
+    // Caso 2: dev — X.localhost ou X.local (2 partes)
+    else if (
+      parts.length === 2 &&
+      ['localhost', 'local', 'localdomain'].includes(parts[1].toLowerCase())
+    ) {
+      subdomain = parts[0].toLowerCase();
+    }
+    // Caso 3: dev — sem subdomínio (fallback para tenant padrão)
+    else if (
+      process.env.NODE_ENV !== 'production' &&
+      host.includes('localhost')
+    ) {
       subdomain = process.env.DEFAULT_TENANT_SUBDOMAIN || 'barbeariadoze';
     }
 
@@ -38,7 +49,7 @@ export class TenantMiddleware implements NestMiddleware {
       req.tenantId = tenant.id;
       req.tenantSubdomain = subdomain;
     }
-    
+
     next();
   }
 }

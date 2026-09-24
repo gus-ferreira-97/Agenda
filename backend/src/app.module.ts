@@ -27,15 +27,21 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
 import { ServiceOption } from './service/entities/service-option.entity';
 import { ServiceOptionModule } from './service-option/service-option.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR, APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { AuditInterceptor } from './audit-log/audit.interceptor';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
+import { HealthController } from './health.controller';
+import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
+import { RolesGuard } from './auth/guards/roles.guard';
+import { SentryModule } from '@sentry/nestjs/setup';
+import { SentryGlobalFilter } from '@sentry/nestjs/setup';
+import { TurnstileModule } from './common/turnstile/turnstile.module';
 
 @Module({
   imports: [
+    SentryModule.forRoot(),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -87,6 +93,7 @@ import { LoggerModule } from 'nestjs-pino';
       },
     }),
     ConfigModule.forRoot({ isGlobal: true }),
+    TurnstileModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
@@ -96,21 +103,7 @@ import { LoggerModule } from 'nestjs-pino';
     ]),
     ScheduleModule.forRoot(),
     TypeOrmModule.forRootAsync({
-      imports: [
-        ConfigModule,
-        ProfessionalModule,
-        ServiceModule,
-        ProfessionalServiceModule,
-        AppointmentModule,
-        WorkScheduleModule,
-        PublicModule,
-        MailModule,
-        SuperAdminModule,
-        TenantMetricsModule,
-        TasksModule,
-        ServiceOptionModule,
-        AuditLogModule,
-      ],
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
@@ -143,17 +136,42 @@ import { LoggerModule } from 'nestjs-pino';
     TenantModule,
     UserModule,
     AuthModule,
+    ProfessionalModule,
+    ServiceModule,
+    ProfessionalServiceModule,
+    AppointmentModule,
+    WorkScheduleModule,
+    PublicModule,
+    MailModule,
+    SuperAdminModule,
+    TenantMetricsModule,
+    TasksModule,
+    ServiceOptionModule,
+    AuditLogModule,
   ],
+  controllers: [HealthController],
   providers: [
+    {
+      provide: APP_FILTER,
+      useClass: SentryGlobalFilter,
+    },
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
     {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+    {
       provide: APP_INTERCEPTOR,
       useClass: AuditInterceptor,
     },
-  ]
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

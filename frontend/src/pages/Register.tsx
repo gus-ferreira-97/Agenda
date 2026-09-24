@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Mail, Lock, User, Building2, Globe, Eye, EyeOff } from 'lucide-react';
+import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import api from '../services/api';
 import PasswordChecklist, { isPasswordStrong } from '../components/PasswordChecklist';
 import SEO from '../components/SEO';
+import { TurnstileWidget } from '../components/TurnstileWidget';
 
 export default function Register() {
   const [ownerName, setOwnerName] = useState('');
@@ -19,7 +21,8 @@ export default function Register() {
   const [registeredEmail, setRegisteredEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [honeypot, setHoneypot] = useState('');
-
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
   const [searchParams] = useSearchParams();
   const planFromUrl = searchParams.get('plan') || 'basico';
   const validPlans = ['basico', 'profissional', 'premium'];
@@ -57,6 +60,11 @@ export default function Register() {
       return;
     }
 
+    if (!captchaToken) {
+      setError('Aguarde a verificação de segurança e tente novamente.');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -68,6 +76,7 @@ export default function Register() {
         subdomain,
         plan,
         _hp: honeypot,
+        captchaToken,
       });
       setRegisteredEmail(email);
       setSuccess(response.data.message);
@@ -77,6 +86,9 @@ export default function Register() {
       setConfirmPassword('');
       setTenantName('');
       setSubdomain('');
+      // Reseta o CAPTCHA (token já foi consumido)
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } catch (err: any) {
       const message = err.response?.data?.message;
       if (Array.isArray(message)) {
@@ -84,6 +96,9 @@ export default function Register() {
       } else {
         setError(message || 'Erro ao realizar o cadastro. Tente novamente.');
       }
+      // Reseta o CAPTCHA em caso de erro (token foi consumido)
+      turnstileRef.current?.reset();
+      setCaptchaToken(null);
     } finally {
       setLoading(false);
     }
@@ -374,6 +389,15 @@ export default function Register() {
                         ? `Sua URL: ${subdomain}.Agendy.com.br`
                         : 'Este será o link que seus clientes vão usar para agendar.'}
                     </p>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <TurnstileWidget
+                      ref={turnstileRef}
+                      onSuccess={(token) => setCaptchaToken(token)}
+                      onError={() => setCaptchaToken(null)}
+                      onExpire={() => setCaptchaToken(null)}
+                    />
                   </div>
 
                   <button

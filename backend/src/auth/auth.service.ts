@@ -122,7 +122,7 @@ export class AuthService {
       tenantId: user.tenant_id,
     };
 
-    const expiresIn = rememberMe ? '30d' : '1h';
+    const expiresIn = rememberMe ? '7d' : '1h';
 
     return {
       access_token: this.jwtService.sign(payload, { expiresIn }),
