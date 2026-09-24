@@ -175,6 +175,27 @@ export default function Privacy() {
                 As solicitações podem ser feitas pelo e-mail <strong>[E-MAIL DO ENCARREGADO]</strong>.
                 Responderemos em até 15 dias, salvo prazo diverso previsto em regulamentação da ANPD.
               </p>
+
+              <p className="mt-3 font-medium text-gray-900">
+                Exclusão de conta (self-service)
+              </p>
+              <p className="mt-1">
+                Se você possui uma conta de acesso à plataforma (administrador de estabelecimento),
+                pode solicitar a exclusão imediata dos seus dados pessoais diretamente pelo painel,
+                sem precisar enviar e-mail:
+              </p>
+              <ol className="list-decimal pl-5 mt-2 space-y-1">
+                <li>Acesse <strong>Meu Perfil</strong> no painel.</li>
+                <li>Role até a seção <strong>"Zona de perigo"</strong>.</li>
+                <li>Clique em <strong>"Excluir minha conta"</strong>.</li>
+                <li>Digite <strong>EXCLUIR</strong> no campo de confirmação e finalize.</li>
+              </ol>
+              <p className="mt-2 text-sm text-gray-600">
+                Após a confirmação, seus dados pessoais (nome, e-mail, senha) serão anonimizados
+                imediatamente. Registros de auditoria são mantidos por 365 dias por obrigação legal
+                (art. 16 da LGPD e art. 15 do Marco Civil da Internet). Esta ação é irreversível.
+              </p>
+
               <p className="mt-2">
                 Se o Titular for cliente final de um estabelecimento cadastrado na plataforma, recomendamos
                 que entre em contato diretamente com o estabelecimento, que atua como Controlador.

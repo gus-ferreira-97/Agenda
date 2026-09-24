@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     User,
     Mail,
@@ -12,6 +13,9 @@ import {
     Crown,
     Shield,
     Sparkles,
+    AlertTriangle,
+    Trash2,
+    X,
 } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -21,7 +25,8 @@ import { useTrial } from '../hooks/useTrial';
 import PasswordChecklist, { isPasswordStrong } from '../components/PasswordChecklist';
 
 export default function Profile() {
-    const { user } = useAuth();
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
     const { me, loading: loadingMe, reload: reloadMe } = useMe();
 
     const isTenantAdmin = user?.role === 'tenant_admin';
@@ -47,6 +52,12 @@ export default function Profile() {
     const [savingPassword, setSavingPassword] = useState(false);
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [passwordError, setPasswordError] = useState('');
+
+    // Zona de Perigo — exclusão de conta
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [deleteConfirmText, setDeleteConfirmText] = useState('');
+    const [deletingAccount, setDeletingAccount] = useState(false);
+    const [deleteError, setDeleteError] = useState('');
 
     // Carrega os dados do usuário quando o hook termina
     useEffect(() => {
@@ -170,6 +181,31 @@ export default function Profile() {
             </div>
         );
     }
+
+    const handleDeleteAccount = async () => {
+        setDeleteError('');
+
+        if (deleteConfirmText.trim().toUpperCase() !== 'EXCLUIR') {
+            setDeleteError('Digite EXCLUIR para confirmar.');
+            return;
+        }
+
+        setDeletingAccount(true);
+        try {
+            await api.delete('/users/me');
+            // Logout local + redirect para home
+            logout();
+            navigate('/');
+        } catch (err: any) {
+            const message = err.response?.data?.message;
+            setDeleteError(
+                Array.isArray(message)
+                    ? message.join(' • ')
+                    : message || 'Erro ao excluir a conta. Tente novamente.',
+            );
+            setDeletingAccount(false);
+        }
+    };
 
     return (
         <div className="p-4 md:p-8">
@@ -380,8 +416,8 @@ export default function Profile() {
                                             autoComplete="new-password"
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== newPassword
-                                                    ? 'border-red-300'
-                                                    : 'border-gray-300'
+                                                ? 'border-red-300'
+                                                : 'border-gray-300'
                                                 }`}
                                             placeholder="Digite a senha novamente"
                                             required
@@ -501,24 +537,24 @@ export default function Profile() {
 
                                 {trial?.isTrial && !trial.isExpired && (
                                     <div className={`p-3 rounded-lg border ${trial.daysLeft <= 1
-                                            ? 'bg-red-50 border-red-200'
-                                            : trial.daysLeft <= 3
-                                                ? 'bg-yellow-50 border-yellow-200'
-                                                : 'bg-blue-50 border-blue-100'
+                                        ? 'bg-red-50 border-red-200'
+                                        : trial.daysLeft <= 3
+                                            ? 'bg-yellow-50 border-yellow-200'
+                                            : 'bg-blue-50 border-blue-100'
                                         }`}>
                                         <p className={`text-xs font-semibold mb-1 ${trial.daysLeft <= 1
-                                                ? 'text-red-900'
-                                                : trial.daysLeft <= 3
-                                                    ? 'text-yellow-900'
-                                                    : 'text-blue-900'
+                                            ? 'text-red-900'
+                                            : trial.daysLeft <= 3
+                                                ? 'text-yellow-900'
+                                                : 'text-blue-900'
                                             }`}>
                                             Período de teste
                                         </p>
                                         <p className={`text-xs ${trial.daysLeft <= 1
-                                                ? 'text-red-800'
-                                                : trial.daysLeft <= 3
-                                                    ? 'text-yellow-800'
-                                                    : 'text-blue-800'
+                                            ? 'text-red-800'
+                                            : trial.daysLeft <= 3
+                                                ? 'text-yellow-800'
+                                                : 'text-blue-800'
                                             }`}>
                                             {trial.daysLeft === 0
                                                 ? 'Termina hoje'
@@ -543,8 +579,143 @@ export default function Profile() {
                             </div>
                         </div>
                     )}
+
+                    {/* Card: Zona de Perigo — exclusão de conta (LGPD) */}
+                    <div className="bg-white rounded-2xl shadow-sm border border-red-200 p-4 md:p-6 animate-fade-in-up delay-500">
+                        <div className="flex items-center gap-2 mb-5">
+                            <AlertTriangle className="w-5 h-5 text-red-600" />
+                            <h2 className="text-base font-semibold text-red-900">Zona de perigo</h2>
+                        </div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <p className="text-sm font-medium text-gray-900 mb-1">
+                                    Excluir minha conta
+                                </p>
+                                <p className="text-xs text-gray-600 leading-relaxed">
+                                    Ao excluir sua conta, todos os seus dados pessoais serão
+                                    permanentemente anonimizados conforme a LGPD (Lei 13.709/2018).
+                                    Esta ação <strong>não pode ser desfeita</strong>.
+                                </p>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setDeleteConfirmText('');
+                                    setDeleteError('');
+                                    setShowDeleteModal(true);
+                                }}
+                                className="inline-flex items-center gap-2 border border-red-600 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50 transition"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                                Excluir minha conta
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
+
+            {/* Modal de confirmação de exclusão */}
+            {showDeleteModal && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-fade-in"
+                    onClick={() => !deletingAccount && setShowDeleteModal(false)}
+                >
+                    <div
+                        className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 relative animate-fade-in-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <button
+                            type="button"
+                            onClick={() => !deletingAccount && setShowDeleteModal(false)}
+                            disabled={deletingAccount}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 disabled:opacity-50"
+                            aria-label="Fechar"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+
+                        <div className="flex items-center gap-3 mb-4">
+                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                                <AlertTriangle className="w-5 h-5 text-red-600" />
+                            </div>
+                            <h3 className="text-lg font-semibold text-gray-900">
+                                Excluir sua conta?
+                            </h3>
+                        </div>
+
+                        <div className="space-y-3 text-sm text-gray-700 mb-5">
+                            <p>Esta ação irá:</p>
+                            <ul className="space-y-1.5 pl-5 list-disc text-xs">
+                                <li>Anonimizar permanentemente seus dados pessoais (nome, e-mail)</li>
+                                <li>Invalidar seu acesso (você não poderá mais fazer login)</li>
+                                <li>Manter registros de auditoria por 365 dias (obrigação legal)</li>
+                            </ul>
+                            <p className="font-medium text-red-700 text-xs">
+                                Não é possível reverter esta ação.
+                            </p>
+                        </div>
+
+                        <div className="mb-4">
+                            <label className="block text-xs font-medium text-gray-700 mb-2">
+                                Para confirmar, digite <strong>EXCLUIR</strong> abaixo:
+                            </label>
+                            <input
+                                type="text"
+                                value={deleteConfirmText}
+                                onChange={(e) => setDeleteConfirmText(e.target.value)}
+                                disabled={deletingAccount}
+                                autoComplete="off"
+                                className="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition text-sm disabled:bg-gray-100"
+                                placeholder="EXCLUIR"
+                            />
+                        </div>
+
+                        {deleteError && (
+                            <div className="mb-4 bg-red-50 border border-red-200 text-red-700 text-xs px-3 py-2 rounded-lg flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                                <span>{deleteError}</span>
+                            </div>
+                        )}
+
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteModal(false)}
+                                disabled={deletingAccount}
+                                className="flex-1 py-2.5 rounded-lg border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition disabled:opacity-50"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDeleteAccount}
+                                disabled={
+                                    deletingAccount ||
+                                    deleteConfirmText.trim().toUpperCase() !== 'EXCLUIR'
+                                }
+                                className="flex-1 py-2.5 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                            >
+                                {deletingAccount ? (
+                                    <>
+                                        <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                                        </svg>
+                                        Excluindo...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 className="w-4 h-4" />
+                                        Excluir definitivamente
+                                    </>
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

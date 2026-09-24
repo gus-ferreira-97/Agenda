@@ -5,6 +5,14 @@ services:
     image: postgres:16-alpine
     container_name: agenda_db
     restart: unless-stopped
+    command:
+      - "postgres"
+      - "-c"
+      - "statement_timeout=60000"
+      - "-c"
+      - "idle_in_transaction_session_timeout=120000"
+      - "-c"
+      - "lock_timeout=10000"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:?obrigatória}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?obrigatória}
@@ -19,6 +27,25 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - agenda_internal
+
+  backup:
+    build:
+      context: ./backup
+      dockerfile: Dockerfile
+    container_name: agenda_backup
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?obrigatória}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?obrigatória}
+      POSTGRES_DB: ${POSTGRES_DB:?obrigatória}
+      TZ: America/Sao_Paulo
+    volumes:
+      - ${BACKUP_DIR:-../backups/agenda}:/backups
+    depends_on:
+      db:
+        condition: service_healthy
     networks:
       - agenda_internal
 

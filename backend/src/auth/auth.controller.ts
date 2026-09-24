@@ -1,10 +1,11 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Req } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Throttle } from '@nestjs/throttler';
 import { LoginDto } from './dto/login.dto';
 import { Public } from './decorators/public.decorator';
+import { extractSubdomain } from '../common/helpers/extract-subdomain';
 
 @Controller('auth')
 export class AuthController {
@@ -13,8 +14,10 @@ export class AuthController {
   @Public()
   @Post('login')
   @Throttle({ default: { limit: 20, ttl: 60000, blockDuration: 60000 } })
-  async login(@Body() dto: LoginDto) {
+  async login(@Req() req: any, @Body() dto: LoginDto) {
+    const subdomain = extractSubdomain(req.headers.host);
     const user = await this.authService.validateUser(dto.email, dto.password);
+    await this.authService.validateSubdomainAccess(user, subdomain);
     return this.authService.login(user, dto.rememberMe === true);
   }
 

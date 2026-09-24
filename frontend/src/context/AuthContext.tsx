@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import * as Sentry from '@sentry/react';
 
 interface User {
   userId: number;
@@ -25,11 +26,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return saved ? JSON.parse(saved) : null;
   });
 
+  // Sincroniza o Sentry quando o provider monta
+  // (cobre o caso de usuário já logado ao recarregar a página)
+  useEffect(() => {
+    if (user) {
+      Sentry.setUser({
+        id: String(user.userId),
+        email: user.email,
+        username: user.name,
+      });
+      Sentry.setTag('role', user.role);
+      if (user.tenantId) {
+        Sentry.setTag('tenantId', String(user.tenantId));
+      }
+    }
+  }, [user]);
+
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
+
+    // Sentry: associa o usuário logado
+    Sentry.setUser({
+      id: String(newUser.userId),
+      email: newUser.email,
+      username: newUser.name,
+    });
+    Sentry.setTag('role', newUser.role);
+    if (newUser.tenantId) {
+      Sentry.setTag('tenantId', String(newUser.tenantId));
+    }
   };
 
   const logout = () => {
@@ -37,6 +65,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+
+    // Sentry: limpa o usuário (evita associar erros futuros a quem já saiu)
+    Sentry.setUser(null);
   };
 
   return (

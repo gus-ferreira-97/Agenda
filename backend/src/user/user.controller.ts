@@ -15,6 +15,7 @@ import { UpdateMeDto } from './dto/update-me.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('users')
 export class UserController {
@@ -57,6 +58,7 @@ export class UserController {
 
   @Delete('me')
   @Roles('super_admin', 'tenant_admin')
+  @Throttle({ default: { limit: 3, ttl: 3600000, blockDuration: 3600000 } })
   async deleteMe(@CurrentUser() user: any) {
     return this.userService.anonymizeAndDeactivate(user.userId, user);
   }

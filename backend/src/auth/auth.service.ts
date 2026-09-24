@@ -113,6 +113,47 @@ export class AuthService {
     return result;
   }
 
+  /**
+ * Valida se o usuário pode logar a partir do subdomínio da requisição.
+ * Regras:
+ *  - super_admin: pode logar de qualquer subdomínio (gerencia todos os tenants)
+ *  - tenant_admin: só pode logar do subdomínio do seu próprio tenant
+ *  - localhost puro (sem subdomínio): bloqueado para tenant_admin
+ */
+  async validateSubdomainAccess(
+    user: any,
+    subdomain: string | null,
+  ): Promise<void> {
+    // super_admin pode logar de qualquer lugar
+    if (user.role === 'super_admin') {
+      return;
+    }
+
+    // tenant_admin precisa de um subdomínio válido
+    if (!subdomain) {
+      throw new UnauthorizedException(
+        'Faça login pelo subdomínio da sua conta.',
+      );
+    }
+
+    // Busca o tenant do usuário
+    if (!user.tenant_id) {
+      throw new UnauthorizedException(
+        'Sua conta não está vinculada a nenhum estabelecimento.',
+      );
+    }
+
+    const userTenant = await this.tenantRepository.findOne({
+      where: { id: user.tenant_id },
+    });
+
+    if (!userTenant || userTenant.subdomain !== subdomain) {
+      throw new UnauthorizedException(
+        'Esta conta não pertence a este workspace. Acesse pelo subdomínio correto.',
+      );
+    }
+  }
+
   async login(user: any, rememberMe: boolean = false) {
     const payload = {
       sub: user.id,
