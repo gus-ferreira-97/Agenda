@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
   OneToMany,
   OneToOne,
 } from 'typeorm';
@@ -78,4 +79,10 @@ export class Tenant {
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   address: string | null;
+
+  // ============ Soft Delete (LGPD) ============
+  // Registros com deleted_at preenchido são ignorados automaticamente
+  // pelas queries do TypeORM. Podem ser recuperados via .withDeleted().
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date | null;
 }

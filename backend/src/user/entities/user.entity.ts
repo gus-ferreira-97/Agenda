@@ -7,6 +7,7 @@ import {
   OneToMany,
   CreateDateColumn,
   UpdateDateColumn,
+  DeleteDateColumn
 } from 'typeorm';
 import { Tenant } from '../../tenant/entities/tenant.entity';
 import { AuditLog } from '../../audit-log/entities/audit-log.entity';
@@ -67,4 +68,10 @@ export class User {
 
   @Column({ type: 'boolean', default: true })
   is_active: boolean;
+
+  // ============ Soft Delete (LGPD) ============
+  // Registros com deleted_at preenchido são ignorados automaticamente
+  // pelas queries do TypeORM. Podem ser recuperados via .withDeleted().
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date | null;
 }

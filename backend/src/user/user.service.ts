@@ -113,7 +113,9 @@ export class UserService {
       );
     }
 
-    await this.userRepository.delete(id);
+    // Soft delete: marca deleted_at, não apaga fisicamente.
+    // Registros com deleted_at são ignorados por padrão nas queries.
+    await this.userRepository.softDelete(id);
     return { message: 'Usuário excluído com sucesso.' };
   }
 
@@ -260,7 +262,11 @@ export class UserService {
   }
 
   async anonymizeAndDeactivate(userId: number, requestingUser: any): Promise<{ message: string }> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    // withDeleted: permite encontrar usuários já soft-deletados (idempotência)
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      withDeleted: true,
+    });
     if (!user) {
       throw new NotFoundException(`Usuário com ID ${userId} não encontrado`);
     }
@@ -272,8 +278,8 @@ export class UserService {
       );
     }
 
-    // Se o usuário já foi anonimizado, retorna mensagem amigável
-    if (!user.is_active && user.email.startsWith('deleted_')) {
+    // Se já foi removido (anonimizado + soft-deleted), retorna mensagem amigável
+    if (user.deleted_at || (!user.is_active && user.email.startsWith('deleted_'))) {
       return { message: 'Esta conta já foi removida.' };
     }
 
@@ -288,6 +294,7 @@ export class UserService {
     user.failed_login_attempts = 0;
     user.locked_until = null;
     user.is_active = false;
+    user.deleted_at = new Date();   // ← SOFT DELETE
 
     await this.userRepository.save(user);
 
