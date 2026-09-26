@@ -11,6 +11,9 @@ interface UseIdleTimeoutOptions {
   enabled: boolean;
 }
 
+/** Intervalo mínimo entre resets por atividade (evita spam de mousemove). */
+const ACTIVITY_THROTTLE_MS = 1000;
+
 export function useIdleTimeout({
   timeout,
   warningBefore,
@@ -23,8 +26,10 @@ export function useIdleTimeout({
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const warningActiveRef = useRef(false);
+  const lastActivityRef = useRef(0);
   const onTimeoutRef = useRef(onTimeout);
 
+  // Mantém a callback atualizada sem recriar o timer
   useEffect(() => {
     onTimeoutRef.current = onTimeout;
   }, [onTimeout]);
@@ -62,6 +67,7 @@ export function useIdleTimeout({
     clearTimers();
     warningActiveRef.current = false;
     setShowWarning(false);
+    lastActivityRef.current = Date.now();
 
     if (!enabled) return;
 
@@ -78,19 +84,35 @@ export function useIdleTimeout({
       return;
     }
 
-    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart', 'click'];
+    const events = [
+      'mousemove',
+      'mousedown',
+      'keydown',
+      'scroll',
+      'touchstart',
+      'click',
+    ];
 
     const handleActivity = () => {
+      // Throttle: ignora eventos dentro do intervalo mínimo
+      const now = Date.now();
+      if (now - lastActivityRef.current < ACTIVITY_THROTTLE_MS) return;
+
+      // Se o aviso está ativo, ignora — o usuário precisa clicar em "Continuar"
       if (!warningActiveRef.current) {
         reset();
       }
     };
 
-    events.forEach((event) => window.addEventListener(event, handleActivity));
+    events.forEach((event) =>
+      window.addEventListener(event, handleActivity, { passive: true }),
+    );
     reset();
 
     return () => {
-      events.forEach((event) => window.removeEventListener(event, handleActivity));
+      events.forEach((event) =>
+        window.removeEventListener(event, handleActivity),
+      );
       clearTimers();
     };
   }, [enabled, reset, clearTimers]);

@@ -13,30 +13,29 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Interceptor de resposta: reage a 401 (não autorizado) fazendo logout automático
+// Rotas cujo 401 não deve disparar logout automático
+// (evita loop em chamadas anônimas ou de fluxo de auth)
+const AUTH_ROUTES = [
+  '/auth/login',
+  '/auth/forgot-password',
+  '/auth/reset-password',
+];
+
+// Interceptor de resposta: reage a 401 (não autorizado) fazendo logout
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
       const url = error.config?.url || '';
-
-      // Ignora rotas de login e recuperação de senha para não criar loop
-      const isAuthRoute =
-        url.includes('/auth/login') ||
-        url.includes('/auth/forgot-password') ||
-        url.includes('/auth/reset-password') ||
-        url.includes('/public/register') ||
-        url.includes('/public/verify-email');
+      const isAuthRoute = AUTH_ROUTES.some((route) => url.includes(route));
 
       if (!isAuthRoute) {
-        // Limpa credenciais
+        // Limpa storage imediatamente (evita requests subsequentes com token morto)
         localStorage.removeItem('token');
         localStorage.removeItem('user');
 
-        // Evita redirecionar se já está em /login (evita loop)
-        if (!window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login';
-        }
+        // Notifica o AuthContext para limpar state e Sentry sem force reload
+        window.dispatchEvent(new CustomEvent('auth:unauthorized'));
       }
     }
     return Promise.reject(error);
