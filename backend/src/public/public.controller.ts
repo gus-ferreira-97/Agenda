@@ -5,11 +5,15 @@ import { RegisterTenantDto } from './dto/register-tenant.dto';
 import { VerifyEmailDto } from './dto/verify-email.dto';
 import { Throttle } from '@nestjs/throttler';
 import { Public } from '../auth/decorators/public.decorator';
+import { AvailabilityService } from '../common/availability/availability.service';
 
 @Public()
 @Controller('public')
 export class PublicController {
-  constructor(private readonly publicService: PublicService) { }
+  constructor(
+    private readonly publicService: PublicService,
+    private readonly availabilityService: AvailabilityService,
+  ) { }
 
   @Get('professionals')
   getProfessionals(@Req() req: any) {
@@ -56,7 +60,13 @@ export class PublicController {
     if (serviceOptionId && isNaN(soid as number)) {
       throw new BadRequestException('Variação inválida');
     }
-    return this.publicService.getAvailableSlots(req.tenantId, pid, sid, date, soid);
+    return this.availabilityService.getAvailableSlots(
+      req.tenantId,
+      pid,
+      sid,
+      date,
+      soid,
+    );
   }
 
   @Post('appointments')

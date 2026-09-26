@@ -11,6 +11,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { SentryModule } from '@sentry/nestjs/setup';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import { AvailabilityModule } from './common/availability/availability.module';
 
 // Feature modules
 import { AuthModule } from './auth/auth.module';
@@ -106,6 +107,7 @@ import { HealthController } from './health.controller';
 
     // ============ Segurança ============
     TurnstileModule,
+    AvailabilityModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

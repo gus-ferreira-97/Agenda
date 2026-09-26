@@ -3,12 +3,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
-import { WorkSchedule } from '../professional/entities/work-schedule.entity';
-import { TenantConfig } from '../tenant/entities/tenant-config.entity';
+import { ServiceOption } from '../service/entities/service-option.entity';
 import { AppointmentService } from './appointment.service';
 import { AppointmentController } from './appointment.controller';
-import { AuthModule } from '../auth/auth.module';
-import { ServiceOption } from '../service/entities/service-option.entity';
 
 @Module({
   imports: [
@@ -16,11 +13,8 @@ import { ServiceOption } from '../service/entities/service-option.entity';
       Appointment,
       Professional,
       Service,
-      WorkSchedule,
-      TenantConfig,
-      ServiceOption
+      ServiceOption,
     ]),
-    AuthModule,
   ],
   controllers: [AppointmentController],
   providers: [AppointmentService],

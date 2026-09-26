@@ -10,6 +10,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { AppointmentService } from './appointment.service';
+import { AvailabilityService } from '../common/availability/availability.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Roles } from '../auth/decorators/roles.decorator';
@@ -19,20 +20,39 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 @Controller('appointments')
 @Roles('super_admin', 'tenant_admin')
 export class AppointmentController {
-  constructor(private readonly appointmentService: AppointmentService) { }
+  constructor(
+    private readonly appointmentService: AppointmentService,
+    private readonly availabilityService: AvailabilityService,
+  ) {}
 
+  /**
+   * Disponibilidade de horários para agendamento pelo painel.
+   * Restrito a tenant_admin (super_admin não agenda em nome de tenants).
+   */
   @Get('available-slots')
+  @Roles('tenant_admin')
   findAvailableSlots(
     @Query('professionalId', ParseIntPipe) professionalId: number,
     @Query('serviceId', ParseIntPipe) serviceId: number,
     @Query('date') date: string,
+    @Query('serviceOptionId') serviceOptionId: string | undefined,
     @CurrentUser() user: any,
   ) {
-    return this.appointmentService.findAvailableSlots(professionalId, serviceId, date, user);
+    const soid = serviceOptionId ? parseInt(serviceOptionId, 10) : undefined;
+    return this.availabilityService.getAvailableSlots(
+      user.tenantId,
+      professionalId,
+      serviceId,
+      date,
+      soid,
+    );
   }
 
   @Post()
-  create(@Body() createAppointmentDto: CreateAppointmentDto, @CurrentUser() user: any) {
+  create(
+    @Body() createAppointmentDto: CreateAppointmentDto,
+    @CurrentUser() user: any,
+  ) {
     return this.appointmentService.create(createAppointmentDto, user);
   }
 

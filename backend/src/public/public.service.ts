@@ -17,8 +17,6 @@ import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
-import { WorkSchedule } from '../professional/entities/work-schedule.entity';
-import { TenantConfig } from '../tenant/entities/tenant-config.entity';
 import { Appointment } from '../appointment/entities/appointment.entity';
 import { Tenant } from '../tenant/entities/tenant.entity';
 import { User } from '../user/entities/user.entity';
@@ -46,10 +44,6 @@ export class PublicService {
     private readonly serviceRepo: Repository<Service>,
     @InjectRepository(ServiceOption)
     private readonly serviceOptionRepo: Repository<ServiceOption>,
-    @InjectRepository(WorkSchedule)
-    private readonly workScheduleRepo: Repository<WorkSchedule>,
-    @InjectRepository(TenantConfig)
-    private readonly tenantConfigRepo: Repository<TenantConfig>,
     @InjectRepository(Appointment)
     private readonly appointmentRepo: Repository<Appointment>,
     @InjectRepository(Tenant)
@@ -212,61 +206,6 @@ export class PublicService {
 
   getPublicPlans() {
     return getPublicPlans();
-  }
-
-  // ============================================================================
-  // DISPONIBILIDADE DE HORÁRIOS
-  // ============================================================================
-
-  async getAvailableSlots(
-    tenantId: number,
-    professionalId: number,
-    serviceId: number,
-    date: string,
-    serviceOptionId?: number,
-  ): Promise<string[]> {
-    // 1. Valida entidades
-    const professional = await this.validateProfessional(tenantId, professionalId);
-    const { serviceOption, durationMinutes } = await this.validateServiceAndOption(
-      tenantId,
-      serviceId,
-      serviceOptionId,
-    );
-
-    // 2. Resolve config do tenant (interval, timezone)
-    const config = await this.tenantConfigRepo.findOne({ where: { tenant_id: tenantId } });
-    const slotInterval = config?.slot_interval || 30;
-
-    // 3. Descobre o dia da semana
-    //    NOTA: usa timezone local do container (TZ=America/Sao_Paulo no Compose).
-    //    Para timezone dinâmico por tenant, migrar para dayjs/luxon no v2.
-    const dayOfWeek = new Date(`${date}T12:00:00`).getDay();
-
-    // 4. Busca schedules ativos do dia
-    const schedules = await this.workScheduleRepo.find({
-      where: {
-        professional_id: professionalId,
-        tenant_id: tenantId,
-        day_of_week: dayOfWeek,
-      },
-    });
-    if (schedules.length === 0) return [];
-
-    // 5. Gera slots candidatos
-    const candidateSlots = this.generateCandidateSlots(
-      schedules,
-      durationMinutes,
-      slotInterval,
-    );
-
-    // 6. Remove slots ocupados
-    return this.filterOccupiedSlots(
-      candidateSlots,
-      professionalId,
-      tenantId,
-      date,
-      durationMinutes,
-    );
   }
 
   // ============================================================================
@@ -466,79 +405,6 @@ export class PublicService {
       throw new NotFoundException('Serviço não encontrado');
     }
     return service;
-  }
-
-  /**
-   * Gera a lista de horários candidatos a partir dos schedules do dia.
-   * Remove os que caem em intervalos de break.
-   */
-  private generateCandidateSlots(
-    schedules: WorkSchedule[],
-    durationMinutes: number,
-    slotInterval: number,
-  ): string[] {
-    const slots: string[] = [];
-
-    for (const schedule of schedules) {
-      let current = this.timeToMinutes(schedule.start_time);
-      const end = this.timeToMinutes(schedule.end_time);
-      const breakStart = schedule.break_start
-        ? this.timeToMinutes(schedule.break_start)
-        : null;
-      const breakEnd = schedule.break_end
-        ? this.timeToMinutes(schedule.break_end)
-        : null;
-
-      while (current + durationMinutes <= end) {
-        const slotEnd = current + durationMinutes;
-        const isBreak =
-          breakStart !== null &&
-          breakEnd !== null &&
-          current < breakEnd &&
-          slotEnd > breakStart;
-
-        if (!isBreak) {
-          slots.push(this.minutesToTime(current));
-        }
-        current += slotInterval;
-      }
-    }
-
-    return slots;
-  }
-
-  /**
-   * Remove dos candidatos os horários que colidem com agendamentos existentes.
-   */
-  private async filterOccupiedSlots(
-    candidateSlots: string[],
-    professionalId: number,
-    tenantId: number,
-    date: string,
-    durationMinutes: number,
-  ): Promise<string[]> {
-    const startOfDay = new Date(`${date}T00:00:00`);
-    const endOfDay = new Date(`${date}T23:59:59`);
-
-    const appointments = await this.appointmentRepo.find({
-      where: {
-        professional_id: professionalId,
-        tenant_id: tenantId,
-        status: Not('cancelled'),
-        start_time: Between(startOfDay, endOfDay),
-      },
-    });
-
-    return candidateSlots.filter((slot) => {
-      const slotStart = new Date(`${date}T${slot}:00`).getTime();
-      const slotEnd = slotStart + durationMinutes * 60000;
-
-      return !appointments.some((appt) => {
-        const apptStart = new Date(appt.start_time).getTime();
-        const apptEnd = new Date(appt.end_time).getTime();
-        return slotStart < apptEnd && slotEnd > apptStart;
-      });
-    });
   }
 
   private timeToMinutes(time: string): number {

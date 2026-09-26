@@ -6,14 +6,30 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, Not, IsNull, LessThan, MoreThan } from 'typeorm';
+import {
+  Repository,
+  Not,
+  Between,
+  LessThan,
+  MoreThan,
+  QueryFailedError,
+} from 'typeorm';
 import { Appointment } from './entities/appointment.entity';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
-import { WorkSchedule } from '../professional/entities/work-schedule.entity';
-import { TenantConfig } from '../tenant/entities/tenant-config.entity';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+
+/** Código de violação de constraint UNIQUE no Postgres */
+const PG_UNIQUE_VIOLATION = '23505';
+
+/** Transições de status permitidas */
+const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+  pending: ['confirmed', 'cancelled'],
+  confirmed: ['completed', 'cancelled'],
+  completed: [],
+  cancelled: [],
+};
 
 @Injectable()
 export class AppointmentService {
@@ -24,203 +40,145 @@ export class AppointmentService {
     private readonly professionalRepository: Repository<Professional>,
     @InjectRepository(Service)
     private readonly serviceRepository: Repository<Service>,
-    @InjectRepository(WorkSchedule)
-    private readonly workScheduleRepository: Repository<WorkSchedule>,
-    @InjectRepository(TenantConfig)
-    private readonly tenantConfigRepository: Repository<TenantConfig>,
-  ) { }
+  ) {}
 
-  // ============ MÉTODOS AUXILIARES ============
+  // ============================================================================
+  // HELPERS PRIVADOS
+  // ============================================================================
 
+  /**
+   * Determina o tenantId efetivo para a operação.
+   * - tenant_admin: usa o tenant do próprio usuário
+   * - super_admin: exige tenantId explícito no DTO
+   */
   private getTenantId(user: any, dtoTenantId?: number): number {
-    let tenantId: number | null | undefined;
-
     if (user.role === 'tenant_admin') {
-      tenantId = user.tenantId;
-      if (!tenantId) throw new ForbiddenException('Usuário não associado a um tenant');
-    } else if (user.role === 'super_admin') {
-      tenantId = dtoTenantId;
-      if (!tenantId) throw new BadRequestException('tenantId é obrigatório para super admin');
-    } else {
-      throw new ForbiddenException('Papel sem permissão');
+      if (!user.tenantId) {
+        throw new ForbiddenException('Usuário não associado a um tenant');
+      }
+      return user.tenantId;
     }
 
-    if (!tenantId) throw new BadRequestException('Não foi possível determinar o tenant');
-    return tenantId;
-  }
-
-  private async getTenantConfig(tenantId: number): Promise<TenantConfig> {
-    let config = await this.tenantConfigRepository.findOne({ where: { tenant_id: tenantId } });
-    if (!config) {
-      // Configuração padrão se não existir
-      config = this.tenantConfigRepository.create({
-        tenant_id: tenantId,
-        slot_interval: 30,
-        timezone: 'America/Sao_Paulo',
-      });
+    if (user.role === 'super_admin') {
+      if (!dtoTenantId) {
+        throw new BadRequestException(
+          'tenantId é obrigatório para super admin',
+        );
+      }
+      return dtoTenantId;
     }
-    return config;
+
+    throw new ForbiddenException('Papel sem permissão');
   }
 
-  private parseTimeToMinutes(time: string): number {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  }
-
-  private minutesToTime(minutes: number): string {
-    const h = Math.floor(minutes / 60).toString().padStart(2, '0');
-    const m = (minutes % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  }
-
-  // ============ MÉTODO PRINCIPAL ============
-
-  async findAvailableSlots(
+  /**
+   * Valida que o profissional pertence ao tenant e está ativo.
+   */
+  private async validateProfessional(
+    tenantId: number,
     professionalId: number,
-    serviceId: number,
-    date: string, // formato YYYY-MM-DD
-    user: any,
-  ): Promise<string[]> {
-    const tenantId = this.getTenantId(user);
-
-    // 1. Carregar profissional e serviço
+  ): Promise<Professional> {
     const professional = await this.professionalRepository.findOne({
-      where: { id: professionalId, tenant_id: tenantId },
+      where: { id: professionalId, tenant_id: tenantId, is_active: true },
     });
-    if (!professional) throw new NotFoundException('Profissional não encontrado no tenant');
-
-    const service = await this.serviceRepository.findOne({
-      where: { id: serviceId, tenant_id: tenantId },
-    });
-    if (!service) throw new NotFoundException('Serviço não encontrado no tenant');
-
-    const duration = service.duration_minutes;
-    const config = await this.getTenantConfig(tenantId);
-    const slotInterval = config.slot_interval || 30;
-
-    // 2. Determinar dia da semana (0=Domingo, 6=Sábado) considerando timezone do tenant
-    const timezone = config.timezone || 'America/Sao_Paulo';
-    // Cria data no fuso do tenant, depois obtém dia da semana
-    const dateObj = new Date(`${date}T12:00:00`);
-    const dayOfWeek = dateObj.getUTCDay(); // Ajuste posterior se necessário
-
-    // 3. Carregar horários de trabalho do profissional para o dia
-    const workSchedules = await this.workScheduleRepository.find({
-      where: { professional_id: professionalId, tenant_id: tenantId, day_of_week: dayOfWeek },
-    });
-    if (workSchedules.length === 0) {
-      return []; // Profissional não trabalha nesse dia
+    if (!professional) {
+      throw new NotFoundException('Profissional não encontrado');
     }
-
-    // 4. Gerar slots para cada período de trabalho
-    const availableSlots: string[] = [];
-
-    for (const schedule of workSchedules) {
-      let currentMinutes = this.parseTimeToMinutes(schedule.start_time);
-      const endMinutes = this.parseTimeToMinutes(schedule.end_time);
-      const breakStart = schedule.break_start ? this.parseTimeToMinutes(schedule.break_start) : null;
-      const breakEnd = schedule.break_end ? this.parseTimeToMinutes(schedule.break_end) : null;
-
-      while (currentMinutes + duration <= endMinutes) {
-        const slotStart = currentMinutes;
-        const slotEnd = slotStart + duration;
-
-        // Verifica se o slot está dentro de uma pausa
-        const isDuringBreak =
-          breakStart !== null &&
-          breakEnd !== null &&
-          slotStart < breakEnd &&
-          slotEnd > breakStart;
-
-        if (!isDuringBreak) {
-          availableSlots.push(this.minutesToTime(slotStart));
-        }
-
-        currentMinutes += slotInterval;
-      }
-    }
-
-    // 5. Remover slots que conflitam com agendamentos existentes
-    const startOfDay = new Date(`${date}T00:00:00`);
-    const endOfDay = new Date(`${date}T23:59:59`);
-
-    const existingAppointments = await this.appointmentRepository.find({
-      where: {
-        professional_id: professionalId,
-        tenant_id: tenantId,
-        status: Not('cancelled'),
-        start_time: Between(startOfDay, endOfDay),
-      },
-    });
-
-    // Converte slots para horários de início e verifica sobreposição
-    const freeSlots = availableSlots.filter((slotTime) => {
-      const slotStartMinutes = this.parseTimeToMinutes(slotTime);
-      const slotEndMinutes = slotStartMinutes + duration;
-
-      // Verifica conflito com cada agendamento existente
-      for (const appt of existingAppointments) {
-        const apptStartMinutes = appt.start_time.getUTCHours() * 60 + appt.start_time.getUTCMinutes();
-        const apptEndMinutes = appt.end_time.getUTCHours() * 60 + appt.end_time.getUTCMinutes();
-
-        if (slotStartMinutes < apptEndMinutes && slotEndMinutes > apptStartMinutes) {
-          return false; // conflito
-        }
-      }
-      return true;
-    });
-
-    return freeSlots;
+    return professional;
   }
 
-  // ============ CRUD ============
-
-  async create(createAppointmentDto: CreateAppointmentDto, user: any): Promise<Appointment> {
-    const tenantId = this.getTenantId(user, createAppointmentDto.tenantId);
-
-    const professional = await this.professionalRepository.findOne({
-      where: { id: createAppointmentDto.professionalId, tenant_id: tenantId },
-    });
-    if (!professional) throw new NotFoundException('Profissional não encontrado no tenant');
-
+  /**
+   * Valida que o serviço pertence ao tenant e está ativo.
+   */
+  private async validateService(
+    tenantId: number,
+    serviceId: number,
+  ): Promise<Service> {
     const service = await this.serviceRepository.findOne({
-      where: { id: createAppointmentDto.serviceId, tenant_id: tenantId },
+      where: { id: serviceId, tenant_id: tenantId, is_active: true },
     });
-    if (!service) throw new NotFoundException('Serviço não encontrado no tenant');
+    if (!service) {
+      throw new NotFoundException('Serviço não encontrado');
+    }
+    return service;
+  }
 
-    const start = new Date(createAppointmentDto.startTime);
+  /**
+   * Verifica se há conflito de horário com outro agendamento (mesmo tenant).
+   * @param ignoreId ID a ignorar (usado em updates)
+   */
+  private async checkConflict(
+    tenantId: number,
+    professionalId: number,
+    start: Date,
+    end: Date,
+    ignoreId?: number,
+  ): Promise<void> {
+    const where: any = {
+      tenant_id: tenantId,
+      professional_id: professionalId,
+      status: Not('cancelled'),
+      start_time: LessThan(end),
+      end_time: MoreThan(start),
+    };
+
+    const conflict = await this.appointmentRepository.findOne({ where });
+    if (conflict && conflict.id !== ignoreId) {
+      throw new ConflictException('Horário não disponível');
+    }
+  }
+
+  /**
+   * Converte QueryFailedError (unique violation) em ConflictException.
+   */
+  private handleUniqueViolation(error: unknown): never {
+    if (
+      error instanceof QueryFailedError &&
+      (error as any).driverError?.code === PG_UNIQUE_VIOLATION
+    ) {
+      throw new ConflictException('Horário não disponível');
+    }
+    throw error;
+  }
+
+  // ============================================================================
+  // CRUD
+  // ============================================================================
+
+  async create(
+    dto: CreateAppointmentDto,
+    user: any,
+  ): Promise<Appointment> {
+    const tenantId = this.getTenantId(user, dto.tenantId);
+
+    await this.validateProfessional(tenantId, dto.professionalId);
+    const service = await this.validateService(tenantId, dto.serviceId);
+
+    const start = new Date(dto.startTime);
     if (isNaN(start.getTime())) {
       throw new BadRequestException('Data/hora de início inválida');
     }
     const end = new Date(start.getTime() + service.duration_minutes * 60000);
 
-    // Verifica conflito direto
-    const conflict = await this.appointmentRepository.findOne({
-      where: {
-        professional_id: createAppointmentDto.professionalId,
-        tenant_id: tenantId,
-        status: Not('cancelled'),
-        start_time: LessThan(end),
-        end_time: MoreThan(start),
-      },
-    });
-    if (conflict) {
-      throw new ConflictException('Horário não disponível');
-    }
+    await this.checkConflict(tenantId, dto.professionalId, start, end);
 
     const appointment = this.appointmentRepository.create({
       tenant_id: tenantId,
-      professional_id: createAppointmentDto.professionalId,
-      service_id: createAppointmentDto.serviceId,
-      customer_name: createAppointmentDto.customerName,
-      customer_contact: createAppointmentDto.customerContact,
+      professional_id: dto.professionalId,
+      service_id: dto.serviceId,
+      customer_name: dto.customerName,
+      customer_contact: dto.customerContact,
       start_time: start,
       end_time: end,
-      status: createAppointmentDto.status || 'pending',
-      notes: createAppointmentDto.notes,
+      status: dto.status || 'pending',
+      notes: dto.notes,
     });
 
-    return this.appointmentRepository.save(appointment);
+    try {
+      return await this.appointmentRepository.save(appointment);
+    } catch (error) {
+      this.handleUniqueViolation(error);
+    }
   }
 
   async findAll(
@@ -285,72 +243,102 @@ export class AppointmentService {
     if (!appointment) {
       throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
     }
-    if (user.role === 'tenant_admin' && appointment.tenant_id !== user.tenantId) {
+    if (
+      user.role === 'tenant_admin' &&
+      appointment.tenant_id !== user.tenantId
+    ) {
       throw new ForbiddenException('Acesso negado');
     }
     return appointment;
   }
 
-  async update(id: number, updateAppointmentDto: UpdateAppointmentDto, user: any): Promise<Appointment> {
+  async update(
+    id: number,
+    dto: UpdateAppointmentDto,
+    user: any,
+  ): Promise<Appointment> {
     const appointment = await this.findOne(id, user);
+    const tenantId = appointment.tenant_id;
 
-    if (updateAppointmentDto.startTime) {
-      // Se alterar horário, valida disponibilidade
+    // ============ Reagendamento (startTime) ============
+    if (dto.startTime) {
+      const newStart = new Date(dto.startTime);
+      if (isNaN(newStart.getTime())) {
+        throw new BadRequestException('Data/hora de início inválida');
+      }
+
       const service = await this.serviceRepository.findOne({
         where: { id: appointment.service_id },
       });
-      if (service) {
-        const startTime = new Date(updateAppointmentDto.startTime);
-        const endTime = new Date(startTime.getTime() + service.duration_minutes * 60000);
-        updateAppointmentDto.startTime = undefined; // não atualizar diretamente
-        appointment.start_time = startTime;
-        appointment.end_time = endTime;
+      if (!service) {
+        throw new NotFoundException('Serviço do agendamento não encontrado');
       }
+
+      const newEnd = new Date(
+        newStart.getTime() + service.duration_minutes * 60000,
+      );
+
+      await this.checkConflict(
+        tenantId,
+        appointment.professional_id,
+        newStart,
+        newEnd,
+        id,
+      );
+
+      appointment.start_time = newStart;
+      appointment.end_time = newEnd;
     }
 
+    // ============ Mudança de profissional ============
     if (
-      updateAppointmentDto.status !== undefined &&
-      updateAppointmentDto.status !== appointment.status
+      dto.professionalId !== undefined &&
+      dto.professionalId !== appointment.professional_id
     ) {
-      const allowedTransitions: Record<string, string[]> = {
-        pending: ['confirmed', 'cancelled'],
-        confirmed: ['completed', 'cancelled'],
-        completed: [],
-        cancelled: [],
-      };
+      await this.validateProfessional(tenantId, dto.professionalId);
+      appointment.professional_id = dto.professionalId;
+    }
 
-      const allowed = allowedTransitions[appointment.status] || [];
-      if (!allowed.includes(updateAppointmentDto.status)) {
+    // ============ Mudança de serviço ============
+    if (
+      dto.serviceId !== undefined &&
+      dto.serviceId !== appointment.service_id
+    ) {
+      await this.validateService(tenantId, dto.serviceId);
+      appointment.service_id = dto.serviceId;
+    }
+
+    // ============ Transição de status ============
+    if (dto.status !== undefined && dto.status !== appointment.status) {
+      const allowed = ALLOWED_TRANSITIONS[appointment.status] || [];
+      if (!allowed.includes(dto.status)) {
         throw new BadRequestException(
-          `Não é possível alterar o status de "${appointment.status}" para "${updateAppointmentDto.status}".`,
+          `Não é possível alterar o status de "${appointment.status}" para "${dto.status}".`,
         );
       }
+      appointment.status = dto.status;
     }
 
-    if (updateAppointmentDto.professionalId) {
-      appointment.professional_id = updateAppointmentDto.professionalId;
+    // ============ Campos editáveis ============
+    if (dto.customerName !== undefined) {
+      appointment.customer_name = dto.customerName;
     }
-    if (updateAppointmentDto.serviceId) {
-      appointment.service_id = updateAppointmentDto.serviceId;
+    if (dto.customerContact !== undefined) {
+      appointment.customer_contact = dto.customerContact;
     }
-    if (updateAppointmentDto.customerName !== undefined) {
-      appointment.customer_name = updateAppointmentDto.customerName;
-    }
-    if (updateAppointmentDto.customerContact !== undefined) {
-      appointment.customer_contact = updateAppointmentDto.customerContact;
-    }
-    if (updateAppointmentDto.notes !== undefined) {
-      appointment.notes = updateAppointmentDto.notes;
-    }
-    if (updateAppointmentDto.status !== undefined) {
-      appointment.status = updateAppointmentDto.status;
+    if (dto.notes !== undefined) {
+      appointment.notes = dto.notes;
     }
 
-    return this.appointmentRepository.save(appointment);
+    try {
+      return await this.appointmentRepository.save(appointment);
+    } catch (error) {
+      this.handleUniqueViolation(error);
+    }
   }
 
   async remove(id: number, user: any): Promise<void> {
-    const appointment = await this.findOne(id, user);
+    await this.findOne(id, user);
     const result = await this.appointmentRepository.delete(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Agendamento com ID ${id} não encontrado`);
