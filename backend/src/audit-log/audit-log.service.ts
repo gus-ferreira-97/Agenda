@@ -9,6 +9,8 @@ export interface CreateAuditLogInput {
   action: string;
   entity: string;
   entityId: number;
+  ipAddress?: string | null;
+  userAgent?: string | null;
 }
 
 @Injectable()
@@ -18,7 +20,7 @@ export class AuditLogService {
   constructor(
     @InjectRepository(AuditLog)
     private readonly auditLogRepository: Repository<AuditLog>,
-  ) { }
+  ) {}
 
   /**
    * Salva um log em background.
@@ -33,6 +35,8 @@ export class AuditLogService {
         action: input.action,
         entity: input.entity,
         entity_id: input.entityId,
+        ip_address: input.ipAddress ?? null,
+        user_agent: input.userAgent ?? null,
       });
       await this.auditLogRepository.save(log);
     } catch (err) {

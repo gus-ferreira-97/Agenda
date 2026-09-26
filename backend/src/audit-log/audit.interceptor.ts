@@ -13,9 +13,8 @@ import { AuditLogService } from './audit-log.service';
 export class AuditInterceptor implements NestInterceptor {
   private readonly logger = new Logger(AuditInterceptor.name);
 
-  constructor(private readonly auditLogService: AuditLogService) {}
+  constructor(private readonly auditLogService: AuditLogService) { }
 
-  // Mapeia segmentos de rota para nomes de entidade
   private readonly entityMap: Record<string, string> = {
     tenants: 'Tenant',
     users: 'User',
@@ -39,7 +38,7 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Ignora rotas de autenticação e públicas (não são ações administrativas)
+    // Ignora rotas de autenticação, públicas e métricas
     if (
       url.includes('/auth/') ||
       url.includes('/public/') ||
@@ -49,7 +48,7 @@ export class AuditInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    // Ignora se não houver usuário autenticado
+    // Ignora se não houver usuário autenticado (defesa — JwtAuthGuard já bloqueia)
     if (!user || !user.userId) {
       return next.handle();
     }
@@ -65,13 +64,19 @@ export class AuditInterceptor implements NestInterceptor {
     else if (method === 'PATCH' || method === 'PUT') action = 'update';
     else if (method === 'DELETE') action = 'delete';
 
-    // Extrai o ID da entidade (do param da rota, se houver)
+    // Extrai o ID do param da rota
     const paramId = pathSegments[1] ? parseInt(pathSegments[1], 10) : null;
+
+    // Contexto de segurança
+    const ipAddress =
+      (request.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+      request.ip ||
+      null;
+    const userAgent = request.headers['user-agent'] || null;
 
     return next.handle().pipe(
       tap({
         next: (response) => {
-          // Em caso de sucesso, tenta extrair o ID da resposta (útil em creates)
           const responseId =
             response && typeof response === 'object' && 'id' in response
               ? response.id
@@ -80,13 +85,11 @@ export class AuditInterceptor implements NestInterceptor {
           const entityId = responseId ?? paramId;
 
           if (!entityId) {
-            // Se não conseguimos identificar o ID, ainda loga (mas com id genérico 0)
             this.logger.debug(
               `Não foi possível identificar o ID para ${action} em ${entity}`,
             );
           }
 
-          // Dispara em background — não bloqueia a resposta
           this.auditLogService
             .log({
               userId: user.userId,
@@ -94,15 +97,12 @@ export class AuditInterceptor implements NestInterceptor {
               action,
               entity,
               entityId: entityId ?? 0,
+              ipAddress,
+              userAgent,
             })
             .catch((err) => {
-              // Defesa em profundidade — o service já captura erros internamente
               this.logger.error(`Erro inesperado no audit log: ${err.message}`);
             });
-        },
-        error: () => {
-          // Não loga requisições que falharam (o log só é feito em sucesso)
-          // Se quiser logar erros também, podemos evoluir depois
         },
       }),
     );

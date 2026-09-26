@@ -30,9 +30,10 @@ export class CreateTenantDto {
 
   @IsOptional()
   @IsString({ message: 'O status deve ser um texto válido' })
-  @Length(2, 20, {
-    message: 'O status deve ter entre 2 e 20 caracteres',
-  })
+  @IsIn(
+    ['ativo', 'pendente', 'suspenso', 'trial_expirado', 'aguardando_verificacao'],
+    { message: 'Status inválido' },
+  )
   status?: string;
 
   @IsOptional()

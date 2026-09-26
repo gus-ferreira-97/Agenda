@@ -94,9 +94,8 @@ export default function DashboardLayout() {
   };
 
   // Derived state (antes do SidebarContent — evita closure frágil)
-  const publicDomain = import.meta.env.VITE_PUBLIC_DOMAIN || 'Agendy.com.br';
   const publicUrl = tenant?.subdomain
-    ? `${window.location.protocol}//${tenant.subdomain}.${publicDomain}/agendar`
+    ? `${window.location.protocol}//${window.location.host}/agendar`
     : null;
 
   // Early return: trial expirado bloqueia o painel

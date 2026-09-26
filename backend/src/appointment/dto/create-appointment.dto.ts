@@ -5,7 +5,9 @@ import {
   IsOptional,
   IsDateString,
   IsIn,
+  MaxLength,
 } from 'class-validator';
+import { SanitizeHtml } from '../../common/validators/sanitize-html.decorator';
 
 export class CreateAppointmentDto {
   @IsInt()
@@ -16,28 +18,34 @@ export class CreateAppointmentDto {
   @IsNotEmpty()
   serviceId: number;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'O nome deve ser um texto válido' })
+  @IsNotEmpty({ message: 'Informe o nome do cliente' })
+  @MaxLength(255, { message: 'O nome deve ter no máximo 255 caracteres' })
+  @SanitizeHtml()
   customerName: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsString({ message: 'O contato deve ser um texto válido' })
+  @IsNotEmpty({ message: 'Informe o contato do cliente' })
+  @MaxLength(255, { message: 'O contato deve ter no máximo 255 caracteres' })
+  @SanitizeHtml()
   customerContact: string;
 
-  // Data e hora de início no formato ISO 8601 (ex.: "2026-09-04T14:00:00Z" ou "2026-09-04T11:00:00-03:00")
   @IsDateString()
   @IsNotEmpty()
   startTime: string;
 
   @IsOptional()
-  @IsString()
+  @IsString({ message: 'As observações devem ser um texto válido' })
+  @MaxLength(1000, {
+    message: 'As observações devem ter no máximo 1000 caracteres',
+  })
+  @SanitizeHtml()
   notes?: string;
 
   @IsOptional()
   @IsIn(['pending', 'confirmed', 'cancelled', 'completed'])
   status?: string;
 
-  // Opcional para super admin; para tenant_admin será obtido do token
   @IsOptional()
   @IsInt()
   tenantId?: number;

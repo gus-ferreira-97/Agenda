@@ -160,12 +160,10 @@ import { HealthController } from './health.controller';
   ],
   controllers: [HealthController],
   providers: [
-    // Ordem importa: filtros são executados na ordem de registro
     {
       provide: APP_FILTER,
       useClass: AllExceptionsFilter,
     },
-    // Ordem dos guards: rate limit → auth → roles
     {
       provide: APP_GUARD,
       useClass: TenantThrottlerGuard,

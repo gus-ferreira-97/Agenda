@@ -37,6 +37,13 @@ export class AuditLog {
   @Column({ type: 'int' })
   entity_id: number;
 
+  // Contexto de segurança (útil para investigação de incidentes)
+  @Column({ type: 'varchar', length: 45, nullable: true })
+  ip_address: string | null;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  user_agent: string | null;
+
   @CreateDateColumn()
   timestamp: Date;
 }
