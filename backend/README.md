@@ -112,3 +112,12 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## Setup do banco (primeira vez ou restore)
+
+Após criar o banco, execute como superuser (`agenda`):
+
+  GRANT CREATE ON SCHEMA public TO agenda_migrator;
+
+Motivo: Postgres 15+ revogou o `CREATE` implícito no schema `public`.
+Sem isso, migrations que criam índices falham com `permission denied for schema public`.

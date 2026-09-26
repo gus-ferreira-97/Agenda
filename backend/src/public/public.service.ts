@@ -5,7 +5,14 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Not, Between, LessThan, MoreThan } from 'typeorm';
+import {
+  Repository,
+  Not,
+  Between,
+  LessThan,
+  MoreThan,
+  QueryFailedError,
+} from 'typeorm';
 import { randomBytes } from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { Professional } from '../professional/entities/professional.entity';
@@ -23,6 +30,9 @@ import { ServiceOption } from '../service/entities/service-option.entity';
 import { getPublicPlans } from '../common/plans';
 import { TurnstileService } from '../common/turnstile/turnstile.service';
 import { isReservedSubdomain } from '../common/helpers/extract-subdomain';
+
+/** Erro de violação de constraint UNIQUE do Postgres */
+const PG_UNIQUE_VIOLATION = '23505';
 
 @Injectable()
 export class PublicService {
@@ -47,81 +57,79 @@ export class PublicService {
     private readonly professionalServiceRepo: Repository<ProfessionalService>,
     private readonly mailService: MailService,
     private readonly turnstileService: TurnstileService,
-  ) { }
+  ) {}
+
+  // ============================================================================
+  // REGISTRO DE TENANT
+  // ============================================================================
 
   async registerTenant(dto: RegisterTenantDto): Promise<{ message: string }> {
-
-    // Valida o CAPTCHA primeiro (antes de qualquer processamento)
     await this.turnstileService.validateToken(dto.captchaToken);
 
-    // Honeypot: se o campo `_hp` estiver preenchido, é bot
     if (dto._hp && dto._hp.trim() !== '') {
       throw new BadRequestException('Requisição inválida.');
     }
 
-    const subdomain = dto.subdomain
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+    const subdomain = this.sanitizeSubdomain(dto.subdomain);
+    this.validateSubdomain(subdomain);
 
-    // Bloqueia subdomínios reservados (www, api, admin, etc.)
-    if (isReservedSubdomain(subdomain)) {
-      throw new BadRequestException(
-        'Este subdomínio está reservado. Escolha outro.',
-      );
-    }
+    // Checagens antecipadas — melhor UX (409 em vez de 500 do banco)
+    const [existingTenant, existingUser] = await Promise.all([
+      this.tenantRepo.findOne({ where: { subdomain } }),
+      this.userRepo.findOne({ where: { email: dto.email } }),
+    ]);
 
-    // Bloqueia subdomínio vazio após sanitização
-    if (!subdomain || subdomain.length < 3) {
-      throw new BadRequestException(
-        'Subdomínio inválido. Use pelo menos 3 caracteres (letras, números, hífen).',
-      );
-    }
-
-    const existingTenant = await this.tenantRepo.findOne({
-      where: { subdomain },
-    });
     if (existingTenant) {
       throw new ConflictException('Este subdomínio já está em uso');
     }
-
-    const existingUser = await this.userRepo.findOne({
-      where: { email: dto.email },
-    });
     if (existingUser) {
       throw new ConflictException('Este e-mail já está cadastrado');
     }
 
-    const tenant = this.tenantRepo.create({
-      name: dto.tenantName,
-      subdomain,
-      status: 'aguardando_verificacao',
-      plan: dto.plan || 'basico',
-    });
-    const savedTenant = await this.tenantRepo.save(tenant);
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-    const user = this.userRepo.create({
-      name: dto.ownerName,
-      email: dto.email,
-      password_hash: hashedPassword,
-      role: 'tenant_admin',
-      tenant_id: savedTenant.id,
-      email_verified: false,
-    });
-    const savedUser = await this.userRepo.save(user);
-
-    // Gera token de verificação de e-mail (válido por 24h)
     const token = randomBytes(32).toString('hex');
     const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    savedUser.email_verification_token = token;
-    savedUser.email_verification_expires = expires;
-    await this.userRepo.save(savedUser);
+    // Transação: tenant + user criados atomicamente
+    let savedUser: User;
+    try {
+      savedUser = await this.tenantRepo.manager.transaction(async (manager) => {
+        const tenant = manager.create(Tenant, {
+          name: dto.tenantName,
+          subdomain,
+          status: 'aguardando_verificacao',
+          plan: dto.plan || 'basico',
+        });
+        const savedTenant = await manager.save(tenant);
 
-    // Envia o e-mail de verificação
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
+        const user = manager.create(User, {
+          name: dto.ownerName,
+          email: dto.email,
+          password_hash: hashedPassword,
+          role: 'tenant_admin',
+          tenant_id: savedTenant.id,
+          email_verified: false,
+          email_verification_token: token,
+          email_verification_expires: expires,
+        });
+
+        return manager.save(user);
+      });
+    } catch (error) {
+      // Race condition: outro request criou o mesmo subdomínio/e-mail entre
+      // nossa checagem e o INSERT. O banco rejeitou via UNIQUE constraint.
+      if (
+        error instanceof QueryFailedError &&
+        (error as any).driverError?.code === PG_UNIQUE_VIOLATION
+      ) {
+        throw new ConflictException(
+          'Subdomínio ou e-mail já cadastrado. Tente novamente.',
+        );
+      }
+      throw error;
+    }
+
+    // E-mail fora da transação (chamada externa — não deve rollback em caso de falha)
     await this.mailService.sendEmailVerificationEmail(savedUser.email, token);
 
     return {
@@ -129,6 +137,10 @@ export class PublicService {
         'Conta criada com sucesso! Enviamos um e-mail de confirmação. Verifique sua caixa de entrada para ativar sua conta.',
     };
   }
+
+  // ============================================================================
+  // CATÁLOGO PÚBLICO
+  // ============================================================================
 
   async getProfessionals(tenantId: number): Promise<Professional[]> {
     return this.professionalRepo.find({
@@ -144,6 +156,65 @@ export class PublicService {
     });
   }
 
+  async getProfessionalServices(tenantId: number) {
+    return this.professionalServiceRepo.find({
+      where: { tenant_id: tenantId },
+      select: ['professional_id', 'service_id'],
+    });
+  }
+
+  async getServiceOptions(tenantId: number, serviceId: number) {
+    await this.validateService(tenantId, serviceId);
+
+    const options = await this.serviceOptionRepo.find({
+      where: {
+        service_id: serviceId,
+        tenant_id: tenantId,
+        is_active: true,
+      },
+      order: { sort_order: 'ASC', created_at: 'ASC' },
+    });
+
+    // Retorna apenas os campos necessários para o cliente final
+    return options.map((option) => ({
+      id: option.id,
+      name: option.name,
+      description: option.description,
+      imageUrl: option.image_url,
+      price: option.price,
+      durationMinutes: option.duration_minutes,
+    }));
+  }
+
+  async getTenantInfo(subdomain: string) {
+    const tenant = await this.tenantRepo.findOne({
+      where: { subdomain: subdomain.toLowerCase(), status: 'ativo' },
+    });
+
+    if (!tenant) {
+      throw new NotFoundException('Estabelecimento não encontrado');
+    }
+
+    return {
+      id: tenant.id,
+      name: tenant.name,
+      subdomain: tenant.subdomain,
+      primaryColor: tenant.primary_color,
+      logoUrl: tenant.logo_url,
+      welcomeMessage: tenant.welcome_message,
+      phone: tenant.phone,
+      address: tenant.address,
+    };
+  }
+
+  getPublicPlans() {
+    return getPublicPlans();
+  }
+
+  // ============================================================================
+  // DISPONIBILIDADE DE HORÁRIOS
+  // ============================================================================
+
   async getAvailableSlots(
     tenantId: number,
     professionalId: number,
@@ -151,96 +222,58 @@ export class PublicService {
     date: string,
     serviceOptionId?: number,
   ): Promise<string[]> {
-    const professional = await this.professionalRepo.findOne({
-      where: { id: professionalId, tenant_id: tenantId, is_active: true },
-    });
-    if (!professional) throw new NotFoundException('Profissional não encontrado');
+    // 1. Valida entidades
+    const professional = await this.validateProfessional(tenantId, professionalId);
+    const { serviceOption, durationMinutes } = await this.validateServiceAndOption(
+      tenantId,
+      serviceId,
+      serviceOptionId,
+    );
 
-    const service = await this.serviceRepo.findOne({
-      where: { id: serviceId, tenant_id: tenantId, is_active: true },
-    });
-    if (!service) throw new NotFoundException('Serviço não encontrado');
-
-    // Se informou uma variação, valida e usa a duração dela
-    let serviceOption: ServiceOption | null = null;
-    if (serviceOptionId) {
-      serviceOption = await this.serviceOptionRepo.findOne({
-        where: {
-          id: serviceOptionId,
-          service_id: serviceId,
-          tenant_id: tenantId,
-          is_active: true,
-        },
-      });
-      if (!serviceOption) {
-        throw new BadRequestException('Variação de serviço inválida');
-      }
-    }
-
+    // 2. Resolve config do tenant (interval, timezone)
     const config = await this.tenantConfigRepo.findOne({ where: { tenant_id: tenantId } });
     const slotInterval = config?.slot_interval || 30;
-    const timezone = config?.timezone || 'America/Sao_Paulo';
 
-    // Determina dia da semana (0 = domingo)
-    const dateObj = new Date(`${date}T12:00:00`);
-    const dayOfWeek = dateObj.getUTCDay(); // simplificado; ajustar timezone depois
+    // 3. Descobre o dia da semana
+    //    NOTA: usa timezone local do container (TZ=America/Sao_Paulo no Compose).
+    //    Para timezone dinâmico por tenant, migrar para dayjs/luxon no v2.
+    const dayOfWeek = new Date(`${date}T12:00:00`).getDay();
 
+    // 4. Busca schedules ativos do dia
     const schedules = await this.workScheduleRepo.find({
-      where: { professional_id: professionalId, tenant_id: tenantId, day_of_week: dayOfWeek },
-    });
-    if (schedules.length === 0) return [];
-
-    // Usa a duração da variação, se informada; senão, a do serviço
-    const duration = serviceOption?.duration_minutes ?? service.duration_minutes;
-    const slots: string[] = [];
-
-    for (const schedule of schedules) {
-      let current = this.timeToMinutes(schedule.start_time);
-      const end = this.timeToMinutes(schedule.end_time);
-      const breakStart = schedule.break_start ? this.timeToMinutes(schedule.break_start) : null;
-      const breakEnd = schedule.break_end ? this.timeToMinutes(schedule.break_end) : null;
-
-      while (current + duration <= end) {
-        const slotEnd = current + duration;
-        const isBreak = breakStart !== null && breakEnd !== null && current < breakEnd && slotEnd > breakStart;
-        if (!isBreak) {
-          slots.push(this.minutesToTime(current));
-        }
-        current += slotInterval;
-      }
-    }
-
-    // Remove slots ocupados
-    const startOfDay = new Date(`${date}T00:00:00`);
-    const endOfDay = new Date(`${date}T23:59:59`);
-    const appointments = await this.appointmentRepo.find({
       where: {
         professional_id: professionalId,
         tenant_id: tenantId,
-        status: Not('cancelled'),
-        start_time: Between(startOfDay, endOfDay),
+        day_of_week: dayOfWeek,
       },
     });
+    if (schedules.length === 0) return [];
 
-    const freeSlots = slots.filter((slot) => {
-      // Cria a data/hora local do slot usando a string da data e o horário (assume fuso local do servidor, que deve ser o mesmo do tenant no MVP)
-      const slotStart = new Date(`${date}T${slot}:00`);
-      const slotEnd = new Date(slotStart.getTime() + duration * 60000);
+    // 5. Gera slots candidatos
+    const candidateSlots = this.generateCandidateSlots(
+      schedules,
+      durationMinutes,
+      slotInterval,
+    );
 
-      // Compara com os agendamentos existentes usando timestamps (em milissegundos)
-      return !appointments.some((appt) => {
-        const apptStart = new Date(appt.start_time).getTime();
-        const apptEnd = new Date(appt.end_time).getTime();
-        return slotStart.getTime() < apptEnd && slotEnd.getTime() > apptStart;
-      });
-    });
-
-    return freeSlots;
+    // 6. Remove slots ocupados
+    return this.filterOccupiedSlots(
+      candidateSlots,
+      professionalId,
+      tenantId,
+      date,
+      durationMinutes,
+    );
   }
 
-  async createAppointment(tenantId: number, dto: CreateAppointmentPublicDto): Promise<Appointment> {
+  // ============================================================================
+  // CRIAÇÃO DE AGENDAMENTO
+  // ============================================================================
 
-    // Valida o CAPTCHA primeiro
+  async createAppointment(
+    tenantId: number,
+    dto: CreateAppointmentPublicDto,
+  ): Promise<Appointment> {
     await this.turnstileService.validateToken(dto.captchaToken);
 
     if (dto._hp && dto._hp.trim() !== '') {
@@ -262,35 +295,22 @@ export class PublicService {
       throw new BadRequestException('Data/hora inválida');
     }
 
-    // Valida o serviço (pertence ao tenant e está ativo)
-    const service = await this.serviceRepo.findOne({
-      where: { id: serviceId, tenant_id: tenantId, is_active: true },
-    });
-    if (!service) throw new NotFoundException('Serviço não encontrado');
+    // Valida profissional (pertence ao tenant)
+    await this.validateProfessional(tenantId, professionalId);
 
-    // Se informou uma variação, valida que ela existe, pertence ao serviço e está ativa
-    let serviceOption: ServiceOption | null = null;
-    if (serviceOptionId) {
-      serviceOption = await this.serviceOptionRepo.findOne({
-        where: {
-          id: serviceOptionId,
-          service_id: serviceId,
-          tenant_id: tenantId,
-          is_active: true,
-        },
-      });
-      if (!serviceOption) {
-        throw new BadRequestException('Variação de serviço inválida');
-      }
-    }
+    // Valida serviço + opção (retorna duração)
+    const { durationMinutes } = await this.validateServiceAndOption(
+      tenantId,
+      serviceId,
+      serviceOptionId,
+    );
 
-    // Usa a duração da variação, se informada; senão, a do serviço
-    const durationMinutes = serviceOption?.duration_minutes ?? service.duration_minutes;
     const end = new Date(start.getTime() + durationMinutes * 60000);
 
-    // Verifica conflito diretamente
+    // Verifica conflito — com tenant_id para isolamento multi-tenant
     const conflict = await this.appointmentRepo.findOne({
       where: {
+        tenant_id: tenantId,
         professional_id: professionalId,
         status: Not('cancelled'),
         start_time: LessThan(end),
@@ -315,48 +335,24 @@ export class PublicService {
       notes,
     });
 
-    return this.appointmentRepo.save(appointment);
-  }
-
-  private timeToMinutes(time: string): number {
-    const [h, m] = time.split(':').map(Number);
-    return h * 60 + m;
-  }
-
-  private minutesToTime(minutes: number): string {
-    const h = Math.floor(minutes / 60).toString().padStart(2, '0');
-    const m = (minutes % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  }
-
-  async getTenantInfo(subdomain: string) {
-    const tenant = await this.tenantRepo.findOne({
-      where: { subdomain: subdomain.toLowerCase(), status: 'ativo' },
-    });
-
-    if (!tenant) {
-      throw new NotFoundException('Estabelecimento não encontrado');
+    try {
+      return await this.appointmentRepo.save(appointment);
+    } catch (error) {
+      // Race condition: outro request criou o mesmo slot entre nossa checagem
+      // e o INSERT. A constraint UNIQUE parcial do banco captura.
+      if (
+        error instanceof QueryFailedError &&
+        (error as any).driverError?.code === PG_UNIQUE_VIOLATION
+      ) {
+        throw new ConflictException('Horário não disponível');
+      }
+      throw error;
     }
-
-    return {
-      id: tenant.id,
-      name: tenant.name,
-      subdomain: tenant.subdomain,
-      primaryColor: tenant.primary_color,
-      logoUrl: tenant.logo_url,
-      welcomeMessage: tenant.welcome_message,
-      phone: tenant.phone,
-      address: tenant.address,
-    };
   }
 
-  async getProfessionalServices(tenantId: number) {
-    const rows = await this.professionalServiceRepo.find({
-      where: { tenant_id: tenantId },
-      select: ['professional_id', 'service_id'],
-    });
-    return rows;
-  }
+  // ============================================================================
+  // VERIFICAÇÃO DE E-MAIL
+  // ============================================================================
 
   async verifyEmail(token: string): Promise<{ message: string }> {
     if (!token) {
@@ -371,7 +367,10 @@ export class PublicService {
       throw new BadRequestException('Token inválido ou já utilizado');
     }
 
-    if (!user.email_verification_expires || user.email_verification_expires < new Date()) {
+    if (
+      !user.email_verification_expires ||
+      user.email_verification_expires < new Date()
+    ) {
       throw new BadRequestException('Token expirado. Solicite um novo link.');
     }
 
@@ -379,20 +378,23 @@ export class PublicService {
       return { message: 'E-mail já verificado. Você pode fazer login.' };
     }
 
-    // Marca como verificado e limpa o token
-    user.email_verified = true;
-    user.email_verification_token = null;
-    user.email_verification_expires = null;
-    await this.userRepo.save(user);
+    // Transação: user verificado + tenant movido para 'pendente' atomicamente
+    await this.userRepo.manager.transaction(async (manager) => {
+      user.email_verified = true;
+      user.email_verification_token = null;
+      user.email_verification_expires = null;
+      await manager.save(user);
 
-    // Move o tenant de "aguardando_verificacao" para "pendente" (aguardando aprovação)
-    if (user.tenant_id) {
-      const tenant = await this.tenantRepo.findOne({ where: { id: user.tenant_id } });
-      if (tenant && tenant.status === 'aguardando_verificacao') {
-        tenant.status = 'pendente';
-        await this.tenantRepo.save(tenant);
+      if (user.tenant_id) {
+        const tenant = await manager.findOne(Tenant, {
+          where: { id: user.tenant_id },
+        });
+        if (tenant && tenant.status === 'aguardando_verificacao') {
+          tenant.status = 'pendente';
+          await manager.save(tenant);
+        }
       }
-    }
+    });
 
     return {
       message:
@@ -400,36 +402,178 @@ export class PublicService {
     };
   }
 
-  async getServiceOptions(tenantId: number, serviceId: number) {
-    // Valida que o serviço pertence ao tenant e está ativo
+  // ============================================================================
+  // HELPERS PRIVADOS
+  // ============================================================================
+
+  private sanitizeSubdomain(raw: string): string {
+    return raw
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9-]/g, '')
+      .replace(/-+/g, '-')
+      .replace(/^-|-$/g, '');
+  }
+
+  private validateSubdomain(subdomain: string): void {
+    if (!subdomain || subdomain.length < 3) {
+      throw new BadRequestException(
+        'Subdomínio inválido. Use pelo menos 3 caracteres (letras, números, hífen).',
+      );
+    }
+    if (isReservedSubdomain(subdomain)) {
+      throw new BadRequestException(
+        'Este subdomínio está reservado. Escolha outro.',
+      );
+    }
+  }
+
+  /**
+   * Valida que o profissional existe, pertence ao tenant e está ativo.
+   * Previne que um atacante crie agendamentos com professionalId de outro tenant.
+   */
+  private async validateProfessional(
+    tenantId: number,
+    professionalId: number,
+  ): Promise<Professional> {
+    const professional = await this.professionalRepo.findOne({
+      where: { id: professionalId, tenant_id: tenantId, is_active: true },
+    });
+    if (!professional) {
+      throw new NotFoundException('Profissional não encontrado');
+    }
+    return professional;
+  }
+
+  /**
+   * Valida que o serviço existe, pertence ao tenant e está ativo.
+   * Se uma variação foi informada, valida também.
+   * Retorna a duração efetiva (da variação ou do serviço).
+   */
+  private async validateServiceAndOption(
+    tenantId: number,
+    serviceId: number,
+    serviceOptionId?: number,
+  ): Promise<{ service: Service; serviceOption: ServiceOption | null; durationMinutes: number }> {
+    const service = await this.validateService(tenantId, serviceId);
+
+    let serviceOption: ServiceOption | null = null;
+    if (serviceOptionId) {
+      serviceOption = await this.serviceOptionRepo.findOne({
+        where: {
+          id: serviceOptionId,
+          service_id: serviceId,
+          tenant_id: tenantId,
+          is_active: true,
+        },
+      });
+      if (!serviceOption) {
+        throw new BadRequestException('Variação de serviço inválida');
+      }
+    }
+
+    const durationMinutes =
+      serviceOption?.duration_minutes ?? service.duration_minutes;
+
+    return { service, serviceOption, durationMinutes };
+  }
+
+  private async validateService(
+    tenantId: number,
+    serviceId: number,
+  ): Promise<Service> {
     const service = await this.serviceRepo.findOne({
       where: { id: serviceId, tenant_id: tenantId, is_active: true },
     });
     if (!service) {
       throw new NotFoundException('Serviço não encontrado');
     }
-
-    const options = await this.serviceOptionRepo.find({
-      where: {
-        service_id: serviceId,
-        tenant_id: tenantId,
-        is_active: true,
-      },
-      order: { sort_order: 'ASC', created_at: 'ASC' },
-    });
-
-    // Retorna apenas os campos necessários para o cliente final
-    return options.map((option) => ({
-      id: option.id,
-      name: option.name,
-      description: option.description,
-      imageUrl: option.image_url,
-      price: option.price,
-      durationMinutes: option.duration_minutes,
-    }));
+    return service;
   }
 
-  getPublicPlans() {
-    return getPublicPlans();
+  /**
+   * Gera a lista de horários candidatos a partir dos schedules do dia.
+   * Remove os que caem em intervalos de break.
+   */
+  private generateCandidateSlots(
+    schedules: WorkSchedule[],
+    durationMinutes: number,
+    slotInterval: number,
+  ): string[] {
+    const slots: string[] = [];
+
+    for (const schedule of schedules) {
+      let current = this.timeToMinutes(schedule.start_time);
+      const end = this.timeToMinutes(schedule.end_time);
+      const breakStart = schedule.break_start
+        ? this.timeToMinutes(schedule.break_start)
+        : null;
+      const breakEnd = schedule.break_end
+        ? this.timeToMinutes(schedule.break_end)
+        : null;
+
+      while (current + durationMinutes <= end) {
+        const slotEnd = current + durationMinutes;
+        const isBreak =
+          breakStart !== null &&
+          breakEnd !== null &&
+          current < breakEnd &&
+          slotEnd > breakStart;
+
+        if (!isBreak) {
+          slots.push(this.minutesToTime(current));
+        }
+        current += slotInterval;
+      }
+    }
+
+    return slots;
+  }
+
+  /**
+   * Remove dos candidatos os horários que colidem com agendamentos existentes.
+   */
+  private async filterOccupiedSlots(
+    candidateSlots: string[],
+    professionalId: number,
+    tenantId: number,
+    date: string,
+    durationMinutes: number,
+  ): Promise<string[]> {
+    const startOfDay = new Date(`${date}T00:00:00`);
+    const endOfDay = new Date(`${date}T23:59:59`);
+
+    const appointments = await this.appointmentRepo.find({
+      where: {
+        professional_id: professionalId,
+        tenant_id: tenantId,
+        status: Not('cancelled'),
+        start_time: Between(startOfDay, endOfDay),
+      },
+    });
+
+    return candidateSlots.filter((slot) => {
+      const slotStart = new Date(`${date}T${slot}:00`).getTime();
+      const slotEnd = slotStart + durationMinutes * 60000;
+
+      return !appointments.some((appt) => {
+        const apptStart = new Date(appt.start_time).getTime();
+        const apptEnd = new Date(appt.end_time).getTime();
+        return slotStart < apptEnd && slotEnd > apptStart;
+      });
+    });
+  }
+
+  private timeToMinutes(time: string): number {
+    const [h, m] = time.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  private minutesToTime(minutes: number): string {
+    const h = Math.floor(minutes / 60)
+      .toString()
+      .padStart(2, '0');
+    const m = (minutes % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
   }
 }
