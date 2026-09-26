@@ -128,6 +128,13 @@ export class UserService {
     await this.userRepository.save(user);
   }
 
+  async clearResetToken(userId: number): Promise<void> {
+    await this.userRepository.update(userId, {
+      reset_password_token: null,
+      reset_password_expires: null,
+    });
+  }
+
   async setEmailVerificationToken(email: string, token: string, expires: Date): Promise<void> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) return;

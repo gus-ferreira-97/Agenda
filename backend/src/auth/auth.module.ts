@@ -1,18 +1,17 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from '../user/user.module';
+import { TenantModule } from '../tenant/tenant.module';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
-import { Tenant } from '../tenant/entities/tenant.entity';
 
 @Module({
   imports: [
-    forwardRef(() => UserModule),
-    TypeOrmModule.forFeature([Tenant]),
+    UserModule,
+    TenantModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -37,4 +36,4 @@ import { Tenant } from '../tenant/entities/tenant.entity';
   providers: [AuthService, JwtAuthGuard, RolesGuard],
   exports: [JwtAuthGuard, RolesGuard, JwtModule],
 })
-export class AuthModule { }
+export class AuthModule {}

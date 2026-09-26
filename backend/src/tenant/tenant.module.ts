@@ -10,7 +10,6 @@ import { ProfessionalService } from '../service/entities/professional-service.en
 import { User } from '../user/entities/user.entity';
 import { TenantService } from './tenant.service';
 import { TenantController } from './tenant.controller';
-import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -24,7 +23,6 @@ import { AuthModule } from '../auth/auth.module';
       ProfessionalService,
       User,
     ]),
-    AuthModule,
   ],
   controllers: [TenantController],
   providers: [TenantService],
