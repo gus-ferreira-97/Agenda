@@ -1,54 +1,63 @@
-import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TenantModule } from './tenant/tenant.module';
-import { UserModule } from './user/user.module';
+import { APP_INTERCEPTOR, APP_GUARD, APP_FILTER } from '@nestjs/core';
+import { LoggerModule } from 'nestjs-pino';
+import { SentryModule } from '@sentry/nestjs/setup';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
+
+// Feature modules
 import { AuthModule } from './auth/auth.module';
+import { TenantModule } from './tenant/tenant.module';
 import { Tenant } from './tenant/entities/tenant.entity';
-import { TenantConfig } from './tenant/entities/tenant-config.entity';
-import { User } from './user/entities/user.entity';
-import { Professional } from './professional/entities/professional.entity';
-import { WorkSchedule } from './professional/entities/work-schedule.entity';
-import { Service } from './service/entities/service.entity';
-import { ProfessionalService } from './service/entities/professional-service.entity';
-import { Appointment } from './appointment/entities/appointment.entity';
-import { AuditLog } from './audit-log/entities/audit-log.entity';
+import { UserModule } from './user/user.module';
 import { ProfessionalModule } from './professional/professional.module';
 import { ServiceModule } from './service/service.module';
+import { ServiceOptionModule } from './service-option/service-option.module';
 import { ProfessionalServiceModule } from './professional-service/professional-service.module';
 import { AppointmentModule } from './appointment/appointment.module';
 import { WorkScheduleModule } from './work-schedule/work-schedule.module';
 import { PublicModule } from './public/public.module';
-import { TenantMiddleware } from './common/middlewares/tenant.middleware';
 import { MailModule } from './mail/mail.module';
 import { SuperAdminModule } from './super-admin/super-admin.module';
 import { TenantMetricsModule } from './tenant-metrics/tenant-metrics.module';
-import { ScheduleModule } from '@nestjs/schedule';
 import { TasksModule } from './tasks/tasks.module';
-import { ServiceOption } from './service/entities/service-option.entity';
-import { ServiceOptionModule } from './service-option/service-option.module';
-import { APP_INTERCEPTOR, APP_GUARD, APP_FILTER } from '@nestjs/core';
 import { AuditLogModule } from './audit-log/audit-log.module';
-import { AuditInterceptor } from './audit-log/audit.interceptor';
-import { ThrottlerModule } from '@nestjs/throttler';
+
+// Guards, filters, interceptors
+import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { TenantThrottlerGuard } from './common/guards/tenant-throttler.guard';
-import { LoggerModule } from 'nestjs-pino';
-import { HealthController } from './health.controller';
 import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { RolesGuard } from './auth/guards/roles.guard';
-import { SentryModule } from '@sentry/nestjs/setup';
-import { SentryGlobalFilter } from '@sentry/nestjs/setup';
+import { AuditInterceptor } from './audit-log/audit.interceptor';
+
+// Middlewares
+import { TenantMiddleware } from './common/middlewares/tenant.middleware';
+
+// Módulos comuns
 import { TurnstileModule } from './common/turnstile/turnstile.module';
 
+// Controllers
+import { HealthController } from './health.controller';
 
 @Module({
   imports: [
     SentryModule.forRoot(),
+
+    // ============ Configuração ============
+    ConfigModule.forRoot({ isGlobal: true }),
     LoggerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const isProduction = configService.get<string>('NODE_ENV') === 'production';
+        const isProduction =
+          configService.get<string>('NODE_ENV') === 'production';
 
         return {
           pinoHttp: {
@@ -94,7 +103,8 @@ import { TurnstileModule } from './common/turnstile/turnstile.module';
         };
       },
     }),
-    ConfigModule.forRoot({ isGlobal: true }),
+
+    // ============ Segurança ============
     TurnstileModule,
     ThrottlerModule.forRoot([
       {
@@ -103,9 +113,12 @@ import { TurnstileModule } from './common/turnstile/turnstile.module';
         blockDuration: 60000,
       },
     ]),
+
+    // ============ Agendamento ============
     ScheduleModule.forRoot(),
+
+    // ============ Banco de dados ============
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         host: configService.get<string>('DB_HOST'),
@@ -117,29 +130,22 @@ import { TurnstileModule } from './common/turnstile/turnstile.module';
           configService.get<string>('DB_SSL') === 'true'
             ? { rejectUnauthorized: false }
             : false,
-        entities: [
-          Tenant,
-          TenantConfig,
-          User,
-          Professional,
-          WorkSchedule,
-          Service,
-          ServiceOption,
-          ProfessionalService,
-          Appointment,
-          AuditLog,
-        ],
         autoLoadEntities: true,
         synchronize: false,
       }),
       inject: [ConfigService],
     }),
+    // Necessário para o TenantMiddleware (registrado no AppModule)
+    // ter acesso ao repositório Tenant via @InjectRepository
     TypeOrmModule.forFeature([Tenant]),
+
+    // ============ Feature modules ============
     TenantModule,
     UserModule,
     AuthModule,
     ProfessionalModule,
     ServiceModule,
+    ServiceOptionModule,
     ProfessionalServiceModule,
     AppointmentModule,
     WorkScheduleModule,
@@ -148,15 +154,16 @@ import { TurnstileModule } from './common/turnstile/turnstile.module';
     SuperAdminModule,
     TenantMetricsModule,
     TasksModule,
-    ServiceOptionModule,
     AuditLogModule,
   ],
   controllers: [HealthController],
   providers: [
+    // Ordem importa: filtros são executados na ordem de registro
     {
       provide: APP_FILTER,
-      useClass: SentryGlobalFilter,
+      useClass: AllExceptionsFilter,
     },
+    // Ordem dos guards: rate limit → auth → roles
     {
       provide: APP_GUARD,
       useClass: TenantThrottlerGuard,

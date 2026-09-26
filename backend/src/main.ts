@@ -4,38 +4,31 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import helmet from 'helmet';
-import * as express from 'express';
+import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino';
 
-async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    bufferLogs: true,
-  });
-  app.useLogger(app.get(Logger));
-
-  // Limita o tamanho do body das requisições
-  app.use(express.json({ limit: '100kb' }));
-  app.use(express.urlencoded({ limit: '100kb', extended: true }));
-
-  const configService = app.get(ConfigService);
-
-  // ============ CORS ============
-  const corsOriginsEnv = configService.get<string>('CORS_ORIGINS') || '';
-  const allowedOrigins = corsOriginsEnv
+/**
+ * Configura o CORS com verificação dinâmica de origens.
+ * Aceita:
+ *  - Lista explícita do .env (CORS_ORIGINS)
+ *  - Domínio base + subdomínios (BASE_DOMAIN)
+ *  - localhost, *.localhost, *.agendyapp.local (dev)
+ */
+function buildCorsOptions(configService: ConfigService) {
+  const allowedOrigins = (configService.get<string>('CORS_ORIGINS') || '')
     .split(',')
     .map((origin) => origin.trim())
     .filter((origin) => origin.length > 0);
 
-  // Permite também qualquer subdomínio de agendyapp.com.br (produção)
-  const baseDomain = 'agendyapp.com.br';
+  const baseDomain = configService.get<string>('BASE_DOMAIN') || '';
 
-  app.enableCors({
+  return {
     origin: (
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
-      // Permite requisições sem origin (ex.: Postman, curl, health checks)
+      // Permite requisições sem origin (Postman, curl, health checks)
       if (!origin) return callback(null, true);
 
       // Lista explícita do .env
@@ -44,15 +37,16 @@ async function bootstrap() {
       }
 
       try {
-        const url = new URL(origin);
-        const hostname = url.hostname;
+        const { hostname } = new URL(origin);
 
-        // Produção: agendyapp.com.br e subdomínios
-        if (hostname === baseDomain || hostname.endsWith(`.${baseDomain}`)) {
-          return callback(null, true);
+        // Produção: domínio base + subdomínios
+        if (baseDomain) {
+          if (hostname === baseDomain || hostname.endsWith(`.${baseDomain}`)) {
+            return callback(null, true);
+          }
         }
 
-        // Desenvolvimento: *.agendyapp.local e *.localhost
+        // Desenvolvimento
         if (
           hostname === 'localhost' ||
           hostname.endsWith('.agendyapp.local') ||
@@ -69,7 +63,26 @@ async function bootstrap() {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+}
+
+async function bootstrap() {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
   });
+  app.useLogger(app.get(Logger));
+
+  // Limita o tamanho do body das requisições
+  app.use(json({ limit: '100kb' }));
+  app.use(urlencoded({ limit: '100kb', extended: true }));
+
+  const configService = app.get(ConfigService);
+
+  // Confia no primeiro proxy (Nginx/Caddy) para ler X-Forwarded-For
+  app.set('trust proxy', 1);
+
+  // ============ CORS ============
+  app.enableCors(buildCorsOptions(configService));
 
   // ============ Helmet ============
   app.use(
@@ -79,7 +92,7 @@ async function bootstrap() {
     }),
   );
 
-  // ============ Pipes e Filtros ============
+  // ============ Pipes ============
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -88,8 +101,8 @@ async function bootstrap() {
     }),
   );
 
-  app.set('trust proxy', 1);
-
-  await app.listen(3000);
+  const port = configService.get<number>('PORT') || 3000;
+  await app.listen(port);
 }
+
 bootstrap();

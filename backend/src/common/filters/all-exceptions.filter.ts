@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import * as Sentry from '@sentry/nestjs';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -32,9 +33,32 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof exceptionResponse === 'object' &&
         exceptionResponse !== null
       ) {
-        const response = exceptionResponse as any;
-        message = response.message ?? exception.message;
+        const resp = exceptionResponse as any;
+        message = resp.message ?? exception.message;
       }
+    }
+
+    // ============ Sentry: captura apenas erros 5xx ou não-HTTP ============
+    // 4xx são erros esperados (validação, auth) — não poluem o painel
+    const shouldReportToSentry =
+      !(exception instanceof HttpException) || status >= 500;
+
+    if (shouldReportToSentry) {
+      Sentry.captureException(exception, {
+        tags: {
+          http_method: request.method,
+        },
+        contexts: {
+          request: {
+            method: request.method,
+            url: request.url,
+            headers: {
+              host: request.headers.host,
+              'user-agent': request.headers['user-agent'],
+            },
+          },
+        },
+      });
     }
 
     // Loga internamente sempre (útil para debug no servidor)
