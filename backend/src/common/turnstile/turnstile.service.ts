@@ -1,4 +1,9 @@
-import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  BadRequestException,
+  ServiceUnavailableException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 interface TurnstileResponse {
@@ -51,8 +56,8 @@ export class TurnstileService {
         this.logger.error(
           `Falha ao contatar a Cloudflare: HTTP ${response.status}`,
         );
-        throw new BadRequestException(
-          'Não foi possível validar o CAPTCHA. Tente novamente.',
+        throw new ServiceUnavailableException(
+          'Serviço de verificação indisponível. Tente novamente em instantes.',
         );
       }
 
@@ -71,10 +76,10 @@ export class TurnstileService {
         throw error;
       }
       this.logger.error(
-        `Erro inesperado ao validar Turnstile: ${(error as Error).message}`,
+        `Erro de comunicação com Cloudflare: ${(error as Error).message}`,
       );
-      throw new BadRequestException(
-        'Não foi possível validar o CAPTCHA. Tente novamente.',
+      throw new ServiceUnavailableException(
+        'Serviço de verificação indisponível. Tente novamente em instantes.',
       );
     }
   }

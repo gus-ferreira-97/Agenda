@@ -22,6 +22,7 @@ import { MailService } from '../mail/mail.service';
 import { ServiceOption } from '../service/entities/service-option.entity';
 import { getPublicPlans } from '../common/plans';
 import { TurnstileService } from '../common/turnstile/turnstile.service';
+import { isReservedSubdomain } from '../common/helpers/extract-subdomain';
 
 @Injectable()
 export class PublicService {
@@ -64,6 +65,20 @@ export class PublicService {
       .replace(/[^a-z0-9-]/g, '')
       .replace(/-+/g, '-')
       .replace(/^-|-$/g, '');
+
+    // Bloqueia subdomínios reservados (www, api, admin, etc.)
+    if (isReservedSubdomain(subdomain)) {
+      throw new BadRequestException(
+        'Este subdomínio está reservado. Escolha outro.',
+      );
+    }
+
+    // Bloqueia subdomínio vazio após sanitização
+    if (!subdomain || subdomain.length < 3) {
+      throw new BadRequestException(
+        'Subdomínio inválido. Use pelo menos 3 caracteres (letras, números, hífen).',
+      );
+    }
 
     const existingTenant = await this.tenantRepo.findOne({
       where: { subdomain },
