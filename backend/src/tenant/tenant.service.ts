@@ -1,14 +1,22 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Professional } from '../professional/entities/professional.entity';
 import { Service } from '../service/entities/service.entity';
 import { Appointment } from '../appointment/entities/appointment.entity';
-import { AuditLog } from '../audit-log/entities/audit-log.entity';
 import { WorkSchedule } from '../professional/entities/work-schedule.entity';
 import { ProfessionalService } from '../service/entities/professional-service.entity';
 import { User } from '../user/entities/user.entity';
 import { getPlan } from '../common/plans';
+import {
+  sanitizeSubdomain,
+  validateSubdomainOrThrow,
+} from '../common/helpers/subdomain';
 import { Tenant } from './entities/tenant.entity';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
@@ -24,24 +32,21 @@ export class TenantService {
     private readonly serviceRepository: Repository<Service>,
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
-    @InjectRepository(AuditLog)
-    private readonly auditLogRepository: Repository<AuditLog>,
     @InjectRepository(WorkSchedule)
     private readonly workScheduleRepository: Repository<WorkSchedule>,
     @InjectRepository(ProfessionalService)
     private readonly professionalServiceRepository: Repository<ProfessionalService>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) { }
+  ) {}
 
-  async create(createTenantDto: CreateTenantDto): Promise<Tenant> {
+  // ============================================================================
+  // CRUD
+  // ============================================================================
 
-    const subdomain = createTenantDto.subdomain
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
+  async create(dto: CreateTenantDto): Promise<Tenant> {
+    const subdomain = sanitizeSubdomain(dto.subdomain);
+    validateSubdomainOrThrow(subdomain);
 
     const existing = await this.tenantRepository.findOne({
       where: { subdomain },
@@ -51,10 +56,10 @@ export class TenantService {
     }
 
     const tenant = this.tenantRepository.create({
-      name: createTenantDto.name,
+      name: dto.name,
       subdomain,
-      status: createTenantDto.status || 'ativo',
-      plan: createTenantDto.plan || 'basico',
+      status: dto.status || 'ativo',
+      plan: dto.plan || 'basico',
     });
     return this.tenantRepository.save(tenant);
   }
@@ -71,17 +76,13 @@ export class TenantService {
     return tenant;
   }
 
-  async update(id: number, updateTenantDto: UpdateTenantDto): Promise<Tenant> {
+  async update(id: number, dto: UpdateTenantDto): Promise<Tenant> {
     const tenant = await this.findOne(id);
 
-    // Normaliza o subdomínio se ele vier no DTO
-    if (updateTenantDto.subdomain !== undefined) {
-      const subdomain = updateTenantDto.subdomain
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9-]/g, '')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
+    // Normaliza e valida subdomínio, se presente
+    if (dto.subdomain !== undefined) {
+      const subdomain = sanitizeSubdomain(dto.subdomain);
+      validateSubdomainOrThrow(subdomain);
 
       if (subdomain !== tenant.subdomain) {
         const existing = await this.tenantRepository.findOne({
@@ -95,11 +96,11 @@ export class TenantService {
       tenant.subdomain = subdomain;
     }
 
-    if (updateTenantDto.name !== undefined) tenant.name = updateTenantDto.name;
+    if (dto.name !== undefined) tenant.name = dto.name;
 
     // Detecta transição para "ativo" e inicia trial se ainda não foi usado
     if (
-      updateTenantDto.status === 'ativo' &&
+      dto.status === 'ativo' &&
       tenant.status !== 'ativo' &&
       !tenant.trial_used
     ) {
@@ -112,73 +113,63 @@ export class TenantService {
       tenant.trial_used = true;
     }
 
-    if (updateTenantDto.status !== undefined) tenant.status = updateTenantDto.status;
-    if (updateTenantDto.plan !== undefined) tenant.plan = updateTenantDto.plan;
+    if (dto.status !== undefined) tenant.status = dto.status;
+    if (dto.plan !== undefined) tenant.plan = dto.plan;
 
     return this.tenantRepository.save(tenant);
   }
 
   async remove(id: number): Promise<{ message: string }> {
-    const tenant = await this.findOne(id);
+    // Tudo dentro de uma transação: contar + soft-deletar atomicamente.
+    // Evita race condition onde um user é criado entre a contagem e o delete.
+    await this.tenantRepository.manager.transaction(async (manager) => {
+      const tenant = await manager.findOne(Tenant, { where: { id } });
+      if (!tenant) {
+        throw new NotFoundException(`Tenant com ID ${id} não encontrado`);
+      }
 
-    // Conta dependências que impedem a exclusão
-    const [
-      usersCount,
-      professionalsCount,
-      servicesCount,
-      appointmentsCount,
-      auditLogsCount,
-      workSchedulesCount,
-      professionalServicesCount,
-    ] = await Promise.all([
-      this.userRepository.count({ where: { tenant_id: id } }),
-      this.professionalRepository.count({ where: { tenant_id: id } }),
-      this.serviceRepository.count({ where: { tenant_id: id } }),
-      this.appointmentRepository.count({ where: { tenant_id: id } }),
-      this.auditLogRepository.count({ where: { tenant_id: id } }),
-      this.workScheduleRepository.count({ where: { tenant_id: id } }),
-      this.professionalServiceRepository.count({ where: { tenant_id: id } }),
-    ]);
+      // Conta dependências funcionais (exclui audit_logs, que são histórico)
+      const [
+        usersCount,
+        professionalsCount,
+        servicesCount,
+        appointmentsCount,
+        workSchedulesCount,
+        professionalServicesCount,
+      ] = await Promise.all([
+        manager.count(User, { where: { tenant_id: id } }),
+        manager.count(Professional, { where: { tenant_id: id } }),
+        manager.count(Service, { where: { tenant_id: id } }),
+        manager.count(Appointment, { where: { tenant_id: id } }),
+        manager.count(WorkSchedule, { where: { tenant_id: id } }),
+        manager.count(ProfessionalService, { where: { tenant_id: id } }),
+      ]);
 
-    const totalDependencies =
-      usersCount +
-      professionalsCount +
-      servicesCount +
-      appointmentsCount +
-      auditLogsCount +
-      workSchedulesCount +
-      professionalServicesCount;
+      const totalDependencies =
+        usersCount +
+        professionalsCount +
+        servicesCount +
+        appointmentsCount +
+        workSchedulesCount +
+        professionalServicesCount;
 
-    if (totalDependencies > 0) {
-      throw new ConflictException(
-        'Não é possível excluir este tenant porque ele possui dados vinculados (usuários, profissionais, serviços ou agendamentos). Desative-o em vez de excluir.',
-      );
-    }
+      if (totalDependencies > 0) {
+        throw new ConflictException(
+          'Não é possível excluir este tenant porque ele possui dados vinculados (usuários, profissionais, serviços ou agendamentos). Desative-o em vez de excluir.',
+        );
+      }
 
-    await this.tenantRepository.delete(id);
+      // Soft delete: mantém o registro para auditoria (LGPD art. 16).
+      // Registros com deleted_at são ignorados por padrão nas queries.
+      await manager.softDelete(Tenant, id);
+    });
+
     return { message: 'Tenant excluído com sucesso.' };
   }
 
-  async getPublicInfo(subdomain: string) {
-    const tenant = await this.tenantRepository.findOne({
-      where: { subdomain: subdomain.toLowerCase(), status: 'ativo' },
-    });
-
-    if (!tenant) {
-      throw new NotFoundException('Estabelecimento não encontrado');
-    }
-
-    return {
-      id: tenant.id,
-      name: tenant.name,
-      subdomain: tenant.subdomain,
-      primaryColor: tenant.primary_color,
-      logoUrl: tenant.logo_url,
-      welcomeMessage: tenant.welcome_message,
-      phone: tenant.phone,
-      address: tenant.address,
-    };
-  }
+  // ============================================================================
+  // BRANDING
+  // ============================================================================
 
   async updateBranding(
     id: number,
@@ -202,7 +193,8 @@ export class TenantService {
 
     if (dto.primaryColor !== undefined) tenant.primary_color = dto.primaryColor;
     if (dto.logoUrl !== undefined) tenant.logo_url = dto.logoUrl || null;
-    if (dto.welcomeMessage !== undefined) tenant.welcome_message = dto.welcomeMessage || null;
+    if (dto.welcomeMessage !== undefined)
+      tenant.welcome_message = dto.welcomeMessage || null;
     if (dto.phone !== undefined) tenant.phone = dto.phone || null;
     if (dto.address !== undefined) tenant.address = dto.address || null;
 
@@ -219,6 +211,10 @@ export class TenantService {
     };
   }
 
+  // ============================================================================
+  // PLANO / TRIAL
+  // ============================================================================
+
   async getPlanInfo(tenantId: number) {
     const tenant = await this.tenantRepository.findOne({
       where: { id: tenantId },
@@ -229,7 +225,6 @@ export class TenantService {
     }
 
     const plan = getPlan(tenant.plan);
-
     const currentProfessionals = await this.professionalRepository.count({
       where: { tenant_id: tenantId },
     });
@@ -276,19 +271,21 @@ export class TenantService {
     const now = new Date();
     const trialEndsAt = tenant.trial_ends_at;
 
-    // Só é considerado "trial" se estiver ativo, tiver datas e ainda não expirou
     const isTrial =
       tenant.status === 'ativo' &&
       tenant.trial_used === true &&
       !!trialEndsAt &&
       trialEndsAt > now;
 
-    // Só é "expirado" quando o status é explicitamente trial_expirado
     const isExpired = tenant.status === 'trial_expirado';
 
     let daysLeft = 0;
     if (isTrial && trialEndsAt) {
-      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const startOfToday = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      );
       const startOfEnd = new Date(
         trialEndsAt.getFullYear(),
         trialEndsAt.getMonth(),

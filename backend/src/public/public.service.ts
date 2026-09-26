@@ -29,7 +29,10 @@ import { MailService } from '../mail/mail.service';
 import { ServiceOption } from '../service/entities/service-option.entity';
 import { getPublicPlans } from '../common/plans';
 import { TurnstileService } from '../common/turnstile/turnstile.service';
-import { isReservedSubdomain } from '../common/helpers/extract-subdomain';
+import {
+  sanitizeSubdomain,
+  validateSubdomainOrThrow,
+} from '../common/helpers/subdomain';
 
 /** Erro de violação de constraint UNIQUE do Postgres */
 const PG_UNIQUE_VIOLATION = '23505';
@@ -57,7 +60,7 @@ export class PublicService {
     private readonly professionalServiceRepo: Repository<ProfessionalService>,
     private readonly mailService: MailService,
     private readonly turnstileService: TurnstileService,
-  ) {}
+  ) { }
 
   // ============================================================================
   // REGISTRO DE TENANT
@@ -70,8 +73,8 @@ export class PublicService {
       throw new BadRequestException('Requisição inválida.');
     }
 
-    const subdomain = this.sanitizeSubdomain(dto.subdomain);
-    this.validateSubdomain(subdomain);
+    const subdomain = sanitizeSubdomain(dto.subdomain);
+    validateSubdomainOrThrow(subdomain);
 
     // Checagens antecipadas — melhor UX (409 em vez de 500 do banco)
     const [existingTenant, existingUser] = await Promise.all([
@@ -400,32 +403,6 @@ export class PublicService {
       message:
         'E-mail verificado com sucesso! Sua conta está em análise e você receberá uma notificação quando for ativada.',
     };
-  }
-
-  // ============================================================================
-  // HELPERS PRIVADOS
-  // ============================================================================
-
-  private sanitizeSubdomain(raw: string): string {
-    return raw
-      .toLowerCase()
-      .trim()
-      .replace(/[^a-z0-9-]/g, '')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '');
-  }
-
-  private validateSubdomain(subdomain: string): void {
-    if (!subdomain || subdomain.length < 3) {
-      throw new BadRequestException(
-        'Subdomínio inválido. Use pelo menos 3 caracteres (letras, números, hífen).',
-      );
-    }
-    if (isReservedSubdomain(subdomain)) {
-      throw new BadRequestException(
-        'Este subdomínio está reservado. Escolha outro.',
-      );
-    }
   }
 
   /**
