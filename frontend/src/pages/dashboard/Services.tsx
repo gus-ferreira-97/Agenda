@@ -92,7 +92,7 @@ export default function Services() {
         </div>
         <Link
           to="/admin/services/new"
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
+          className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-violet-700 transition self-start md:self-auto w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           Novo Serviço
@@ -102,7 +102,7 @@ export default function Services() {
       {/* Conteúdo */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -119,7 +119,7 @@ export default function Services() {
           </p>
           <Link
             to="/admin/services/new"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="inline-flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-700"
           >
             <Plus className="w-4 h-4" />
             Criar serviço
@@ -169,7 +169,7 @@ export default function Services() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {optionCounts[s.id] ? (
-                          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
                             {optionCounts[s.id]} {optionCounts[s.id] === 1 ? 'variação' : 'variações'}
                           </span>
                         ) : (
@@ -191,7 +191,7 @@ export default function Services() {
                           <Link
                             to={`/admin/services/${s.id}/edit`}
                             title="Editar"
-                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                            className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                           >
                             <Pencil className="w-4 h-4" />
                           </Link>
@@ -248,7 +248,7 @@ export default function Services() {
                 </div>
                 {optionCounts[s.id] > 0 && (
                   <div className="mb-4">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
                       {optionCounts[s.id]} {optionCounts[s.id] === 1 ? 'variação' : 'variações'}
                     </span>
                   </div>
@@ -280,7 +280,7 @@ export default function Services() {
                   </button>
                   <Link
                     to={`/admin/services/${s.id}/edit`}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 transition"
                   >
                     <Pencil className="w-4 h-4" />
                     Editar

@@ -1,23 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { decodeJwtPayload } from '../utils/jwt';
 import SEO from '../components/SEO';
 
 const REMEMBER_EMAIL_KEY = 'Agendy_remember_email';
-
-function decodeJwtPayload(token: string): any {
-  const base64Url = token.split('.')[1];
-  const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-  const jsonPayload = decodeURIComponent(
-    atob(base64)
-      .split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join('')
-  );
-  return JSON.parse(jsonPayload);
-}
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -27,6 +16,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const savedEmail = localStorage.getItem(REMEMBER_EMAIL_KEY);
@@ -50,6 +40,9 @@ export default function Login() {
       const token = response.data.access_token;
 
       const payload = decodeJwtPayload(token);
+      if (!payload) {
+        throw new Error('Token inválido recebido do servidor');
+      }
 
       const user = {
         userId: payload.sub,
@@ -67,17 +60,17 @@ export default function Login() {
 
       login(token, user);
 
-      if (user.role === 'super_admin') {
-        window.location.href = '/super-admin';
-      } else {
-        window.location.href = '/admin';
-      }
+      const destination =
+        user.role === 'super_admin' ? '/super-admin' : '/admin';
+      navigate(destination, { replace: true });
     } catch (err: any) {
       const message = err.response?.data?.message;
       if (Array.isArray(message)) {
         setError(message.join(' • '));
       } else {
-        setError(message || 'Credenciais inválidas. Verifique seu e-mail e senha.');
+        setError(
+          message || 'Credenciais inválidas. Verifique seu e-mail e senha.',
+        );
       }
     } finally {
       setLoading(false);
@@ -91,17 +84,30 @@ export default function Login() {
         description="Acesse sua conta Agendy e gerencie sua agenda online."
       />
       <div className="min-h-screen flex">
-        {/* Lado esquerdo - Formulário */}
         <div className="flex-1 flex items-center justify-center px-4 sm:px-6 py-8 lg:px-8 bg-gray-50">
           <div className="w-full max-w-md">
-            {/* Logo */}
-            <Link to="/" className="inline-flex items-center gap-2 mb-6 md:mb-8 animate-fade-in">
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 mb-6 md:mb-8 animate-fade-in"
+            >
+              <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
                 </svg>
               </div>
-              <span className="text-lg md:text-xl font-bold text-gray-900">Agendy</span>
+              <span className="text-lg md:text-xl font-bold text-gray-900">
+                Agendy
+              </span>
             </Link>
 
             <div className="mb-6 md:mb-8 animate-fade-in-up delay-100">
@@ -115,17 +121,32 @@ export default function Login() {
 
             {error && (
               <div className="mb-5 bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-lg flex items-start gap-2 animate-fade-in">
-                <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 flex-shrink-0 mt-0.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <span>{error}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4 md:space-y-5 animate-fade-in-up delay-200">
-              {/* Campo Email */}
+            <form
+              onSubmit={handleSubmit}
+              className="space-y-4 md:space-y-5 animate-fade-in-up delay-200"
+            >
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   E-mail
                 </label>
                 <div className="relative">
@@ -138,7 +159,7 @@ export default function Login() {
                     maxLength={255}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                     placeholder="voce@email.com"
                     required
                     autoComplete="email"
@@ -146,13 +167,18 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Campo Senha */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                  >
                     Senha
                   </label>
-                  <Link to="/esqueci-senha" className="text-xs text-blue-600 hover:underline">
+                  <Link
+                    to="/esqueci-senha"
+                    className="text-xs text-violet-600 hover:underline"
+                  >
                     Esqueceu a senha?
                   </Link>
                 </div>
@@ -166,7 +192,7 @@ export default function Login() {
                     maxLength={128}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                     placeholder="Sua senha"
                     required
                     autoComplete="current-password"
@@ -186,31 +212,47 @@ export default function Login() {
                 </div>
               </div>
 
-              {/* Lembrar-me */}
               <div className="flex items-center">
                 <input
                   id="rememberMe"
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer"
+                  className="h-4 w-4 text-violet-600 focus:ring-violet-500 border-gray-300 rounded cursor-pointer"
                 />
-                <label htmlFor="rememberMe" className="ml-2 text-sm text-gray-700 cursor-pointer select-none">
-                  Lembrar meu e-mail por 30 dias
+                <label
+                  htmlFor="rememberMe"
+                  className="ml-2 text-sm text-gray-700 cursor-pointer select-none"
+                >
+                  Lembrar meu e-mail neste dispositivo
                 </label>
               </div>
 
-              {/* Botão */}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                className="w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
               >
                 {loading ? (
                   <>
-                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                    <svg
+                      className="animate-spin w-5 h-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
                     </svg>
                     Entrando...
                   </>
@@ -222,28 +264,33 @@ export default function Login() {
 
             <p className="text-center text-sm text-gray-600 mt-6 md:mt-8 animate-fade-in delay-300">
               Ainda não tem conta?{' '}
-              <Link to="/cadastro" className="text-blue-600 font-medium hover:underline">
+              <Link
+                to="/cadastro"
+                className="text-violet-600 font-medium hover:underline"
+              >
                 Criar conta grátis
               </Link>
             </p>
 
             <p className="text-center text-xs text-gray-500 mt-4 md:mt-6">
-              <Link to="/" className="hover:text-gray-700">← Voltar para o início</Link>
+              <Link to="/" className="hover:text-gray-700">
+                ← Voltar para o início
+              </Link>
             </p>
           </div>
         </div>
 
-        {/* Lado direito - Painel visual (oculto em mobile) */}
-        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full -mr-32 -mt-32 opacity-20" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-400 rounded-full -ml-24 -mb-24 opacity-20" />
+        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-violet-600 to-violet-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500 rounded-full -mr-32 -mt-32 opacity-20" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-400 rounded-full -ml-24 -mb-24 opacity-20" />
 
           <div className="relative max-w-md text-white animate-fade-in-up delay-200">
             <h2 className="text-3xl font-bold mb-4 leading-tight">
               Gerencie sua agenda com simplicidade
             </h2>
-            <p className="text-blue-100 mb-8">
-              Profissionais, serviços, horários e agendamentos — tudo em um só lugar, acessível pelo celular.
+            <p className="text-violet-100 mb-8">
+              Profissionais, serviços, horários e agendamentos — tudo em um só
+              lugar, acessível pelo celular.
             </p>
 
             <ul className="space-y-4">
@@ -255,11 +302,21 @@ export default function Login() {
               ].map((feature) => (
                 <li key={feature} className="flex items-start gap-3">
                   <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="3"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   </div>
-                  <span className="text-sm text-blue-50">{feature}</span>
+                  <span className="text-sm text-violet-50">{feature}</span>
                 </li>
               ))}
             </ul>

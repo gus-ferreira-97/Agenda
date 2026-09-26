@@ -62,7 +62,7 @@ export default function ResetPassword() {
           <div className="w-full max-w-md">
             {/* Logo */}
             <Link to="/" className="inline-flex items-center gap-2 mb-6 md:mb-8 animate-fade-in">
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -81,7 +81,7 @@ export default function ResetPassword() {
                 </p>
                 <Link
                   to="/login"
-                  className="inline-block bg-blue-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-blue-700"
+                  className="inline-block bg-violet-600 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-violet-700"
                 >
                   Ir para o login
                 </Link>
@@ -133,7 +133,7 @@ export default function ResetPassword() {
                         value={password}
                         autoComplete="new-password"
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                         placeholder="Crie uma senha forte"
                         required
                       />
@@ -164,7 +164,7 @@ export default function ResetPassword() {
                         value={confirmPassword}
                         autoComplete="new-password"
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full pl-10 pr-12 py-3 border rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
+                        className={`w-full pl-10 pr-12 py-3 border rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== password
                             ? 'border-red-300'
                             : 'border-gray-300'
                           }`}
@@ -188,7 +188,7 @@ export default function ResetPassword() {
                   <button
                     type="submit"
                     disabled={loading || !token}
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                    className="w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                   >
                     {loading ? (
                       <>
@@ -205,7 +205,7 @@ export default function ResetPassword() {
                 </form>
 
                 <p className="text-center text-sm text-gray-600 mt-6 md:mt-8 animate-fade-in delay-300">
-                  <Link to="/login" className="inline-flex items-center gap-1 text-blue-600 font-medium hover:underline">
+                  <Link to="/login" className="inline-flex items-center gap-1 text-violet-600 font-medium hover:underline">
                     <ArrowLeft className="w-4 h-4" />
                     Voltar para o login
                   </Link>
@@ -216,15 +216,15 @@ export default function ResetPassword() {
         </div>
 
         {/* Lado direito - Painel visual (oculto em mobile) */}
-        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full -mr-32 -mt-32 opacity-20" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-400 rounded-full -ml-24 -mb-24 opacity-20" />
+        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-violet-600 to-violet-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500 rounded-full -mr-32 -mt-32 opacity-20" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-400 rounded-full -ml-24 -mb-24 opacity-20" />
 
           <div className="relative max-w-md text-white animate-fade-in-up delay-200">
             <h2 className="text-3xl font-bold mb-4 leading-tight">
               Quase tudo pronto
             </h2>
-            <p className="text-blue-100">
+            <p className="text-violet-100">
               Crie uma nova senha e recupere o acesso à sua agenda em segundos.
             </p>
           </div>

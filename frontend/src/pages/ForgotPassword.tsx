@@ -40,7 +40,7 @@ export default function ForgotPassword() {
           <div className="w-full max-w-md">
             {/* Logo */}
             <Link to="/" className="inline-flex items-center gap-2 mb-6 md:mb-8 animate-fade-in">
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -87,7 +87,7 @@ export default function ForgotPassword() {
                       maxLength={255}
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg text-sm md:text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                       placeholder="voce@email.com"
                       required
                       autoComplete="email"
@@ -98,7 +98,7 @@ export default function ForgotPassword() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
+                  className="w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
                 >
                   {loading ? (
                     <>
@@ -117,7 +117,7 @@ export default function ForgotPassword() {
 
             <p className="text-center text-sm text-gray-600 mt-6 md:mt-8 animate-fade-in delay-300">
               Lembrou a senha?{' '}
-              <Link to="/login" className="text-blue-600 font-medium hover:underline">
+              <Link to="/login" className="text-violet-600 font-medium hover:underline">
                 Voltar para o login
               </Link>
             </p>
@@ -132,15 +132,15 @@ export default function ForgotPassword() {
         </div>
 
         {/* Lado direito - Painel visual (oculto em mobile) */}
-        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-blue-600 to-blue-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500 rounded-full -mr-32 -mt-32 opacity-20" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-400 rounded-full -ml-24 -mb-24 opacity-20" />
+        <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-violet-600 to-violet-800 p-12 items-center justify-center relative overflow-hidden animate-fade-in">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500 rounded-full -mr-32 -mt-32 opacity-20" />
+          <div className="absolute bottom-0 left-0 w-80 h-80 bg-violet-400 rounded-full -ml-24 -mb-24 opacity-20" />
 
           <div className="relative max-w-md text-white animate-fade-in-up delay-200">
             <h2 className="text-3xl font-bold mb-4 leading-tight">
               Recupere seu acesso em poucos minutos
             </h2>
-            <p className="text-blue-100">
+            <p className="text-violet-100">
               Basta informar seu e-mail e enviaremos um link seguro para você criar uma nova senha.
             </p>
           </div>

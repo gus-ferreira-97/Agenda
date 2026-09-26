@@ -77,6 +77,8 @@ services:
         VITE_SENTRY_DSN: ${VITE_SENTRY_DSN}
         VITE_PUBLIC_DOMAIN: ${VITE_PUBLIC_DOMAIN}
         VITE_TURNSTILE_SITE_KEY: ${VITE_TURNSTILE_SITE_KEY}
+        VITE_SUPPORT_WHATSAPP: ${VITE_SUPPORT_WHATSAPP}
+        VITE_SUPPORT_EMAIL: ${VITE_SUPPORT_EMAIL}
     container_name: agenda_frontend
     restart: unless-stopped
     depends_on:

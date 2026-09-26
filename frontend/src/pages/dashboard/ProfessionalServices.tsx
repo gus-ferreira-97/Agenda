@@ -96,7 +96,7 @@ export default function ProfessionalServices() {
     return (
       <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -121,7 +121,7 @@ export default function ProfessionalServices() {
       {/* Formulário de criação */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-4 md:mb-6 animate-fade-in-up delay-100">
         <div className="flex items-center gap-2 mb-4">
-          <Plus className="w-4 h-4 text-blue-600" />
+          <Plus className="w-4 h-4 text-violet-600" />
           <h2 className="text-sm font-semibold text-gray-700">Adicionar nova associação</h2>
         </div>
 
@@ -134,7 +134,7 @@ export default function ProfessionalServices() {
                 <select
                   value={selectedProfessional}
                   onChange={(e) => setSelectedProfessional(e.target.value ? Number(e.target.value) : '')}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
                   required
                 >
                   <option value="">Selecione um profissional...</option>
@@ -152,7 +152,7 @@ export default function ProfessionalServices() {
                 <select
                   value={selectedService}
                   onChange={(e) => setSelectedService(e.target.value ? Number(e.target.value) : '')}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
                   required
                 >
                   <option value="">Selecione um serviço...</option>
@@ -185,7 +185,7 @@ export default function ProfessionalServices() {
           <button
             type="submit"
             disabled={saving}
-            className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition w-full md:w-auto"
+            className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition w-full md:w-auto"
           >
             {saving ? (
               <>
@@ -234,7 +234,7 @@ export default function ProfessionalServices() {
                     <tr key={index} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-sm font-semibold flex-shrink-0">
                             {a.professional?.name?.[0]?.toUpperCase() || 'P'}
                           </div>
                           <div className="font-medium text-gray-900">{a.professional?.name}</div>
@@ -270,7 +270,7 @@ export default function ProfessionalServices() {
                 className={`bg-white rounded-2xl shadow-sm border border-gray-100 p-4 animate-fade-in-up delay-${Math.min((index + 1) * 100, 500)}`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-sm font-semibold flex-shrink-0">
                     {a.professional?.name?.[0]?.toUpperCase() || 'P'}
                   </div>
 

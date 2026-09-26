@@ -15,12 +15,12 @@ export default function Terms() {
         {/* Header */}
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100">
           <div className="max-w-6xl mx-auto px-4 py-3 md:py-4 flex items-center justify-between gap-3">
-            <Link to="/" className="text-lg md:text-xl font-bold text-blue-600 flex-shrink-0">
+            <Link to="/" className="text-lg md:text-xl font-bold text-violet-600 flex-shrink-0">
               Agendy
             </Link>
             <Link
               to="/"
-              className="inline-flex items-center gap-1 text-xs md:text-sm text-gray-600 hover:text-blue-600 transition"
+              className="inline-flex items-center gap-1 text-xs md:text-sm text-gray-600 hover:text-violet-600 transition"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Voltar
@@ -121,7 +121,7 @@ export default function Terms() {
               <h2 className="text-base md:text-lg font-semibold mb-2 text-gray-900">6. Proteção de Dados Pessoais</h2>
               <p>
                 6.1. O tratamento de dados pessoais realizado na Plataforma é regido pela nossa
-                <Link to="/privacidade" className="text-blue-600 hover:underline"> Política de Privacidade</Link>,
+                <Link to="/privacidade" className="text-violet-600 hover:underline"> Política de Privacidade</Link>,
                 elaborada em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018 – LGPD).
               </p>
               <p className="mt-2">
@@ -214,7 +214,7 @@ export default function Terms() {
           <div className="mt-10 md:mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-3">
             <Link
               to="/privacidade"
-              className="text-xs md:text-sm text-blue-600 hover:underline"
+              className="text-xs md:text-sm text-violet-600 hover:underline"
             >
               Ver Política de Privacidade →
             </Link>

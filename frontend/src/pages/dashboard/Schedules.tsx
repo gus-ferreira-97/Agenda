@@ -68,7 +68,7 @@ export default function Schedules() {
         </div>
         <Link
           to="/admin/schedules/new"
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
+          className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-violet-700 transition self-start md:self-auto w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           Novo Horário
@@ -78,7 +78,7 @@ export default function Schedules() {
       {/* Conteúdo */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -95,7 +95,7 @@ export default function Schedules() {
           </p>
           <Link
             to="/admin/schedules/new"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="inline-flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-700"
           >
             <Plus className="w-4 h-4" />
             Criar horário
@@ -110,7 +110,7 @@ export default function Schedules() {
             >
               {/* Header do grupo */}
               <div className="px-4 md:px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-sm font-semibold flex-shrink-0">
                   {professionalName[0]?.toUpperCase() || 'P'}
                 </div>
                 <div className="min-w-0">
@@ -164,7 +164,7 @@ export default function Schedules() {
                               <Link
                                 to={`/admin/schedules/${s.id}/edit`}
                                 title="Editar"
-                                className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                                className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                               >
                                 <Pencil className="w-4 h-4" />
                               </Link>
@@ -202,7 +202,7 @@ export default function Schedules() {
                         <div className="flex items-center gap-1.5">
                           <Link
                             to={`/admin/schedules/${s.id}/edit`}
-                            className="inline-flex items-center justify-center p-2 rounded-lg text-blue-600 bg-blue-50 hover:bg-blue-100 transition"
+                            className="inline-flex items-center justify-center p-2 rounded-lg text-violet-600 bg-violet-50 hover:bg-violet-100 transition"
                             title="Editar"
                           >
                             <Pencil className="w-4 h-4" />

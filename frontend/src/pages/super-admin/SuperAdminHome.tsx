@@ -226,8 +226,8 @@ export default function SuperAdminHome() {
     : [];
 
   const colorClasses: Record<string, { bg: string; text: string }> = {
-    blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
-    purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
+    blue: { bg: 'bg-violet-100', text: 'text-violet-600' },
+    purple: { bg: 'bg-violet-100', text: 'text-violet-600' },
     pink: { bg: 'bg-pink-100', text: 'text-pink-600' },
     green: { bg: 'bg-green-100', text: 'text-green-600' },
     yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
@@ -291,7 +291,7 @@ export default function SuperAdminHome() {
                 onClick={() => setPeriod(p.value)}
                 className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${
                   period === p.value
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-violet-600 text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
@@ -304,7 +304,7 @@ export default function SuperAdminHome() {
             onClick={loadAll}
             disabled={loading}
             title="Atualizar dados"
-            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
+            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-violet-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -486,13 +486,13 @@ export default function SuperAdminHome() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
           <Link
             to="/super-admin/tenants/new"
-            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 flex items-center gap-4 hover:shadow-md hover:border-blue-200 transition group"
+            className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 flex items-center gap-4 hover:shadow-md hover:border-violet-200 transition group"
           >
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-blue-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
               <Building2 className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition text-sm md:text-base truncate">
+              <p className="font-semibold text-gray-900 group-hover:text-violet-600 transition text-sm md:text-base truncate">
                 Criar novo tenant
               </p>
               <p className="text-xs text-gray-500 truncate">
@@ -505,11 +505,11 @@ export default function SuperAdminHome() {
             to="/super-admin/users/new"
             className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-5 flex items-center gap-4 hover:shadow-md hover:border-purple-200 transition group"
           >
-            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-purple-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 md:w-11 md:h-11 rounded-lg bg-violet-600 flex items-center justify-center flex-shrink-0">
               <Users className="w-4 h-4 md:w-5 md:h-5 text-white" />
             </div>
             <div className="min-w-0">
-              <p className="font-semibold text-gray-900 group-hover:text-purple-600 transition text-sm md:text-base truncate">
+              <p className="font-semibold text-gray-900 group-hover:text-violet-600 transition text-sm md:text-base truncate">
                 Criar novo usuário
               </p>
               <p className="text-xs text-gray-500 truncate">

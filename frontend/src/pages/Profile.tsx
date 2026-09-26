@@ -156,8 +156,8 @@ export default function Profile() {
     const planColor = (p?: string) => {
         switch (p) {
             case 'basico': return 'bg-gray-100 text-gray-800';
-            case 'profissional': return 'bg-blue-100 text-blue-800';
-            case 'premium': return 'bg-purple-100 text-purple-800';
+            case 'profissional': return 'bg-violet-100 text-violet-800';
+            case 'premium': return 'bg-violet-100 text-violet-800';
             default: return 'bg-gray-100 text-gray-800';
         }
     };
@@ -172,7 +172,7 @@ export default function Profile() {
         return (
             <div className="p-4 md:p-8">
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-                    <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+                    <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                     </svg>
@@ -226,7 +226,7 @@ export default function Profile() {
                         className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-100"
                     >
                         <div className="flex items-center gap-2 mb-5">
-                            <User className="w-5 h-5 text-blue-600" />
+                            <User className="w-5 h-5 text-violet-600" />
                             <h2 className="text-base font-semibold text-gray-900">Dados da conta</h2>
                         </div>
 
@@ -257,7 +257,7 @@ export default function Profile() {
                                         value={name}
                                         autoComplete="name"
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                                         placeholder="Seu nome"
                                         required
                                     />
@@ -277,7 +277,7 @@ export default function Profile() {
                                         value={email}
                                         autoComplete="email"
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                        className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                                         placeholder="voce@email.com"
                                         required
                                     />
@@ -289,7 +289,7 @@ export default function Profile() {
                             <button
                                 type="submit"
                                 disabled={savingAccount}
-                                className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
+                                className="inline-flex items-center gap-2 bg-violet-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition"
                             >
                                 {savingAccount ? (
                                     <>
@@ -313,14 +313,14 @@ export default function Profile() {
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-200">
                         <div className="flex items-center justify-between gap-3 mb-2">
                             <div className="flex items-center gap-2">
-                                <Shield className="w-5 h-5 text-blue-600" />
+                                <Shield className="w-5 h-5 text-violet-600" />
                                 <h2 className="text-base font-semibold text-gray-900">Segurança</h2>
                             </div>
                             {!showPasswordForm && (
                                 <button
                                     type="button"
                                     onClick={() => setShowPasswordForm(true)}
-                                    className="text-sm font-medium text-blue-600 hover:underline"
+                                    className="text-sm font-medium text-violet-600 hover:underline"
                                 >
                                     Trocar senha
                                 </button>
@@ -360,7 +360,7 @@ export default function Profile() {
                                             value={currentPassword}
                                             autoComplete="current-password"
                                             onChange={(e) => setCurrentPassword(e.target.value)}
-                                            className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                                             placeholder="Digite sua senha atual"
                                             required
                                         />
@@ -387,7 +387,7 @@ export default function Profile() {
                                             value={newPassword}
                                             autoComplete="new-password"
                                             onChange={(e) => setNewPassword(e.target.value)}
-                                            className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                            className="w-full pl-9 pr-12 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                                             placeholder="Crie uma senha forte"
                                             required
                                         />
@@ -415,7 +415,7 @@ export default function Profile() {
                                             value={confirmPassword}
                                             autoComplete="new-password"
                                             onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== newPassword
+                                            className={`w-full pl-9 pr-12 py-2.5 border rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition ${confirmPassword.length > 0 && confirmPassword !== newPassword
                                                 ? 'border-red-300'
                                                 : 'border-gray-300'
                                                 }`}
@@ -453,7 +453,7 @@ export default function Profile() {
                                     <button
                                         type="submit"
                                         disabled={savingPassword}
-                                        className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
+                                        className="flex-1 bg-violet-600 text-white py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
                                     >
                                         {savingPassword ? (
                                             <>
@@ -481,14 +481,14 @@ export default function Profile() {
                     {/* Card: Informações da conta */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-300">
                         <div className="flex items-center gap-2 mb-5">
-                            <User className="w-5 h-5 text-blue-600" />
+                            <User className="w-5 h-5 text-violet-600" />
                             <h2 className="text-base font-semibold text-gray-900">Informações</h2>
                         </div>
 
                         <div className="space-y-4 text-sm">
                             <div>
                                 <p className="text-gray-500 mb-1">Papel</p>
-                                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium rounded-full bg-violet-100 text-violet-800">
                                     <Shield className="w-3 h-3" />
                                     {roleLabel(me?.role)}
                                 </span>
@@ -508,7 +508,7 @@ export default function Profile() {
                     {isTenantAdmin && plan && (
                         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 animate-fade-in-up delay-400">
                             <div className="flex items-center gap-2 mb-5">
-                                <Crown className="w-5 h-5 text-blue-600" />
+                                <Crown className="w-5 h-5 text-violet-600" />
                                 <h2 className="text-base font-semibold text-gray-900">Seu plano</h2>
                             </div>
 
@@ -540,13 +540,13 @@ export default function Profile() {
                                         ? 'bg-red-50 border-red-200'
                                         : trial.daysLeft <= 3
                                             ? 'bg-yellow-50 border-yellow-200'
-                                            : 'bg-blue-50 border-blue-100'
+                                            : 'bg-violet-50 border-violet-100'
                                         }`}>
                                         <p className={`text-xs font-semibold mb-1 ${trial.daysLeft <= 1
                                             ? 'text-red-900'
                                             : trial.daysLeft <= 3
                                                 ? 'text-yellow-900'
-                                                : 'text-blue-900'
+                                                : 'text-violet-900'
                                             }`}>
                                             Período de teste
                                         </p>
@@ -554,7 +554,7 @@ export default function Profile() {
                                             ? 'text-red-800'
                                             : trial.daysLeft <= 3
                                                 ? 'text-yellow-800'
-                                                : 'text-blue-800'
+                                                : 'text-violet-800'
                                             }`}>
                                             {trial.daysLeft === 0
                                                 ? 'Termina hoje'
@@ -568,7 +568,7 @@ export default function Profile() {
                                 <button
                                     type="button"
                                     onClick={(e) => e.preventDefault()}
-                                    className="w-full inline-flex items-center justify-center gap-2 border border-blue-600 text-blue-600 py-2.5 rounded-lg font-medium hover:bg-blue-50 transition"
+                                    className="w-full inline-flex items-center justify-center gap-2 border border-violet-600 text-violet-600 py-2.5 rounded-lg font-medium hover:bg-violet-50 transition"
                                 >
                                     <Sparkles className="w-4 h-4" />
                                     Fazer upgrade

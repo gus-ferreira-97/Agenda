@@ -12,8 +12,8 @@ export default function TrialBanner({ trial }: TrialBannerProps) {
   const { daysLeft } = trial;
 
   // Define a cor conforme os dias restantes
-  let colorClasses = 'bg-blue-50 border-blue-200 text-blue-900';
-  let iconColor = 'text-blue-600';
+  let colorClasses = 'bg-violet-50 border-violet-200 text-violet-900';
+  let iconColor = 'text-violet-600';
   let message = `Você está no período de teste. Restam ${daysLeft} ${daysLeft === 1 ? 'dia' : 'dias'}.`;
   let Icon = Clock;
 

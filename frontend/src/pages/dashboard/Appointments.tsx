@@ -131,7 +131,7 @@ export default function Appointments() {
       case 'cancelled':
         return 'bg-red-100 text-red-800';
       case 'completed':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-violet-100 text-violet-800';
       case 'pending':
       default:
         return 'bg-yellow-100 text-yellow-800';
@@ -174,7 +174,7 @@ export default function Appointments() {
           {hasFilters && (
             <button
               onClick={clearFilters}
-              className="ml-auto text-xs text-blue-600 hover:underline"
+              className="ml-auto text-xs text-violet-600 hover:underline"
             >
               Limpar filtros
             </button>
@@ -190,7 +190,7 @@ export default function Appointments() {
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
               />
             </div>
           </div>
@@ -202,7 +202,7 @@ export default function Appointments() {
               <select
                 value={professionalId}
                 onChange={(e) => setProfessionalId(e.target.value ? Number(e.target.value) : '')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
               >
                 <option value="">Todos</option>
                 {professionals.map((p) => (
@@ -219,7 +219,7 @@ export default function Appointments() {
               <select
                 value={serviceId}
                 onChange={(e) => setServiceId(e.target.value ? Number(e.target.value) : '')}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
               >
                 <option value="">Todos</option>
                 {services.map((s) => (
@@ -234,7 +234,7 @@ export default function Appointments() {
       {/* Lista */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -311,7 +311,7 @@ export default function Appointments() {
                             <button
                               onClick={() => updateStatus(a.id, 'completed')}
                               title="Concluir"
-                              className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                              className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                             >
                               <CheckCheck className="w-4 h-4" />
                             </button>
@@ -432,7 +432,7 @@ export default function Appointments() {
                   {a.status === 'confirmed' && (
                     <button
                       onClick={() => updateStatus(a.id, 'completed')}
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                      className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 transition"
                     >
                       <CheckCheck className="w-4 h-4" />
                       Concluir

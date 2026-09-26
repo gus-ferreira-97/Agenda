@@ -6,7 +6,7 @@ import { getConsent, saveConsent } from '../utils/cookieConsent';
 export default function CookieConsent() {
   const [visible, setVisible] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
-  const [analytics, setAnalytics] = useState(true);
+  const [analytics, setAnalytics] = useState(false);
   const [marketing, setMarketing] = useState(false);
 
   useEffect(() => {
@@ -42,8 +42,8 @@ export default function CookieConsent() {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             {/* Ícone + texto */}
             <div className="flex items-start gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                <Cookie className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center flex-shrink-0">
+                <Cookie className="w-5 h-5 text-violet-600" />
               </div>
               <div className="min-w-0">
                 <p className="font-semibold text-gray-900 text-sm md:text-base mb-1">
@@ -52,7 +52,7 @@ export default function CookieConsent() {
                 <p className="text-xs md:text-sm text-gray-600 leading-relaxed">
                   Utilizamos cookies essenciais para o funcionamento da plataforma e, com seu
                   consentimento, cookies analíticos e de marketing. Saiba mais na nossa{' '}
-                  <Link to="/privacidade" className="text-blue-600 hover:underline font-medium">
+                  <Link to="/privacidade" className="text-violet-600 hover:underline font-medium">
                     Política de Privacidade
                   </Link>
                   .
@@ -76,7 +76,7 @@ export default function CookieConsent() {
               </button>
               <button
                 onClick={handleAcceptAll}
-                className="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition whitespace-nowrap"
+                className="w-full sm:w-auto px-4 py-2.5 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition whitespace-nowrap"
               >
                 Aceitar todos
               </button>
@@ -139,7 +139,7 @@ export default function CookieConsent() {
                       onChange={(e) => setAnalytics(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-5 bg-gray-300 peer-checked:bg-blue-600 rounded-full transition"></div>
+                    <div className="w-10 h-5 bg-gray-300 peer-checked:bg-violet-600 rounded-full transition"></div>
                     <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
                   </label>
                 </div>
@@ -159,7 +159,7 @@ export default function CookieConsent() {
                       onChange={(e) => setMarketing(e.target.checked)}
                       className="sr-only peer"
                     />
-                    <div className="w-10 h-5 bg-gray-300 peer-checked:bg-blue-600 rounded-full transition"></div>
+                    <div className="w-10 h-5 bg-gray-300 peer-checked:bg-violet-600 rounded-full transition"></div>
                     <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition peer-checked:translate-x-5"></div>
                   </label>
                 </div>
@@ -178,7 +178,7 @@ export default function CookieConsent() {
                 </button>
                 <button
                   onClick={handleSavePreferences}
-                  className="w-full sm:flex-1 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition"
+                  className="w-full sm:flex-1 px-4 py-3 text-sm font-medium text-white bg-violet-600 rounded-lg hover:bg-violet-700 transition"
                 >
                   Salvar preferências
                 </button>

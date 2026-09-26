@@ -218,11 +218,11 @@ export default function TenantDashboard() {
     : [];
 
   const colorClasses: Record<string, { bg: string; text: string }> = {
-    blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
+    blue: { bg: 'bg-violet-100', text: 'text-violet-600' },
     green: { bg: 'bg-green-100', text: 'text-green-600' },
     yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
     red: { bg: 'bg-red-100', text: 'text-red-600' },
-    purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
+    purple: { bg: 'bg-violet-100', text: 'text-violet-600' },
     pink: { bg: 'bg-pink-100', text: 'text-pink-600' },
   };
 
@@ -278,7 +278,7 @@ export default function TenantDashboard() {
                 key={p.value}
                 onClick={() => setPeriod(p.value)}
                 className={`flex-1 md:flex-initial px-2 md:px-3 py-1.5 text-xs font-medium rounded-md transition whitespace-nowrap ${period === p.value
-                    ? 'bg-blue-600 text-white'
+                    ? 'bg-violet-600 text-white'
                     : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
               >
@@ -291,7 +291,7 @@ export default function TenantDashboard() {
             onClick={loadAll}
             disabled={loading}
             title="Atualizar dados"
-            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
+            className="p-2.5 rounded-lg border border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-violet-600 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed transition flex-shrink-0"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           </button>
@@ -456,9 +456,9 @@ export default function TenantDashboard() {
           </div>
         </>
       ) : (
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 rounded-2xl p-6 md:p-10 text-center animate-fade-in-up delay-400">
+        <div className="bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-100 rounded-2xl p-6 md:p-10 text-center animate-fade-in-up delay-400">
           <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white flex items-center justify-center mx-auto mb-4 shadow-sm">
-            <Lock className="w-5 h-5 md:w-6 md:h-6 text-blue-600" />
+            <Lock className="w-5 h-5 md:w-6 md:h-6 text-violet-600" />
           </div>
           <p className="text-base md:text-xl font-bold text-gray-900 mb-2">
             Desbloqueie relatórios avançados
@@ -470,19 +470,19 @@ export default function TenantDashboard() {
 
           <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 max-w-2xl mx-auto mb-6">
             <div className="bg-white/70 rounded-xl p-3 text-center">
-              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <Sparkles className="w-4 h-4 text-violet-600 mx-auto mb-1" />
               <p className="text-xs text-gray-700 font-medium">Status dos agendamentos</p>
             </div>
             <div className="bg-white/70 rounded-xl p-3 text-center">
-              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <Sparkles className="w-4 h-4 text-violet-600 mx-auto mb-1" />
               <p className="text-xs text-gray-700 font-medium">Dias mais movimentados</p>
             </div>
             <div className="bg-white/70 rounded-xl p-3 text-center">
-              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <Sparkles className="w-4 h-4 text-violet-600 mx-auto mb-1" />
               <p className="text-xs text-gray-700 font-medium">Top profissionais</p>
             </div>
             <div className="bg-white/70 rounded-xl p-3 text-center">
-              <Sparkles className="w-4 h-4 text-blue-600 mx-auto mb-1" />
+              <Sparkles className="w-4 h-4 text-violet-600 mx-auto mb-1" />
               <p className="text-xs text-gray-700 font-medium">Top serviços</p>
             </div>
           </div>
@@ -490,7 +490,7 @@ export default function TenantDashboard() {
           <Link
             to="#"
             onClick={(e) => e.preventDefault()}
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold hover:bg-blue-700 transition text-sm md:text-base"
+            className="inline-flex items-center gap-2 bg-violet-600 text-white px-5 md:px-6 py-2.5 md:py-3 rounded-lg font-semibold hover:bg-violet-700 transition text-sm md:text-base"
           >
             <Sparkles className="w-4 h-4" />
             Fazer upgrade do plano

@@ -210,7 +210,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
       <div className="flex items-start justify-between gap-3 mb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <Package className="w-5 h-5 text-purple-600" />
+            <Package className="w-5 h-5 text-violet-600" />
             <h2 className="text-base font-semibold text-gray-900">Variações do serviço</h2>
           </div>
           <p className="text-xs text-gray-500">
@@ -222,7 +222,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center gap-1.5 bg-purple-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition whitespace-nowrap flex-shrink-0"
+            className="inline-flex items-center gap-1.5 bg-violet-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-violet-700 transition whitespace-nowrap flex-shrink-0"
           >
             <Plus className="w-4 h-4" />
             Nova
@@ -281,7 +281,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="Ex.: Volume Russo"
                 maxLength={100}
                 required
@@ -298,7 +298,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 max={9999}
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="0"
               />
             </div>
@@ -311,7 +311,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition resize-none"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition resize-none"
               rows={2}
               placeholder="Detalhes sobre essa variação..."
               maxLength={1000}
@@ -332,7 +332,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                   max={999999}
                   value={price}
                   onChange={(e) => setPrice(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                   placeholder="Se vazio, usa o do serviço"
                 />
               </div>
@@ -350,7 +350,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                   max={1440}
                   value={durationMinutes}
                   onChange={(e) => setDurationMinutes(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                  className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                   placeholder="Se vazio, usa a do serviço"
                 />
               </div>
@@ -367,7 +367,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 type="text"
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition"
+                className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="https://exemplo.com/imagem.png"
                 maxLength={500}
               />
@@ -415,7 +415,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-purple-600 rounded-full transition"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-violet-600 rounded-full transition"></div>
               <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></div>
             </label>
           </div>
@@ -431,7 +431,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-purple-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-purple-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
+              className="flex-1 bg-violet-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
@@ -480,7 +480,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                 }`}
             >
               {/* Imagem */}
-              <div className="aspect-video bg-gradient-to-br from-purple-50 to-gray-100 flex items-center justify-center overflow-hidden">
+              <div className="aspect-video bg-gradient-to-br from-violet-50 to-gray-100 flex items-center justify-center overflow-hidden">
                 {option.image_url ? (
                   <img
                     src={option.image_url}
@@ -557,7 +557,7 @@ export default function ServiceOptionsManager({ serviceId }: ServiceOptionsManag
                     type="button"
                     onClick={() => openEdit(option)}
                     title="Editar"
-                    className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                    className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </button>

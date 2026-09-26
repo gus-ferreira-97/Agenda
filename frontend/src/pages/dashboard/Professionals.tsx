@@ -97,7 +97,7 @@ export default function Professionals() {
         ) : (
           <Link
             to="/admin/professionals/new"
-            className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
+            className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-violet-700 transition self-start md:self-auto w-full md:w-auto"
           >
             <Plus className="w-4 h-4" />
             Novo Profissional
@@ -111,21 +111,21 @@ export default function Professionals() {
           className={`rounded-xl border p-4 mb-4 md:mb-6 flex items-start md:items-center gap-3 animate-fade-in-up delay-100 ${
             limitReached
               ? 'bg-yellow-50 border-yellow-200'
-              : 'bg-blue-50 border-blue-100'
+              : 'bg-violet-50 border-violet-100'
           }`}
         >
           {limitReached ? (
             <Lock className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5 md:mt-0" />
           ) : (
-            <Users className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5 md:mt-0" />
+            <Users className="w-5 h-5 text-violet-600 flex-shrink-0 mt-0.5 md:mt-0" />
           )}
           <div className="flex-1 min-w-0">
-            <p className={`text-sm font-medium ${limitReached ? 'text-yellow-900' : 'text-blue-900'}`}>
+            <p className={`text-sm font-medium ${limitReached ? 'text-yellow-900' : 'text-violet-900'}`}>
               {limitReached
                 ? `Você atingiu o limite do plano ${plan.planName}`
                 : `Plano ${plan.planName}`}
             </p>
-            <p className={`text-xs ${limitReached ? 'text-yellow-800' : 'text-blue-800'}`}>
+            <p className={`text-xs ${limitReached ? 'text-yellow-800' : 'text-violet-800'}`}>
               {currentCount} de {maxProfessionals} profissional(is) cadastrado(s).
               {limitReached && ' Faça upgrade para adicionar mais.'}
             </p>
@@ -136,7 +136,7 @@ export default function Professionals() {
       {/* Conteúdo */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -153,7 +153,7 @@ export default function Professionals() {
           </p>
           <Link
             to="/admin/professionals/new"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="inline-flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-700"
           >
             <Plus className="w-4 h-4" />
             Criar profissional
@@ -178,7 +178,7 @@ export default function Professionals() {
                     <tr key={p.id} className="hover:bg-gray-50 transition">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm font-semibold flex-shrink-0">
+                          <div className="w-9 h-9 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-sm font-semibold flex-shrink-0">
                             {p.name?.[0]?.toUpperCase() || 'P'}
                           </div>
                           <div className="font-medium text-gray-900">{p.name}</div>
@@ -217,7 +217,7 @@ export default function Professionals() {
                           <Link
                             to={`/admin/professionals/${p.id}/edit`}
                             title="Editar"
-                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                            className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                           >
                             <Pencil className="w-4 h-4" />
                           </Link>
@@ -246,7 +246,7 @@ export default function Professionals() {
               >
                 {/* Header do card: avatar + nome + status */}
                 <div className="flex items-start gap-3 mb-3">
-                  <div className="w-11 h-11 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-base font-semibold flex-shrink-0">
+                  <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center text-violet-600 text-base font-semibold flex-shrink-0">
                     {p.name?.[0]?.toUpperCase() || 'P'}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -293,7 +293,7 @@ export default function Professionals() {
                   </button>
                   <Link
                     to={`/admin/professionals/${p.id}/edit`}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 transition"
                   >
                     <Pencil className="w-4 h-4" />
                     Editar

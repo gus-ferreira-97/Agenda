@@ -1,6 +1,11 @@
 import { Lock, Sparkles, MessageCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+// Suporte — configurável via .env para facilitar troca de contato
+const SUPPORT_WHATSAPP =
+  import.meta.env.VITE_SUPPORT_WHATSAPP || '5511986698398';
+const SUPPORT_EMAIL =
+  import.meta.env.VITE_SUPPORT_EMAIL || 'gustavoferreyra43@gmail.com';
 
 export default function TrialBlockedScreen() {
   const { logout } = useAuth();
@@ -23,7 +28,7 @@ export default function TrialBlockedScreen() {
 
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-3">
           <a
-            href="https://wa.me/5511986698398?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20do%20Agendy"
+            href={`https://wa.me/${SUPPORT_WHATSAPP}?text=Ol%C3%A1%2C%20quero%20ativar%20minha%20assinatura%20do%20Agendy`}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full inline-flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition"
@@ -33,7 +38,7 @@ export default function TrialBlockedScreen() {
           </a>
 
           <a
-            href="mailto:gustavoferreyra43@gmail.com?subject=Quero%20ativar%20minha%20assinatura"
+            href={`mailto:${SUPPORT_EMAIL}?subject=Quero%20ativar%20minha%20assinatura`}
             className="w-full inline-flex items-center justify-center gap-2 border border-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-50 transition"
           >
             <Sparkles className="w-4 h-4" />

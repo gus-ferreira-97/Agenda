@@ -103,8 +103,8 @@ export default function Tenants() {
   const planColor = (plan: string) => {
     switch (plan) {
       case 'basico': return 'bg-gray-100 text-gray-800';
-      case 'profissional': return 'bg-blue-100 text-blue-800';
-      case 'premium': return 'bg-purple-100 text-purple-800';
+      case 'profissional': return 'bg-violet-100 text-violet-800';
+      case 'premium': return 'bg-violet-100 text-violet-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };
@@ -141,7 +141,7 @@ export default function Tenants() {
         </div>
         <Link
           to="/super-admin/tenants/new"
-          className="inline-flex items-center justify-center gap-2 bg-blue-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition self-start md:self-auto w-full md:w-auto"
+          className="inline-flex items-center justify-center gap-2 bg-violet-600 text-white px-4 py-2.5 rounded-lg font-medium hover:bg-violet-700 transition self-start md:self-auto w-full md:w-auto"
         >
           <Plus className="w-4 h-4" />
           Novo Tenant
@@ -151,7 +151,7 @@ export default function Tenants() {
       {/* Conteúdo */}
       {loading ? (
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -166,7 +166,7 @@ export default function Tenants() {
           <p className="text-sm text-gray-600 mb-4">Comece criando o primeiro estabelecimento.</p>
           <Link
             to="/super-admin/tenants/new"
-            className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700"
+            className="inline-flex items-center gap-2 bg-violet-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-violet-700"
           >
             <Plus className="w-4 h-4" />
             Criar tenant
@@ -261,7 +261,7 @@ export default function Tenants() {
                           <Link
                             to={`/super-admin/tenants/${t.id}/edit`}
                             title="Editar"
-                            className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition"
+                            className="p-1.5 rounded-lg text-violet-600 hover:bg-violet-50 transition"
                           >
                             <Pencil className="w-4 h-4" />
                           </Link>
@@ -291,7 +291,7 @@ export default function Tenants() {
                 {/* Header do card */}
                 <div className="flex items-start justify-between gap-3 mb-3">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600 flex-shrink-0">
                       <Building2 className="w-5 h-5" />
                     </div>
                     <div className="min-w-0">
@@ -366,7 +366,7 @@ export default function Tenants() {
                   )}
                   <Link
                     to={`/super-admin/tenants/${t.id}/edit`}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-medium text-violet-700 bg-violet-50 hover:bg-violet-100 transition"
                   >
                     <Pencil className="w-4 h-4" />
                     Editar

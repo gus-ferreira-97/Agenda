@@ -49,7 +49,7 @@ export default function VerifyEmail() {
           {/* Logo */}
           <div className="text-center mb-6 md:mb-8 animate-fade-in">
             <Link to="/" className="inline-flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-violet-600 flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -62,8 +62,8 @@ export default function VerifyEmail() {
             {/* Loading */}
             {status === 'loading' && (
               <>
-                <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
-                  <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                <div className="w-16 h-16 rounded-full bg-violet-100 flex items-center justify-center mx-auto mb-4">
+                  <Loader2 className="w-8 h-8 text-violet-600 animate-spin" />
                 </div>
                 <h1 className="text-lg md:text-xl font-bold text-gray-900 mb-2">
                   Verificando seu e-mail...
@@ -85,8 +85,8 @@ export default function VerifyEmail() {
                 </h1>
                 <p className="text-sm text-gray-600 mb-6">{message}</p>
 
-                <div className="bg-blue-50 border border-blue-100 rounded-lg px-4 py-3 text-left mb-6">
-                  <p className="text-xs text-blue-900 leading-relaxed">
+                <div className="bg-violet-50 border border-violet-100 rounded-lg px-4 py-3 text-left mb-6">
+                  <p className="text-xs text-violet-900 leading-relaxed">
                     <strong>Próximos passos:</strong> seu cadastro está em análise.
                     Assim que for aprovado, você poderá fazer login e começar a usar
                     o Agendy.
@@ -95,7 +95,7 @@ export default function VerifyEmail() {
 
                 <Link
                   to="/login"
-                  className="inline-block w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                  className="inline-block w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition"
                 >
                   Ir para o login
                 </Link>
@@ -116,7 +116,7 @@ export default function VerifyEmail() {
                 <div className="space-y-3">
                   <Link
                     to="/cadastro"
-                    className="inline-flex items-center justify-center gap-2 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+                    className="inline-flex items-center justify-center gap-2 w-full bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition"
                   >
                     <Mail className="w-4 h-4" />
                     Fazer um novo cadastro

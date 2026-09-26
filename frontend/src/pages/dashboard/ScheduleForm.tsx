@@ -97,7 +97,7 @@ export default function ScheduleForm() {
     return (
       <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -113,7 +113,7 @@ export default function ScheduleForm() {
       <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/admin/schedules"
-          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
+          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-violet-600 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar para horários
@@ -151,7 +151,7 @@ export default function ScheduleForm() {
                   id="professional"
                   value={professionalId}
                   onChange={(e) => setProfessionalId(e.target.value ? Number(e.target.value) : '')}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
                   required
                 >
                   <option value="">Selecione...</option>
@@ -172,7 +172,7 @@ export default function ScheduleForm() {
                   id="dayOfWeek"
                   value={dayOfWeek}
                   onChange={(e) => setDayOfWeek(e.target.value ? Number(e.target.value) : '')}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
                   required
                 >
                   <option value="">Selecione...</option>
@@ -196,7 +196,7 @@ export default function ScheduleForm() {
                   type="time"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                   required
                 />
               </div>
@@ -213,7 +213,7 @@ export default function ScheduleForm() {
                   type="time"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                   required
                 />
               </div>
@@ -238,7 +238,7 @@ export default function ScheduleForm() {
                   type="time"
                   value={breakStart}
                   onChange={(e) => setBreakStart(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 />
               </div>
               <div>
@@ -250,7 +250,7 @@ export default function ScheduleForm() {
                   type="time"
                   value={breakEnd}
                   onChange={(e) => setBreakEnd(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 />
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function ScheduleForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
+              className="flex-1 bg-violet-600 text-white py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>

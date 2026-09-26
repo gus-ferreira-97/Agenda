@@ -56,7 +56,7 @@ export default function IdleWarningModal({
           <button
             type="button"
             onClick={onStay}
-            className="flex-1 inline-flex items-center justify-center gap-2 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+            className="flex-1 inline-flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-lg font-semibold hover:bg-violet-700 transition"
           >
             Continuar logado
           </button>

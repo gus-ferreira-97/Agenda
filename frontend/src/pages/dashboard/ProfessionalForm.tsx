@@ -54,7 +54,7 @@ export default function ProfessionalForm() {
     return (
       <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -70,7 +70,7 @@ export default function ProfessionalForm() {
       <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/admin/professionals"
-          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
+          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-violet-600 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar para profissionais
@@ -109,7 +109,7 @@ export default function ProfessionalForm() {
                 maxLength={255}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="Ex.: Maria Silva"
                 required
               />
@@ -128,7 +128,7 @@ export default function ProfessionalForm() {
                 maxLength={100}
                 value={specialty}
                 onChange={(e) => setSpecialty(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="Ex.: Cabeleireira, Nail Designer"
                 required
               />
@@ -155,7 +155,7 @@ export default function ProfessionalForm() {
                 onChange={(e) => setIsActive(e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-blue-600 rounded-full transition"></div>
+              <div className="w-11 h-6 bg-gray-300 peer-checked:bg-violet-600 rounded-full transition"></div>
               <div className="absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition peer-checked:translate-x-5"></div>
             </label>
           </div>
@@ -170,7 +170,7 @@ export default function ProfessionalForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
+              className="flex-1 bg-violet-600 text-white py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>

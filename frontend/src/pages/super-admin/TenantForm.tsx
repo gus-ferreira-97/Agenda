@@ -56,7 +56,7 @@ export default function TenantForm() {
     return (
       <div className="p-4 md:p-8">
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-12 text-center text-gray-500">
-          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-blue-600" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin w-6 h-6 mx-auto mb-3 text-violet-600" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
           </svg>
@@ -72,7 +72,7 @@ export default function TenantForm() {
       <div className="mb-6 md:mb-8 animate-fade-in-up">
         <Link
           to="/super-admin/tenants"
-          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600 mb-3"
+          className="inline-flex items-center gap-1 text-sm text-gray-600 hover:text-violet-600 mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar para tenants
@@ -111,7 +111,7 @@ export default function TenantForm() {
                 maxLength={255}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition"
                 placeholder="Ex.: Barbearia do Zé"
                 required
               />
@@ -122,7 +122,7 @@ export default function TenantForm() {
             <label htmlFor="subdomain" className="block text-sm font-medium text-gray-700 mb-2">
               Subdomínio
             </label>
-            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+            <div className="flex items-center border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-violet-500 focus-within:border-transparent">
               <div className="hidden sm:flex items-center pl-3 pr-1 text-gray-400 pointer-events-none">
                 <Globe className="w-4 h-4" />
               </div>
@@ -167,7 +167,7 @@ export default function TenantForm() {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
             >
               <option value="ativo">Ativo</option>
               <option value="inativo">Inativo</option>
@@ -184,7 +184,7 @@ export default function TenantForm() {
               id="plan"
               value={plan}
               onChange={(e) => setPlan(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-white"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition bg-white"
             >
               <option value="basico">Básico — 1 profissional</option>
               <option value="profissional">Profissional — até 5 profissionais</option>
@@ -205,7 +205,7 @@ export default function TenantForm() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
+              className="flex-1 bg-violet-600 text-white py-2.5 rounded-lg font-medium hover:bg-violet-700 disabled:opacity-60 disabled:cursor-not-allowed transition inline-flex items-center justify-center gap-2"
             >
               {saving ? (
                 <>
